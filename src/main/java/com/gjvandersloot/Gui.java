@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -22,8 +21,13 @@ public class Gui extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/connect.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/connectrrr.fxml"));
+        loader.setControllerFactory(type -> {
+            System.out.println("Looking up controller for: " + type);
+            return springContext.getBean(type);
+        });
 
+        Parent root = loader.load();
         Scene scene = new Scene(root, 300, 275);
 
         stage.setTitle("FXML Welcome");
