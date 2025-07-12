@@ -18,6 +18,13 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("org.springframework.boot:spring-boot-starter")          // Core Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("com.azure:azure-identity:1.16.2")
+    implementation("com.azure:azure-security-keyvault-secrets:4.10.0")
+//    implementation("")
+    implementation("com.azure.resourcemanager:azure-resourcemanager:2.52.0")
+    implementation("com.azure.resourcemanager:azure-resourcemanager-resources:2.32.0")
+    implementation("com.azure.resourcemanager:azure-resourcemanager-keyvault:2.32.0")
+
 }
 
 javafx {
