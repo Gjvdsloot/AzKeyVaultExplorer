@@ -46,6 +46,7 @@ java {
 tasks.withType<JavaExec> {
     jvmArgs = listOf(
         "--module-path", configurations.runtimeClasspath.get().asPath,
-        "--add-modules", "javafx.controls,javafx.fxml"
+        "--add-modules", "javafx.controls,javafx.fxml",
+        "-Djava.awt.headless=false"
     )
 }
