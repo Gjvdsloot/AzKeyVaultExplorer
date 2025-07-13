@@ -54,8 +54,6 @@ public class ConnectController {
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(mainStageProvider.getPrimaryStage());
         dialogStage.setScene(new Scene(root));
-
-
     }
 
     private static Optional<String> GetKeyVaultUrl() {
@@ -73,7 +71,7 @@ public class ConnectController {
         try {
             new URI(content).toURL();
             return content.describeConstable();
-        } catch (URISyntaxException | MalformedURLException e) {
+        } catch (Exception e) {
             return Optional.empty();
         }
     }
