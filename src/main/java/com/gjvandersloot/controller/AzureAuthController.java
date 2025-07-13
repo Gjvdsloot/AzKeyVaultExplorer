@@ -1,24 +1,19 @@
-package com.gjvandersloot;
+package com.gjvandersloot.controller;
 
 import com.azure.core.exception.ResourceNotFoundException;
-import com.azure.identity.AzureCliCredentialBuilder;
-import com.azure.identity.DeviceCodeCredentialBuilder;
 import com.azure.identity.DeviceCodeInfo;
 import com.azure.identity.InteractiveBrowserCredentialBuilder;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
+import com.gjvandersloot.service.HostedServiceProvider;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.springframework.stereotype.Component;
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Optional;
+
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -36,8 +31,10 @@ public class AzureAuthController {
     }
 
     public void authenticate(String url) {
-        var credentials = new DeviceCodeCredentialBuilder()
-                .challengeConsumer(info -> Platform.runLater(() -> showForm(info)))
+//        var credentials = new DeviceCodeCredentialBuilder()
+//                .challengeConsumer(info -> Platform.runLater(() -> showForm(info)))
+//                .build();
+        var credentials = new InteractiveBrowserCredentialBuilder()
                 .build();
 
         var secretClient = new SecretClientBuilder()

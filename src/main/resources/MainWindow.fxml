@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<!--<GridPane fx:controller="com.gjvandersloot.ConnectController" hgap="10" prefHeight="369.0" prefWidth="527.0" vgap="10" xmlns:fx="http://javafx.com/fxml/1">-->
+<!--<GridPane fx:controller="com.gjvandersloot.controller.ConnectController" hgap="10" prefHeight="369.0" prefWidth="527.0" vgap="10" xmlns:fx="http://javafx.com/fxml/1">-->
 <!--    <padding><Insets bottom="10" left="25" right="25" top="25" /></padding>-->
 <!--    <HBox>-->
 <!--    </HBox>-->
@@ -23,14 +23,14 @@
 <!--   </rowConstraints>-->
 <!--</GridPane>-->
 
-<GridPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.ConnectController">
+<GridPane prefWidth="567.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.ConnectController">
     <columnConstraints>
         <ColumnConstraints percentWidth="20" />
         <ColumnConstraints percentWidth="80" />
     </columnConstraints>
 
     <VBox alignment="TOP_CENTER" spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10" GridPane.columnIndex="0">
-        <Button alignment="TOP_CENTER" style="-fx-font-weight: bold;" text="+" prefWidth="100" onMouseClicked="#addSubscription" />
+        <Button alignment="TOP_CENTER" onMouseClicked="#addSubscription" prefWidth="100" style="-fx-font-weight: bold;" text="+" />
       <Accordion>
         <panes>
           <TitledPane animated="false" text="untitled 1">
@@ -52,8 +52,8 @@
       </Accordion>
     </VBox>
 
-    <VBox prefHeight="453.0" prefWidth="512.0" style="-fx-padding: 10" GridPane.columnIndex="1">
-        <TableView fx:id="personTable" VBox.vgrow="ALWAYS">
+    <VBox prefHeight="291.0" prefWidth="454.0" style="-fx-padding: 10" GridPane.columnIndex="1">
+        <TableView fx:id="personTable" prefHeight="434.0" prefWidth="483.0" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="nameColumn" prefWidth="150" text="Name" />
                 <TableColumn fx:id="emailColumn" prefWidth="200" text="Email" />

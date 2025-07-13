@@ -1,5 +1,7 @@
-package com.gjvandersloot;
+package com.gjvandersloot.controller;
 
+import com.gjvandersloot.service.ContextProvider;
+import com.gjvandersloot.service.MainStageProvider;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -8,8 +10,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.MalformedURLException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

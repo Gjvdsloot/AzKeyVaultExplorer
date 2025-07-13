@@ -1,4 +1,4 @@
-package com.gjvandersloot;
+package com.gjvandersloot.controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

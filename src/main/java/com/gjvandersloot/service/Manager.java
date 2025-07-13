@@ -1,15 +1,4 @@
-package com.gjvandersloot;
-
-import com.azure.core.credential.TokenCredential;
-import com.azure.core.management.AzureEnvironment;
-import com.azure.resourcemanager.resources.models.GenericResource;
-import com.azure.resourcemanager.resources.models.Subscription;
-import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.azure.identity.*;
-import com.azure.core.management.profile.AzureProfile;
-import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.keyvault.models.Vault;
+package com.gjvandersloot.service;
 
 public class Manager {
     public Manager() {

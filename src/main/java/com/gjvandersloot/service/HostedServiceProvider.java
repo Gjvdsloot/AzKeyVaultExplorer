@@ -1,4 +1,4 @@
-package com.gjvandersloot;
+package com.gjvandersloot.service;
 
 import javafx.application.HostServices;
 import org.springframework.stereotype.Service;

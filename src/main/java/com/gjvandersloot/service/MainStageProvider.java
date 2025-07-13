@@ -1,4 +1,4 @@
-package com.gjvandersloot;
+package com.gjvandersloot.service;
 
 import javafx.stage.Stage;
 import org.springframework.stereotype.Service;

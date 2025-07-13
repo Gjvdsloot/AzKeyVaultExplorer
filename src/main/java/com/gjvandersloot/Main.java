@@ -1,5 +1,8 @@
 package com.gjvandersloot;
 
+import com.gjvandersloot.service.HostedServiceProvider;
+import com.gjvandersloot.service.MainStageProvider;
+import com.gjvandersloot.service.SubscriptionService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,6 +13,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 @SpringBootApplication
 public class Main extends Application {
@@ -25,6 +29,13 @@ public class Main extends Application {
 
         HostedServiceProvider hsp = springContext.getBean(HostedServiceProvider.class);
         hsp.setHostServices(getHostServices());
+
+        SubscriptionService ss = springContext.getBean(SubscriptionService.class);
+        try {
+            var subs = ss.newSubscription("6a5a594c-91d7-45f9-a996-d800a7dc5343");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     @Override
@@ -33,7 +44,7 @@ public class Main extends Application {
         loader.setControllerFactory(springContext::getBean);
 
         Parent root = loader.load();
-        Scene scene = new Scene(root, 300, 275);
+        Scene scene = new Scene(root, 800, 600);
 
         MainStageProvider stageProvider = springContext.getBean(MainStageProvider.class);
         stageProvider.setPrimaryStage(stage);

@@ -24,6 +24,7 @@ dependencies {
     implementation("com.azure.resourcemanager:azure-resourcemanager:2.52.0")
     implementation("com.azure.resourcemanager:azure-resourcemanager-resources:2.32.0")
     implementation("com.azure.resourcemanager:azure-resourcemanager-keyvault:2.32.0")
+    implementation("com.microsoft.azure:msal4j:1.21.0")
 
 }
 
