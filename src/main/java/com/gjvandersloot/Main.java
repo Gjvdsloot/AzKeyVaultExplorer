@@ -31,11 +31,12 @@ public class Main extends Application {
         hsp.setHostServices(getHostServices());
 
         SubscriptionService ss = springContext.getBean(SubscriptionService.class);
-        try {
-            var subs = ss.newSubscription("6a5a594c-91d7-45f9-a996-d800a7dc5343");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+//        try {
+//            var subs = ss.newSubscription("6a5a594c-91d7-45f9-a996-d800a7dc5343"); // azure CLI ID
+////            var subs = ss.newSubscription("04b07795-8ddb-461a-bbee-02f9e1bf7b46"); // interactive browser ID
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
     }
 
     @Override

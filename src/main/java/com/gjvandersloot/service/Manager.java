@@ -1,52 +1,41 @@
 package com.gjvandersloot.service;
 
+import com.gjvandersloot.model.Subscription;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
+@Service
 public class Manager {
+    @Autowired
+    SubscriptionService subscriptionService;
+
+    private ArrayList<Subscription> subscriptions;
+
     public Manager() {
-//        var vaultUrl = "https://gjvandersloot.vault.azure.net/";
-//
-//        InteractiveBrowserCredential credential = new InteractiveBrowserCredentialBuilder()
-//                .redirectUrl("http://localhost") // default works for most cases
-//                .build();
-//
-//        SecretClient secretClient = new SecretClientBuilder()
-//                .vaultUrl(vaultUrl)
-//                .credential(credential)
-//                .buildClient();
+        subscriptions = new ArrayList<Subscription>();
     }
 
-    public void sayHello() {
-        System.out.println("Hello world!");
+    public void init() {
+
     }
 
-    public void addSubscription() {
-//        TokenCredential credential = new DefaultAzureCredentialBuilder().build();
-//
-//        // Use empty profile to allow listing
-//        AzureProfile dummyProfile = new AzureProfile(AzureEnvironment.AZURE);
-//
-//        // Authenticate temporarily just to get subscription
-//        var tempAzure = AzureResourceManager
-//                .authenticate(credential, dummyProfile);
-//
-//        Subscription firstSub = tempAzure.subscriptions().list().stream()
-//                .findFirst()
-//                .orElseThrow(() -> new RuntimeException("No subscription found."));
-//
-//        String subscriptionId = firstSub.subscriptionId();
-//        String tenantId = firstSub.innerModel().tenantId(); // tenantId may be null in some cases, fallback from CLI if needed
-//
-//        System.out.println("Found subscription: " + firstSub.displayName());
-//        System.out.println("Subscription ID: " + subscriptionId);
-//        System.out.println("Tenant ID: " + tenantId);
-//
-//        // Now build a proper profile
-//        AzureProfile fullProfile = new AzureProfile(tenantId, subscriptionId, AzureEnvironment.AZURE);
-//
-//        // Re-authenticate with full context
-//        AzureResourceManager azure = AzureResourceManager
-//                .authenticate(credential, fullProfile)
-//                .withSubscription(subscriptionId);
-//
-//        System.out.println("Azure authenticated with full profile.");
+    public ArrayList<Subscription> AddSubscription() throws IOException, ExecutionException, InterruptedException {
+            var subscription = subscriptionService.newSubscription("6a5a594c-91d7-45f9-a996-d800a7dc5343");
+            subscriptions.addAll(subscription);
+            return subscription;
     }
+
+
+
+    public ArrayList<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+//    public void setSubscriptions(ArrayList<Subscription> subscriptions) {
+//        this.subscriptions = subscriptions;
+//    }
 }

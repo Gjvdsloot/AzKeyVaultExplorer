@@ -11,7 +11,8 @@ import java.util.function.Consumer;
 
 @Service
 public class MsalAuthService {
-    private static final String CLIENT_ID = "6a5a594c-91d7-45f9-a996-d800a7dc5343";
+//    private static final String CLIENT_ID = "6a5a594c-91d7-45f9-a996-d800a7dc5343";
+    private static final String CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
 //    private static final String AUTHORITY = "https://login.microsoftonline.com/77c437ca-1810-4f73-bcd9-a99ce83ce14f/"; // common for multi-tenant
     private static final String AUTHORITY = "https://login.microsoftonline.com/common/"; // common for multi-tenant
     private static final Set<String> SCOPES = Set.of(
@@ -25,7 +26,7 @@ public class MsalAuthService {
         ITokenCacheAccessAspect persistence = new FileTokenCache(TOKEN_CACHE_FILE);
         PublicClientApplication pca = PublicClientApplication.builder(CLIENT_ID)
                 .authority(AUTHORITY)
-//                .setTokenCacheAccessAspect(persistence)
+                .setTokenCacheAccessAspect(persistence)
                 .build();
 
         IAuthenticationResult result = null;

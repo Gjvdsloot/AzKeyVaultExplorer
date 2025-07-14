@@ -4,6 +4,7 @@ import com.gjvandersloot.model.KeyVault;
 import com.gjvandersloot.model.Subscription;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
 import com.microsoft.aad.msal4j.InteractiveRequestParameters;
+import com.microsoft.aad.msal4j.Prompt;
 import com.microsoft.aad.msal4j.PublicClientApplication;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ public class SubscriptionService {
                 .build();
 
         InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))
+                .prompt(Prompt.SELECT_ACCOUNT)
                 .scopes(ARM_SCOPE)
                 .build();
 
@@ -104,5 +106,9 @@ public class SubscriptionService {
             kvs.add(keyVault);
         }
         return kvs;
+    }
+
+    private void listSecrets(String keyVaultUri) {
+
     }
 }

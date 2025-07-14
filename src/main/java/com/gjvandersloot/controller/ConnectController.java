@@ -1,7 +1,11 @@
 package com.gjvandersloot.controller;
 
+import com.gjvandersloot.model.Subscription;
+import com.gjvandersloot.service.Manager;
 import com.gjvandersloot.service.ContextProvider;
 import com.gjvandersloot.service.MainStageProvider;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,24 +24,45 @@ import java.util.Optional;
 @Component
 public class ConnectController {
 
+    @FXML
+    public Accordion accordion;
+
     @Autowired
     MainStageProvider mainStageProvider;
 
     @Autowired
     ContextProvider contextProvider;
 
+    @Autowired
+    Manager manager;
+
     public ConnectController() {
     }
 
-    public void addSubscription() throws IOException {
-        var entered = GetKeyVaultUrl();
+    public void addSubscription() throws Exception {
+        var subscriptions = manager.AddSubscription();
 
-        if (entered.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "Invalid URL").show();
-            return;
+        for(var subscription : subscriptions)
+            addSubscriptionToAccordion(subscription);
+    }
+
+    private void addSubscriptionToAccordion(Subscription subscription) {
+        var pane = new TitledPane();
+        pane.setText(subscription.getName());
+
+        ListView<Object> listView = new ListView<>();
+
+        var items = FXCollections.observableArrayList();
+
+        for (var kv : subscription.getKeyVaults()) {
+            items.add(kv.getName());
         }
 
-        openAuthModal(entered.get());
+        listView.setItems(items);
+        pane.setContent(listView);
+
+        accordion.getPanes().add(pane);
+        accordion.setExpandedPane(pane);
     }
 
     private void openAuthModal(String url) throws IOException {
