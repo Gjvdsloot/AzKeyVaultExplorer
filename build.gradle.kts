@@ -1,7 +1,8 @@
+import java.util.Locale
+
 plugins {
     application
     id("java")
-    id("org.openjfx.javafxplugin") version "0.1.0"
     id("org.springframework.boot") version "3.1.3"  // Use the latest stable version
     id("io.spring.dependency-management") version "1.1.3"  // For managing dependency versions
 }
@@ -11,6 +12,16 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+}
+
+val javafxVersion = "21.0.3"
+
+val osName = System.getProperty("os.name").lowercase(Locale.getDefault())
+val platform = when {
+    osName.contains("win") -> "win"
+    osName.contains("mac") -> "mac"
+    osName.contains("linux") -> "linux"
+    else -> throw GradleException("Unknown OS: $osName")
 }
 
 dependencies {
@@ -26,10 +37,10 @@ dependencies {
     implementation("com.azure.resourcemanager:azure-resourcemanager-keyvault:2.32.0")
     implementation("com.microsoft.azure:msal4j:1.21.0")
 
-}
-
-javafx {
-    modules("javafx.controls", "javafx.fxml")
+    implementation("org.openjfx:javafx-controls:$javafxVersion:$platform")
+    implementation("org.openjfx:javafx-fxml:$javafxVersion:$platform")
+    implementation("org.openjfx:javafx-base:$javafxVersion:$platform")
+    implementation("org.openjfx:javafx-graphics:$javafxVersion:$platform")
 }
 
 application {
