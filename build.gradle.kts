@@ -25,7 +25,10 @@ val platform = when {
 }
 
 dependencies {
-    //    implementation("")
+//    implementation("")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.19.1")
+
+
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 

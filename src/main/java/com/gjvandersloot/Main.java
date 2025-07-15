@@ -2,7 +2,6 @@ package com.gjvandersloot;
 
 import com.gjvandersloot.service.HostedServiceProvider;
 import com.gjvandersloot.service.MainStageProvider;
-import com.gjvandersloot.service.SubscriptionService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,7 +12,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 @SpringBootApplication
 public class Main extends Application {
@@ -24,11 +22,14 @@ public class Main extends Application {
     }
 
     @Override
-    public void init() {
+    public void init() throws IOException {
         springContext = new SpringApplicationBuilder(Main.class).run();
 
         HostedServiceProvider hsp = springContext.getBean(HostedServiceProvider.class);
         hsp.setHostServices(getHostServices());
+
+        AppDataService appDataService = springContext.getBean(AppDataService.class);
+        appDataService.initialize("kvexplorer");
     }
 
     @Override
@@ -41,6 +42,7 @@ public class Main extends Application {
 
         MainStageProvider stageProvider = springContext.getBean(MainStageProvider.class);
         stageProvider.setPrimaryStage(stage);
+
 
         stage.setTitle("FXML Welcome");
         stage.setScene(scene);

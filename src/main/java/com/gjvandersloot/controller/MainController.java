@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Component
-public class ConnectController {
+public class MainController {
 
     @FXML
     public Accordion accordion;
@@ -36,17 +36,26 @@ public class ConnectController {
     @Autowired
     Manager manager;
 
-    public ConnectController() {
+    @FXML
+    public void initialize() {
+        manager.loadSubscriptionsFromDisk();
+
+        for (var sub : manager.getSubscriptions()) {
+            addSubscriptionToAccordion(sub);
+        }
+    }
+
+    public MainController() {
     }
 
     public void addSubscription() throws Exception {
-        var subscriptions = manager.AddSubscription();
+        var subscriptions = manager.AddAzureAccount();
 
         for(var subscription : subscriptions)
             addSubscriptionToAccordion(subscription);
     }
 
-    private void addSubscriptionToAccordion(Subscription subscription) {
+    public void addSubscriptionToAccordion(Subscription subscription) {
         var pane = new TitledPane();
         pane.setText(subscription.getName());
 

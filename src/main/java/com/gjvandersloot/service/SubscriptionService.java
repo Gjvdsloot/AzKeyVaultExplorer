@@ -25,10 +25,9 @@ public class SubscriptionService {
     Set<String> ARM_SCOPE = Set.of("https://management.azure.com/.default");
     Set<String> VAULT_SCOPE = Set.of("https://vault.azure.net/.default");
 
-    public ArrayList<Subscription> newSubscription(String clientId) throws IOException, ExecutionException, InterruptedException {
+    public ArrayList<Subscription> addNewAccount(String clientId) throws IOException, ExecutionException, InterruptedException {
         PublicClientApplication pca;
         pca = PublicClientApplication.builder(clientId)
-//                .setTokenCacheAccessAspect()
                 .authority(AUTHORITY)
                 .build();
 
