@@ -28,6 +28,7 @@ public class SubscriptionService {
     public ArrayList<Subscription> newSubscription(String clientId) throws IOException, ExecutionException, InterruptedException {
         PublicClientApplication pca;
         pca = PublicClientApplication.builder(clientId)
+//                .setTokenCacheAccessAspect()
                 .authority(AUTHORITY)
                 .build();
 

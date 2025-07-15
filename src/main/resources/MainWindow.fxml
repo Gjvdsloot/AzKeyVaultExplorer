@@ -29,8 +29,8 @@
         <ColumnConstraints percentWidth="80" />
     </columnConstraints>
 
-    <VBox alignment="TOP_CENTER" spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10" GridPane.columnIndex="0">
-        <Button alignment="TOP_CENTER" onMouseClicked="#addSubscription" prefWidth="100" style="-fx-font-weight: bold;" text="+" />
+    <VBox alignment="TOP_CENTER" prefHeight="529.0" prefWidth="129.0" spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10" GridPane.columnIndex="0">
+        <Button alignment="TOP_CENTER" onMouseClicked="#addSubscription" prefWidth="100" style="-fx-font-weight: bold;" text="Add account" />
       <Accordion fx:id="accordion">
         <panes>
             <TitledPane animated="false" text="untitled 1">
@@ -49,7 +49,8 @@
       </Accordion>
     </VBox>
 
-    <VBox prefHeight="291.0" prefWidth="454.0" style="-fx-padding: 10" GridPane.columnIndex="1">
+    <VBox prefHeight="291.0" prefWidth="454.0" spacing="10" style="-fx-padding: 10" GridPane.columnIndex="1">
+      <Button disable="true" mnemonicParsing="false" text="Load secret" />
         <TableView fx:id="personTable" prefHeight="434.0" prefWidth="483.0" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="nameColumn" prefWidth="150" text="Name" />

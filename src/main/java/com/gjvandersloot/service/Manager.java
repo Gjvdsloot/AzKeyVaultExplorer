@@ -1,6 +1,7 @@
 package com.gjvandersloot.service;
 
 import com.gjvandersloot.model.Subscription;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ public class Manager {
     @Autowired
     SubscriptionService subscriptionService;
 
+    @Getter
     private ArrayList<Subscription> subscriptions;
 
     public Manager() {
@@ -30,12 +32,7 @@ public class Manager {
     }
 
 
-
-    public ArrayList<Subscription> getSubscriptions() {
-        return subscriptions;
-    }
-
-//    public void setSubscriptions(ArrayList<Subscription> subscriptions) {
+    //    public void setSubscriptions(ArrayList<Subscription> subscriptions) {
 //        this.subscriptions = subscriptions;
 //    }
 }
