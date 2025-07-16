@@ -1,5 +1,6 @@
 package com.gjvandersloot.service;
 
+import com.azure.identity.InteractiveBrowserCredential;
 import com.azure.identity.implementation.PersistentTokenCacheImpl;
 import com.gjvandersloot.model.KeyVault;
 import com.gjvandersloot.model.Subscription;
@@ -73,6 +74,19 @@ public class SubscriptionService {
         }
 
         return subs;
+    }
+
+    private void test() {
+        var credential = new InteractiveBrowserCredential(clientId: "your-client-id");
+
+// 2) Create an ArmClient
+        var armClient = new ArmClient(credential);
+
+// 3) List tenants
+        await foreach (var tenantResource in armClient.GetTenantsAsync())
+        {
+            Console.WriteLine($"Tenant ID: {tenantResource.Data.TenantId}");
+        }
     }
 
     public ArrayList<KeyVault> listKeyVaults(String subscriptionId, String clientId, PublicClientApplication pca) throws ExecutionException, InterruptedException, IOException {
