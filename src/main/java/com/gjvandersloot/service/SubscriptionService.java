@@ -2,10 +2,7 @@ package com.gjvandersloot.service;
 
 import com.gjvandersloot.model.KeyVault;
 import com.gjvandersloot.model.Subscription;
-import com.microsoft.aad.msal4j.IAuthenticationResult;
-import com.microsoft.aad.msal4j.InteractiveRequestParameters;
-import com.microsoft.aad.msal4j.Prompt;
-import com.microsoft.aad.msal4j.PublicClientApplication;
+import com.microsoft.aad.msal4j.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -74,11 +71,15 @@ public class SubscriptionService {
     }
 
     private ArrayList<KeyVault> listKeyVaults(String subscriptionId, String clientId, PublicClientApplication pca) throws ExecutionException, InterruptedException, IOException {
-        InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))
-                .scopes(ARM_SCOPE)
-                .build();
+//        InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))
+//                .scopes(ARM_SCOPE)
+//                .build();
 
-        IAuthenticationResult token = pca.acquireToken(params).get();
+        var account = pca.getAccounts().get().stream().findFirst().get();
+
+        var params = SilentParameters.builder(ARM_SCOPE, account).build();
+
+        IAuthenticationResult token = pca.acquireTokenSilently(params).get();
 
         HttpClient client = HttpClient.newHttpClient();
 

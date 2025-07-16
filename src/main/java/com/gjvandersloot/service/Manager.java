@@ -47,7 +47,7 @@ public class Manager {
     }
 
     public ArrayList<Subscription> AddAzureAccount() throws IOException, ExecutionException, InterruptedException {
-        var subs = subscriptionService.addNewAccount("6a5a594c-91d7-45f9-a996-d800a7dc5343");
+        var subs = subscriptionService.addNewAccount("04b07795-8ddb-461a-bbee-02f9e1bf7b46");
 
         for (var sub : subs) {
             boolean exists = subscriptions.stream()
