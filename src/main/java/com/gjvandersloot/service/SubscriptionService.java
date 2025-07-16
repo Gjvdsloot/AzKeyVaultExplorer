@@ -1,5 +1,6 @@
 package com.gjvandersloot.service;
 
+import com.azure.identity.implementation.PersistentTokenCacheImpl;
 import com.gjvandersloot.model.KeyVault;
 import com.gjvandersloot.model.Subscription;
 import com.microsoft.aad.msal4j.*;
@@ -26,6 +27,7 @@ public class SubscriptionService {
         PublicClientApplication pca;
         pca = PublicClientApplication.builder(clientId)
                 .authority(AUTHORITY)
+                .setTokenCacheAccessAspect(Manager.getTokenCache())
                 .build();
 
         InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))
@@ -34,6 +36,8 @@ public class SubscriptionService {
                 .build();
 
         IAuthenticationResult token = pca.acquireToken(params).get();
+
+        var accountId = pca.getAccounts().get().stream().findFirst().get().homeAccountId();
 
         HttpClient client = HttpClient.newHttpClient();
 
@@ -60,6 +64,7 @@ public class SubscriptionService {
             subscription.setName(sub.get("displayName").asText());
             subscription.setState(sub.get("state").asText());
             subscription.setTenantId(sub.get("tenantId").asText());
+            subscription.setAccountId(accountId);
 
             var keyVaults = listKeyVaults(subscriptionId, clientId, pca);
             subscription.setKeyVaults(keyVaults);
@@ -70,11 +75,7 @@ public class SubscriptionService {
         return subs;
     }
 
-    private ArrayList<KeyVault> listKeyVaults(String subscriptionId, String clientId, PublicClientApplication pca) throws ExecutionException, InterruptedException, IOException {
-//        InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))
-//                .scopes(ARM_SCOPE)
-//                .build();
-
+    public ArrayList<KeyVault> listKeyVaults(String subscriptionId, String clientId, PublicClientApplication pca) throws ExecutionException, InterruptedException, IOException {
         var account = pca.getAccounts().get().stream().findFirst().get();
 
         var params = SilentParameters.builder(ARM_SCOPE, account).build();
