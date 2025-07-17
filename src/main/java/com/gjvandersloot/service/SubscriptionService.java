@@ -76,18 +76,18 @@ public class SubscriptionService {
         return subs;
     }
 
-    private void test() {
-        var credential = new InteractiveBrowserCredential(clientId: "your-client-id");
-
-// 2) Create an ArmClient
-        var armClient = new ArmClient(credential);
-
-// 3) List tenants
-        await foreach (var tenantResource in armClient.GetTenantsAsync())
-        {
-            Console.WriteLine($"Tenant ID: {tenantResource.Data.TenantId}");
-        }
-    }
+//    private void test() {
+//        var credential = new InteractiveBrowserCredential(clientId: "your-client-id");
+//
+//// 2) Create an ArmClient
+//        var armClient = new ArmClient(credential);
+//
+//// 3) List tenants
+//        await foreach (var tenantResource in armClient.GetTenantsAsync())
+//        {
+//            Console.WriteLine($"Tenant ID: {tenantResource.Data.TenantId}");
+//        }
+//    }
 
     public ArrayList<KeyVault> listKeyVaults(String subscriptionId, String clientId, PublicClientApplication pca) throws ExecutionException, InterruptedException, IOException {
         var account = pca.getAccounts().get().stream().findFirst().get();

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane prefWidth="567.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.NewMainController">
+    <columnConstraints>
+        <ColumnConstraints percentWidth="20" />
+        <ColumnConstraints percentWidth="80" />
+    </columnConstraints>
+
+    <VBox alignment="TOP_CENTER" prefHeight="529.0" prefWidth="129.0" spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10" GridPane.columnIndex="0">
+        <Button alignment="TOP_CENTER" onMouseClicked="#addSubscription" prefWidth="100" style="-fx-font-weight: bold;" text="Add account" />
+        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0">
+
+        </TreeView>
+    </VBox>
+
+    <VBox prefHeight="291.0" prefWidth="454.0" spacing="10" style="-fx-padding: 10" GridPane.columnIndex="1">
+      <Button disable="true" mnemonicParsing="false" text="Load secret" />
+        <TableView fx:id="personTable" prefHeight="434.0" prefWidth="483.0" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="nameColumn" prefWidth="150" text="Name" />
+                <TableColumn fx:id="emailColumn" prefWidth="200" text="Email" />
+            </columns>
+        </TableView>
+    </VBox>
+   <rowConstraints>
+      <RowConstraints />
+   </rowConstraints>
+
+</GridPane>
