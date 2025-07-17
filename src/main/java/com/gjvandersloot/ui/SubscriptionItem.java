@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @Setter
 public class SubscriptionItem {
     private String id;
-
+    private String accountName;
     private String name;
 
     private ArrayList<VaultItem> vaults;

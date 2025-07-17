@@ -45,7 +45,7 @@ public class AccountService {
 
         IAuthenticationResult token = pca.acquireToken(params).get();
 
-        var acc = pca.getAccounts().get().stream().findFirst().get();
+        var acc = token.account();
 
         var account = new Account();
         account.setUsername(acc.username());
@@ -91,12 +91,22 @@ public class AccountService {
         return account;
     }
 
-    public ArrayList<Vault> addKeyVaults(String subscriptionId) throws Exception {
-        var account = pca.getAccounts().get().stream().findFirst().get();
+    public ArrayList<Vault> addKeyVaults(String subscriptionId, String accountName) throws Exception {
+        var account = pca.getAccounts().get().stream().filter(a -> accountName.equals(a.username())).findFirst().get();
 
         var params = SilentParameters.builder(ARM_SCOPE, account).build();
 
-        IAuthenticationResult token = pca.acquireTokenSilently(params).get();
+        InteractiveRequestParameters interactiveParams = InteractiveRequestParameters.builder(URI.create("http://localhost"))
+                .prompt(Prompt.SELECT_ACCOUNT)
+                .scopes(ARM_SCOPE)
+                .build();
+
+        IAuthenticationResult token;
+        try {
+            token = pca.acquireTokenSilently(params).get();
+        } catch(Exception e) {
+            token = pca.acquireToken(interactiveParams).get();
+        }
 
         HttpClient client = HttpClient.newHttpClient();
 
