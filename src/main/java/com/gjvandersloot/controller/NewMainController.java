@@ -60,7 +60,7 @@ public class NewMainController {
 
                     store.getAccounts().put(account.getUsername(), account);
                 })
-                .thenAccept((v) -> loadTree())
+                .thenAccept((v) -> Platform.runLater(this::loadTree))
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
 
         cancelController.setOnCancel(() -> {
