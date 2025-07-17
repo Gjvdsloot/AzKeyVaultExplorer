@@ -11,7 +11,7 @@
 
     <VBox alignment="TOP_CENTER" prefHeight="529.0" prefWidth="129.0" spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10" GridPane.columnIndex="0">
         <Button alignment="TOP_CENTER" onMouseClicked="#addSubscription" prefWidth="100" style="-fx-font-weight: bold;" text="Add account" />
-        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0">
+        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
 
         </TreeView>
     </VBox>
