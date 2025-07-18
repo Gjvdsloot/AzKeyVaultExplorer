@@ -47,7 +47,7 @@ public class AppDataService {
     public PersistenceTokenCacheAccessAspect getTokenCache() throws IOException {
         PersistenceSettings settings = PersistenceSettings
                 .builder("msal.cache", getMainPath())
-                // optional: .setLockRetry(500, 50)
+                .setLockRetry(500, 10)
                 .build();
 
         return new PersistenceTokenCacheAccessAspect(settings);

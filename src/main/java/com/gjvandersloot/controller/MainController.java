@@ -131,6 +131,11 @@ public class MainController {
                     subscriptionItem.setName(subscription.getName());
                     subscriptionItem.setAccountName(account.getUsername());
 
+                    if (root.getChildren().stream().anyMatch(t -> {
+                        var obj = (SubscriptionItem) t.getValue();
+                        return subscription.getId().equals(obj.getId());
+                    })) continue;
+
                     var treeItem = new TreeItem<>();
                     treeItem.setValue(subscriptionItem);
 

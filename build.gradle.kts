@@ -5,6 +5,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.1.3"  // Use the latest stable version
     id("io.spring.dependency-management") version "1.1.3"  // For managing dependency versions
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.gjvandersloot"
@@ -63,6 +64,14 @@ application {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveClassifier.set("all")           // yields “-all.jar”
+    mergeServiceFiles()                    // important for JavaFX’s service loader
+    manifest {
+        attributes("Main-Class" to application.mainClass.get())
+    }
 }
 
 java {
