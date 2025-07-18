@@ -195,7 +195,7 @@ public class MainController {
 
         var vaultItem = (VaultItem) obj;
         var url = vaultItem.getVaultUri();
-        var accountName = vaultItem.getVaultUri();
+        var accountName = vaultItem.getAccountName();
 
         SecretClient secretClient = null;
         try {

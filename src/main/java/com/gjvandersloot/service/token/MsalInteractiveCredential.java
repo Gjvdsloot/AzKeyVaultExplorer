@@ -3,38 +3,50 @@ package com.gjvandersloot.service.token;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.credential.TokenRequestContext;
-import com.microsoft.aad.msal4j.IAuthenticationResult;
+import com.microsoft.aad.msal4j.*;
 import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
-
-import com.microsoft.aad.msal4j.InteractiveRequestParameters;
-import com.microsoft.aad.msal4j.Prompt;
-import com.microsoft.aad.msal4j.PublicClientApplication;
 
 import java.net.URI;
 import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 public class MsalInteractiveCredential implements TokenCredential {
     private final PublicClientApplication pca;
+    private final String accountName;
 
-    public MsalInteractiveCredential(PublicClientApplication pca) {
+    public MsalInteractiveCredential(PublicClientApplication pca, String accountName) {
         this.pca = pca;
+        this.accountName = accountName;
     }
 
     @Override
     public Mono<AccessToken> getToken(TokenRequestContext request) {
-        // Build a new interactive parameters each time, using the requested scopes
-        InteractiveRequestParameters params =
-                InteractiveRequestParameters.builder(URI.create("http://localhost"))
-                        .prompt(Prompt.SELECT_ACCOUNT)
-                        .scopes(new HashSet<>(request.getScopes()))           // ← use the scopes Azure SDK actually asked for
-                        .build();
+        CompletableFuture<IAuthenticationResult> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                var account = pca.getAccounts().get().stream().filter(a -> accountName.equals(a.username())).findFirst().get();
 
-        // Kick off the MSAL interactive flow (this will open the browser)
-        CompletableFuture<IAuthenticationResult> future = pca.acquireToken(params);
+                SilentParameters params = SilentParameters.builder(new HashSet<>(request.getScopes()), account).build();
+
+                return pca.acquireTokenSilently(params).get();
+            } catch (Exception e) {
+                InteractiveRequestParameters params =
+                        InteractiveRequestParameters.builder(URI.create("http://localhost"))
+                                .prompt(Prompt.SELECT_ACCOUNT)
+                                .scopes(new HashSet<>(request.getScopes()))           // ← use the scopes Azure SDK actually asked for
+                                .build();
+
+                try {
+                    return pca.acquireToken(params).get();
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new CompletionException(ex);
+                }
+            }
+        });
 
         return Mono.fromFuture(future)
                 .map(result -> new AccessToken(

@@ -37,9 +37,8 @@ public class AppDataService {
     }
 
     public PersistenceTokenCacheAccessAspect getTokenCache() throws IOException {
-        Path cacheDir = Paths.get(System.getProperty("user.home"), ".msalcache");
         PersistenceSettings settings = PersistenceSettings
-                .builder("msal.cache", cacheDir)
+                .builder("msal.cache", getMainPath())
                 // optional: .setLockRetry(500, 50)
                 .build();
 
