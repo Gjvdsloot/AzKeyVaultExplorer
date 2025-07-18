@@ -4,12 +4,10 @@ import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Tenant;
 import com.gjvandersloot.data.Subscription;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.model.KeyVault;
 import com.microsoft.aad.msal4j.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,16 +15,15 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class AccountService {
     private static final String AUTHORITY = "https://login.microsoftonline.com/common";
-    public static final String CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
+    private static final String CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
 
-    Set<String> ARM_SCOPE = Set.of("https://management.azure.com/.default");
-    Set<String> VAULT_SCOPE = Set.of("https://vault.azure.net/.default");
-    Set<String> GRAPH_SCOPE = Set.of("https://vault.azure.net/.default");
+    private static final Set<String> ARM_SCOPE = Set.of("https://management.azure.com/.default");
+    private static final Set<String> VAULT_SCOPE = Set.of("https://vault.azure.net/.default");
+    private static final Set<String> GRAPH_SCOPE = Set.of("https://vault.azure.net/.default");
 
     private final PublicClientApplication pca;
 

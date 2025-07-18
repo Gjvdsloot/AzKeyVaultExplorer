@@ -1,6 +1,5 @@
 package com.gjvandersloot.controller;
 
-import com.gjvandersloot.model.KeyVault;
 import com.gjvandersloot.model.Subscription;
 import com.gjvandersloot.service.Manager;
 import com.gjvandersloot.service.ContextProvider;
@@ -20,9 +19,7 @@ import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
