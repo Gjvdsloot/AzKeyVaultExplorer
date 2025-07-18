@@ -1,6 +1,5 @@
 package com.gjvandersloot;
 
-import com.gjvandersloot.service.HostedServiceProvider;
 import com.gjvandersloot.service.MainStageProvider;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -22,28 +21,19 @@ public class Main extends Application {
     }
 
     @Override
-    public void init() throws IOException {
-        springContext = new SpringApplicationBuilder(Main.class).run();
-
-        HostedServiceProvider hsp = springContext.getBean(HostedServiceProvider.class);
-        hsp.setHostServices(getHostServices());
-
-        AppDataService appDataService = springContext.getBean(AppDataService.class);
-        appDataService.initialize("kvexplorer");
+    public void init() {
+        springContext = new SpringApplicationBuilder(Main.class).headless(false).run();
     }
 
     @Override
     public void start(Stage stage) throws IOException {
+        springContext.getBean(MainStageProvider.class).setPrimaryStage(stage);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));
         loader.setControllerFactory(springContext::getBean);
 
         Parent root = loader.load();
         Scene scene = new Scene(root, 800, 600);
-
-        MainStageProvider stageProvider = springContext.getBean(MainStageProvider.class);
-        stageProvider.setPrimaryStage(stage);
-
 
         stage.setTitle("FXML Welcome");
         stage.setScene(scene);
@@ -52,7 +42,6 @@ public class Main extends Application {
 
     @Override
     public void stop() {
-        // Close Spring context when app closes
         springContext.close();
     }
 }

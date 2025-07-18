@@ -1,5 +1,7 @@
 package com.gjvandersloot;
 
+import com.microsoft.aad.msal4jextensions.PersistenceSettings;
+import com.microsoft.aad.msal4jextensions.PersistenceTokenCacheAccessAspect;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Service
 public class AppDataService {
     @Getter
     private Path mainPath;
@@ -33,6 +34,15 @@ public class AppDataService {
         }
 
         mainPath = appDataPath;
+    }
 
+    public PersistenceTokenCacheAccessAspect getTokenCache() throws IOException {
+        Path cacheDir = Paths.get(System.getProperty("user.home"), ".msalcache");
+        PersistenceSettings settings = PersistenceSettings
+                .builder("msal.cache", cacheDir)
+                // optional: .setLockRetry(500, 50)
+                .build();
+
+        return new PersistenceTokenCacheAccessAspect(settings);
     }
 }

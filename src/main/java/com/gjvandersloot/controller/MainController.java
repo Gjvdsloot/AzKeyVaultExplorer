@@ -57,7 +57,7 @@ public class MainController {
     SecretClientService secretClientService;
 
     @Autowired
-    MainStageProvider stageProvider;
+    MainStageProvider mainStageProvider;
 
     @FXML
     public void initialize() {
@@ -81,7 +81,7 @@ public class MainController {
 
         CancelDialogController cancelController = loader.getController();
         var dialog = new Stage(StageStyle.UNDECORATED);
-        dialog.initOwner(stageProvider.getPrimaryStage());               // your main window
+        dialog.initOwner(mainStageProvider.getPrimaryStage());               // your main window
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setScene(new Scene(root));
         cancelController.setDialogStage(dialog);

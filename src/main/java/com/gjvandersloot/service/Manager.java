@@ -87,15 +87,7 @@ public class Manager {
 //        return subscriptionService.listKeyVaults(id, CLIENT_ID, pca);
 //    }
 
-    public static PersistenceTokenCacheAccessAspect getTokenCache() throws IOException {
-        Path cacheDir = Paths.get(System.getProperty("user.home"), ".msalcache");
-        PersistenceSettings settings = PersistenceSettings
-                .builder("msal.cache", cacheDir)
-                // optional: .setLockRetry(500, 50)
-                .build();
 
-        return new PersistenceTokenCacheAccessAspect(settings);
-    }
 
 //    private void saveSubscriptionsToDisk(ArrayList<Subscription> subs) throws IOException {
 //        var path = appDataService.getMainPath().resolve("subs.json");
