@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter @Setter
 public class VaultItem {
     private String name;
+    private String accountName;
     private String vaultUri;
 
     @Override

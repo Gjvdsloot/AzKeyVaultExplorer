@@ -28,58 +28,68 @@ public class SecretClientService {
     private static final String CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
     private static final Set<String> VAULT_SCOPE = Set.of("https://vault.azure.net/.default");
 
-    private Map<String, SecretClient> clients = new HashMap<>();
+    private final Map<String, SecretClient> clients = new HashMap<>();
 
-//    private final PublicClientApplication pca;
-//
-//    public SecretClientService() throws IOException {
-//        pca =  PublicClientApplication.builder(CLIENT_ID)
-//                .authority(AUTHORITY)
-//                .setTokenCacheAccessAspect(Manager.getTokenCache())
-//                .build();
-//    }
+    private final PublicClientApplication pca;
 
-    public SecretClient getOrCreateClient(String vaultUrl) throws Exception {
-        var secretClient = clients.getOrDefault(vaultUrl, null);
-        if (secretClient != null) return secretClient;
-
-        TokenCachePersistenceOptions persistenceOptions =
-                new TokenCachePersistenceOptions()
-                        .setName("my-app-msal-cache")     // file will be something like ~/.identity/my-app-msal-cache.json
-                        .setUnencryptedStorageAllowed(true);
-
-        InteractiveBrowserCredential credential = new InteractiveBrowserCredentialBuilder()
-                .clientId(CLIENT_ID)
-                .tokenCachePersistenceOptions(persistenceOptions)
+    public SecretClientService() throws IOException {
+        pca =  PublicClientApplication.builder(CLIENT_ID)
+                .authority(AUTHORITY)
+                .setTokenCacheAccessAspect(Manager.getTokenCache())
                 .build();
-
-        var client = new SecretClientBuilder()
-        .vaultUrl(vaultUrl)
-        .credential(credential)
-        .buildClient();
-
-        clients.put(vaultUrl, client);
-
-        return client;
     }
 
 //    public SecretClient getOrCreateClient(String vaultUrl) throws Exception {
-////        ClientCredentialParameters parameters =
-////                ClientCredentialParameters.builder(VAULT_SCOPE).build();
+//        var secretClient = clients.getOrDefault(vaultUrl, null);
+//        if (secretClient != null) return secretClient;
 //
+//        TokenCachePersistenceOptions persistenceOptions =
+//                new TokenCachePersistenceOptions()
+//                        .setName("my-app-msal-cache")     // file will be something like ~/.identity/my-app-msal-cache.json
+//                        .setUnencryptedStorageAllowed(true);
 //
-//        InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))
-//                .prompt(Prompt.SELECT_ACCOUNT)
-//                .scopes(VAULT_SCOPE)
+//        InteractiveBrowserCredential credential = new InteractiveBrowserCredentialBuilder()
+//                .clientId(CLIENT_ID)
+//                .tokenCachePersistenceOptions(persistenceOptions)
 //                .build();
 //
-//        SecretClient secretClient = new SecretClientBuilder()
-//                .vaultUrl(vaultUrl)
-////                .credential(request -> Mono.just(new AccessToken(result.accessToken(),
-////                        OffsetDateTime.ofInstant(result.expiresOnDate().toInstant(), OffsetDateTime.now().getOffset()))))
-//                .credential(new MsalInteractiveCredential(pca))
-//                .buildClient();
+//        var client = new SecretClientBuilder()
+//        .vaultUrl(vaultUrl)
+//        .credential(credential)
+//        .buildClient();
 //
-//        return secretClient;
+//        clients.put(vaultUrl, client);
+//
+//        return client;
 //    }
+
+    public SecretClient getOrCreateClient(String vaultUrl, String accountName) throws Exception {
+        var secretClient = clients.getOrDefault(vaultUrl, null);
+        if (secretClient != null) return secretClient;
+
+//        IAuthenticationResult token;
+//        try {
+//            var account = pca.getAccounts().get().stream().filter(a -> accountName.equals(a.username())).findFirst().get();
+//
+//            var params = SilentParameters.builder(VAULT_SCOPE, account).build();
+//
+//            token = pca.acquireTokenSilently(params).get();
+//        } catch(Exception e) {
+//            InteractiveRequestParameters interactiveParams = InteractiveRequestParameters.builder(URI.create("http://localhost"))
+//                    .prompt(Prompt.SELECT_ACCOUNT)
+//                    .scopes(VAULT_SCOPE)
+//                    .build();
+//
+//            token = pca.acquireToken(interactiveParams).get();
+//        }
+
+        secretClient = new SecretClientBuilder()
+                .vaultUrl(vaultUrl)
+                .credential(new MsalInteractiveCredential(pca))
+                .buildClient();
+
+                clients.put(vaultUrl, secretClient);
+
+        return secretClient;
+    }
 }

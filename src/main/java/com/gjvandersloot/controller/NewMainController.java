@@ -9,10 +9,8 @@ import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
 import com.gjvandersloot.ui.SubscriptionItem;
 import com.gjvandersloot.ui.VaultItem;
-import io.netty.util.concurrent.CompleteFuture;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,7 +22,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -172,6 +169,7 @@ public class NewMainController {
                     var vaultItem = new VaultItem();
                     vaultItem.setVaultUri(vault.getVaultUri());
                     vaultItem.setName(vault.getName());
+                    vaultItem.setAccountName(subscriptionItem.getAccountName());
 
                     var treeItem = new TreeItem<>();
                     treeItem.setValue(vaultItem);
@@ -197,10 +195,11 @@ public class NewMainController {
 
         var vaultItem = (VaultItem) obj;
         var url = vaultItem.getVaultUri();
+        var accountName = vaultItem.getVaultUri();
 
         SecretClient secretClient = null;
         try {
-            secretClient = secretClientService.getOrCreateClient(url);
+            secretClient = secretClientService.getOrCreateClient(url, accountName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
