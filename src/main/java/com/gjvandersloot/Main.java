@@ -1,6 +1,5 @@
 package com.gjvandersloot;
 
-import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.HostedServiceProvider;
 import com.gjvandersloot.service.MainStageProvider;
 import javafx.application.Application;
@@ -35,14 +34,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        var svc = springContext.getBean(AccountService.class);
-//        try {
-//            var acc = svc.addAccount();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainWindow2.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));
         loader.setControllerFactory(springContext::getBean);
 
         Parent root = loader.load();

@@ -34,7 +34,7 @@ import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 @Component
-public class NewMainController {
+public class MainController {
 
     @FXML
     public TreeView<Object> treeView;

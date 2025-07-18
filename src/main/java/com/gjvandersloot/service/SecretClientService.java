@@ -8,6 +8,7 @@ import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.gjvandersloot.service.token.MsalInteractiveCredential;
 import com.microsoft.aad.msal4j.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -30,14 +31,8 @@ public class SecretClientService {
 
     private final Map<String, SecretClient> clients = new HashMap<>();
 
-    private final PublicClientApplication pca;
-
-    public SecretClientService() throws IOException {
-        pca =  PublicClientApplication.builder(CLIENT_ID)
-                .authority(AUTHORITY)
-                .setTokenCacheAccessAspect(Manager.getTokenCache())
-                .build();
-    }
+    @Autowired
+    private PublicClientApplication pca;
 
 //    public SecretClient getOrCreateClient(String vaultUrl) throws Exception {
 //        var secretClient = clients.getOrDefault(vaultUrl, null);

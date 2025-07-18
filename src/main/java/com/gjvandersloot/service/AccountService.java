@@ -5,6 +5,7 @@ import com.gjvandersloot.data.Tenant;
 import com.gjvandersloot.data.Subscription;
 import com.gjvandersloot.data.Vault;
 import com.microsoft.aad.msal4j.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,14 +26,8 @@ public class AccountService {
     private static final Set<String> VAULT_SCOPE = Set.of("https://vault.azure.net/.default");
     private static final Set<String> GRAPH_SCOPE = Set.of("https://vault.azure.net/.default");
 
-    private final PublicClientApplication pca;
-
-    public AccountService() throws IOException {
-        pca =  PublicClientApplication.builder(CLIENT_ID)
-                .authority(AUTHORITY)
-                .setTokenCacheAccessAspect(Manager.getTokenCache())
-                .build();
-    }
+    @Autowired
+    private PublicClientApplication pca;
 
     public Account addAccount() throws Exception {
         InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))

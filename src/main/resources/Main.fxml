@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane prefWidth="567.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.NewMainController">
+<GridPane prefWidth="567.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.MainController">
     <columnConstraints>
         <ColumnConstraints percentWidth="20" />
         <ColumnConstraints percentWidth="80" />
