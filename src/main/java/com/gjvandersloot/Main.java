@@ -27,6 +27,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        springContext.getBean(AppDataService.class).loadStore();
+
         springContext.getBean(MainStageProvider.class).setPrimaryStage(stage);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));

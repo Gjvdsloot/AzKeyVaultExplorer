@@ -12,5 +12,5 @@ import lombok.Setter;
 public class Tenant {
     private String id;
     private String tenantName;
-    private Map<String, Subscription> subscriptions = new HashMap<String, Subscription>();
+    private Map<String, Subscription> subscriptions = new HashMap<>();
 }

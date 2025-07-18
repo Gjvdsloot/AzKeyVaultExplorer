@@ -2,6 +2,7 @@ package com.gjvandersloot.controller;
 
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
+import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.service.AccountService;
@@ -59,8 +60,17 @@ public class MainController {
     @Autowired
     MainStageProvider mainStageProvider;
 
+    @Autowired
+    AppDataService appDataService;
+    private TreeItem<Object> root;
+
     @FXML
     public void initialize() {
+        this.root = new TreeItem<>();
+        treeView.setRoot(root);
+        treeView.setShowRoot(false);
+        loadTree();
+
         // 1) Tell the name‑column to call getName() on each SecretProperties
         secretsColumn.setCellValueFactory(
                 new PropertyValueFactory<>("name")
@@ -95,6 +105,7 @@ public class MainController {
                     }
 
                     store.getAccounts().put(account.getUsername(), account);
+                    appDataService.saveStore();
                 })
                 .thenAccept((v) -> Platform.runLater(this::loadTree))
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
@@ -108,9 +119,7 @@ public class MainController {
     }
 
     public void loadTree() {
-        var root = new TreeItem<>();
-        treeView.setRoot(root);
-        treeView.setShowRoot(false);
+        var root = this.root;
 
         var accounts = store.getAccounts();
 
@@ -191,9 +200,8 @@ public class MainController {
 
         var obj = clickedItem.getValue();
 
-        if (!(obj instanceof VaultItem)) return;
+        if (!(obj instanceof VaultItem vaultItem)) return;
 
-        var vaultItem = (VaultItem) obj;
         var url = vaultItem.getVaultUri();
         var accountName = vaultItem.getAccountName();
 
@@ -217,9 +225,5 @@ public class MainController {
         } catch(Exception e) {
             e.printStackTrace();
         }
-
-
-        // 4) Push your list of SecretProperties in as the rows
-
     }
 }

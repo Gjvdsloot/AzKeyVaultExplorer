@@ -12,5 +12,5 @@ import org.springframework.stereotype.Service;
 @Setter
 @Service
 public class Store {
-    private Map<String, Account> accounts = new HashMap<String, Account>();
+    private Map<String, Account> accounts = new HashMap<>();
 }
