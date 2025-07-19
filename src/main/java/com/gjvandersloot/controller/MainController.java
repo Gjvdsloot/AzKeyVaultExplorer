@@ -8,21 +8,21 @@ import com.gjvandersloot.data.Store;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
+import com.gjvandersloot.ui.SecretItem;
 import com.gjvandersloot.ui.SubscriptionItem;
 import com.gjvandersloot.ui.VaultItem;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.stream.Collectors;
 
 @Component
 public class MainController {
@@ -41,12 +40,12 @@ public class MainController {
     public TreeView<Object> treeView;
 
     @FXML
-    public TableView<SecretProperties> secretsTable;
+    public TableView<SecretItem> secretsTable;
 
     @FXML
-    public TableColumn<SecretProperties, String> secretsColumn;
+    public TableColumn<SecretItem, String> secretsColumn;
     @FXML
-    public TableColumn<SecretProperties, String> emailColumn;
+    public TableColumn<SecretItem, String> secretValueColumn;
 
     @Autowired
     AccountService accountService;
@@ -71,18 +70,86 @@ public class MainController {
         treeView.setShowRoot(false);
         loadTree();
 
-        // 1) Tell the name‑column to call getName() on each SecretProperties
-        secretsColumn.setCellValueFactory(
-                new PropertyValueFactory<>("name")
-        );
+        secretsTable.getSelectionModel().selectedItemProperty()
+                        .addListener((obs, o, n) -> {
+                            var secret = secretsTable.getSelectionModel().getSelectedItem();
 
-//        // 2) (Optional) value‑column — fetch the actual secret value
-//        secretsColumn.setCellValueFactory(cell ->
-//                new SimpleStringProperty(
-//                        secretClient.getSecret(cell.getValue().getName())
-//                                .getValue()
-//                )
-//        );
+                            if (secret == null)
+                                return;
+
+                            SecretClient client = null;
+                            try {
+                                client = secretClientService.getOrCreateClient(secret.getVaultUri(), secret.getAccountName());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            var secretValue = client.getSecret(secret.getSecretName()).getValue();
+
+                            secret.getIsVisible().setValue(false);
+                            secret.getSecretValue().setValue(secretValue);
+                        });
+
+        secretValueColumn.setCellValueFactory(cell -> {
+            SecretItem item = cell.getValue();
+
+            return Bindings.createStringBinding(
+                    () -> {
+                        var secretValue = item.getSecretValue().getValue();
+                        if (secretValue == null)
+                            return null;
+
+                        var isVisible = item.getIsVisible().getValue();
+
+                        if (isVisible)
+                            return item.getSecretValue().getValue();
+
+                        return "*".repeat(secretValue.length());
+                    }, item.getIsVisible(), item.getSecretValue()
+            );
+        });
+
+//        secretValueColumn.setCellFactory(col -> {
+//            return new TableCell<>() {
+//                @Override
+//                public void updateItem(Node item, boolean empty) {
+//    //                super.updateItem(item, empty);
+//    //                if (empty || item == null) {
+//    //                    setGraphic(null);
+//    //                } else {
+//    //                    setGraphic(deleteBtn);
+//    //                }
+//                    super.updateItem(item, empty);
+//                    setGraphic(empty ? null : deleteBtn);
+//                }
+//            };
+//        });
+
+//        secretValueColumn.setCellFactory(col -> {
+//            return new TableCell<>() {
+//                private final Button deleteBtn = new Button("Delete");
+//
+//                {
+//                    // Button event handler: get the current row’s item:
+//                    deleteBtn.setOnAction(e -> {
+//    //                    MyModel rowData = getTableView().getItems().get(getIndex());
+//                        // ... perform delete or other action ...
+//                    });
+//                }
+//
+//                @Override
+//                public void updateItem(Node item, boolean empty) {
+//    //                super.updateItem(item, empty);
+//    //                if (empty || item == null) {
+//    //                    setGraphic(null);
+//    //                } else {
+//    //                    setGraphic(deleteBtn);
+//    //                }
+//                    super.updateItem(item, empty);
+//                    setGraphic(empty ? null : deleteBtn);
+//                }
+//            };
+//        });
     }
 
     public void addSubscription() throws Exception {
@@ -222,13 +289,31 @@ public class MainController {
             List<SecretProperties> secretList =
                     secretClient.listPropertiesOfSecrets()
                             .stream()
-                            .collect(Collectors.toList());
+                            .toList();
 
-            ObservableList<SecretProperties> rows =
-                    FXCollections.observableArrayList(secretList);
+            var secretItems = secretList.stream().map(s -> {
+                var secretItem = new SecretItem();
+                secretItem.setSecretName(s.getName());
+                secretItem.getSecretValue().setValue(null);
+                secretItem.setAccountName(accountName);
+                secretItem.setVaultUri(vaultItem.getVaultUri());
+                return secretItem;
+            }).toList();
+
+            ObservableList<SecretItem> rows =
+                    FXCollections.observableArrayList(secretItems);
             secretsTable.setItems(rows);
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void showSecret() throws Exception {
+        var secret = secretsTable.getSelectionModel().getSelectedItem();
+
+        if (secret == null)
+            return;
+
+        secret.getIsVisible().setValue(!secret.getIsVisible().getValue());
     }
 }
