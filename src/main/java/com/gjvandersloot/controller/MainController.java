@@ -23,6 +23,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -47,6 +49,9 @@ public class MainController {
     @FXML
     public TableColumn<SecretItem, String> secretValueColumn;
 
+    @FXML
+    public Button show;
+
     @Autowired
     AccountService accountService;
 
@@ -70,85 +75,50 @@ public class MainController {
         treeView.setShowRoot(false);
         loadTree();
 
+        secretValueColumn.setCellValueFactory(cell -> {
+            var val = cell.getValue().valueProperty();
+
+            return Bindings.when(cell.getValue().hiddenProperty())
+                    .then(val.get() == null ? null : "*".repeat(val.get().length()))
+                    .otherwise(val);
+        });
+
         secretsTable.getSelectionModel().selectedItemProperty()
                         .addListener((obs, o, n) -> {
                             var secret = secretsTable.getSelectionModel().getSelectedItem();
 
-                            if (secret == null)
+                            if (secret == null) {
+                                show.setDisable(true);
                                 return;
-
-                            SecretClient client = null;
-                            try {
-                                client = secretClientService.getOrCreateClient(secret.getVaultUri(), secret.getAccountName());
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
                             }
 
-                            var secretValue = client.getSecret(secret.getSecretName()).getValue();
+                            show.setDisable(false);
 
-                            secret.getIsVisible().setValue(false);
-                            secret.getSecretValue().setValue(secretValue);
+                            if (secret.valueProperty().get() == null) {
+                                show.setText("Show");
+                                return;
+                            }
+
+                            show.setText(secret.isHidden() ? "Show" : "Hide");
                         });
-
-        secretValueColumn.setCellValueFactory(cell -> {
-            SecretItem item = cell.getValue();
-
-            return Bindings.createStringBinding(
-                    () -> {
-                        var secretValue = item.getSecretValue().getValue();
-                        if (secretValue == null)
-                            return null;
-
-                        var isVisible = item.getIsVisible().getValue();
-
-                        if (isVisible)
-                            return item.getSecretValue().getValue();
-
-                        return "*".repeat(secretValue.length());
-                    }, item.getIsVisible(), item.getSecretValue()
-            );
-        });
-
-//        secretValueColumn.setCellFactory(col -> {
-//            return new TableCell<>() {
-//                @Override
-//                public void updateItem(Node item, boolean empty) {
-//    //                super.updateItem(item, empty);
-//    //                if (empty || item == null) {
-//    //                    setGraphic(null);
-//    //                } else {
-//    //                    setGraphic(deleteBtn);
-//    //                }
-//                    super.updateItem(item, empty);
-//                    setGraphic(empty ? null : deleteBtn);
-//                }
-//            };
-//        });
-
-//        secretValueColumn.setCellFactory(col -> {
-//            return new TableCell<>() {
-//                private final Button deleteBtn = new Button("Delete");
 //
-//                {
-//                    // Button event handler: get the current row’s item:
-//                    deleteBtn.setOnAction(e -> {
-//    //                    MyModel rowData = getTableView().getItems().get(getIndex());
-//                        // ... perform delete or other action ...
-//                    });
-//                }
+//        secretValueColumn.setCellValueFactory(cell -> {
+//            SecretItem item = cell.getValue();
 //
-//                @Override
-//                public void updateItem(Node item, boolean empty) {
-//    //                super.updateItem(item, empty);
-//    //                if (empty || item == null) {
-//    //                    setGraphic(null);
-//    //                } else {
-//    //                    setGraphic(deleteBtn);
-//    //                }
-//                    super.updateItem(item, empty);
-//                    setGraphic(empty ? null : deleteBtn);
-//                }
-//            };
+//            return Bindings.createStringBinding(
+//                    () -> {
+//                        var secretValue = item.getSecretValue().getValue();
+//                        if (secretValue == null)
+//                            return null;
+//
+//                        var isVisible = item.getIsVisible().getValue();
+//
+//                        if (isVisible)
+//                            return item.getSecretValue().getValue();
+//
+//                        return "*".repeat(secretValue.length());
+//                    }, item.getIsVisible(), item.getSecretValue()
+//            );
 //        });
     }
 
@@ -285,7 +255,6 @@ public class MainController {
         }
 
         try {
-            // 1) Suppose you already have your list of SecretProperties:
             List<SecretProperties> secretList =
                     secretClient.listPropertiesOfSecrets()
                             .stream()
@@ -294,7 +263,6 @@ public class MainController {
             var secretItems = secretList.stream().map(s -> {
                 var secretItem = new SecretItem();
                 secretItem.setSecretName(s.getName());
-                secretItem.getSecretValue().setValue(null);
                 secretItem.setAccountName(accountName);
                 secretItem.setVaultUri(vaultItem.getVaultUri());
                 return secretItem;
@@ -310,10 +278,52 @@ public class MainController {
 
     public void showSecret() throws Exception {
         var secret = secretsTable.getSelectionModel().getSelectedItem();
-
         if (secret == null)
             return;
 
-        secret.getIsVisible().setValue(!secret.getIsVisible().getValue());
+        if (secret.getValue() == null)
+            CompletableFuture.runAsync(() -> lazyLoadSecret(secret)).thenAccept((v) -> Platform.runLater(() -> {
+                secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
+                show.setText(secret.isHidden() ? "Show" : "Hide");
+            }));
+        else {
+            secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
+            show.setText(secret.isHidden() ? "Show" : "Hide");
+        }
+    }
+
+    public void copySecret() {
+        var secret = secretsTable.getSelectionModel().getSelectedItem();
+        if (secret == null)
+            return;
+
+        if (secret.getValue() == null)
+            CompletableFuture.runAsync(() -> lazyLoadSecret(secret))
+                    .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())));
+        else
+            copyToClipBoard(secret.getValue());
+    }
+
+    private static void copyToClipBoard(String value) {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        ClipboardContent content = new ClipboardContent();
+        content.putString(value);
+
+        clipboard.setContent(content);
+    }
+
+    private void lazyLoadSecret(SecretItem secret) {
+        SecretClient client;
+        try {
+            client = secretClientService.getOrCreateClient(secret.getVaultUri(), secret.getAccountName());
+            var val = client.getSecret(secret.getSecretName());
+            Platform.runLater(() -> {
+                secret.valueProperty().setValue((val.getValue()));
+                secret.hiddenProperty().set(true);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

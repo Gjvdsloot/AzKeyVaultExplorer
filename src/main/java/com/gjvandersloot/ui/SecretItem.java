@@ -13,6 +13,16 @@ public class SecretItem {
     private String vaultUri;
     private String accountName;
 
-    private final BooleanProperty isVisible = new SimpleBooleanProperty(this, "visible");
-    private final StringProperty secretValue = new SimpleStringProperty(this, "secretValue");
+    private final StringProperty value = new SimpleStringProperty(this, "value");
+    public String getValue() {
+        return value.get();
+    }
+    public StringProperty valueProperty() { return value; }
+
+
+    private final BooleanProperty hidden = new SimpleBooleanProperty(this, "hidden");
+    public boolean isHidden() {
+        return hidden.get();
+    }
+    public BooleanProperty hiddenProperty() { return hidden; }
 }

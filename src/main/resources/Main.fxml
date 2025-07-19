@@ -24,20 +24,10 @@
 
             <!-- Toolbar just below the menu -->
             <ToolBar>
-                <items>
-<!--                    <Button text="New" onAction="#onNew"/>-->
-<!--                    <Button text="Edit" onAction="#onEdit"/>-->
-<!--                    <Button text="Copy" onAction="#onCopy"/>-->
-<!--                    <Button text="Show" onAction="#onShow"/>-->
-<!--                    <Separator orientation="VERTICAL"/>-->
-<!--                    <Button text="Help" onAction="#onHelp"/>-->
-                        <Button text="New" />
-                        <Button text="Edit" />
-                        <Button text="Copy" />
-                        <Button text="Show" onAction="#showSecret" />
-                        <Separator orientation="VERTICAL"/>
-                        <Button text="Help" />
-                </items>
+                <Button text="Copy" onAction="#copySecret" />
+                <Button fx:id="show" text="Show" onAction="#showSecret" />
+                <Separator orientation="VERTICAL"/>
+                <Button text="New"/>
             </ToolBar>
         </VBox>
     </top>
