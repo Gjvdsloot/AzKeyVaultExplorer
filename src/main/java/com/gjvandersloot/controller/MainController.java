@@ -75,13 +75,7 @@ public class MainController {
         treeView.setShowRoot(false);
         loadTree();
 
-        secretValueColumn.setCellValueFactory(cell -> {
-            var val = cell.getValue().valueProperty();
-
-            return Bindings.when(cell.getValue().hiddenProperty())
-                    .then(val.get() == null ? null : "*".repeat(val.get().length()))
-                    .otherwise(val);
-        });
+        secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
 
         secretsTable.getSelectionModel().selectedItemProperty()
                         .addListener((obs, o, n) -> {
@@ -101,25 +95,6 @@ public class MainController {
 
                             show.setText(secret.isHidden() ? "Show" : "Hide");
                         });
-//
-//        secretValueColumn.setCellValueFactory(cell -> {
-//            SecretItem item = cell.getValue();
-//
-//            return Bindings.createStringBinding(
-//                    () -> {
-//                        var secretValue = item.getSecretValue().getValue();
-//                        if (secretValue == null)
-//                            return null;
-//
-//                        var isVisible = item.getIsVisible().getValue();
-//
-//                        if (isVisible)
-//                            return item.getSecretValue().getValue();
-//
-//                        return "*".repeat(secretValue.length());
-//                    }, item.getIsVisible(), item.getSecretValue()
-//            );
-//        });
     }
 
     public void addSubscription() throws Exception {

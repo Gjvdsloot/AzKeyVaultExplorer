@@ -1,9 +1,8 @@
 package com.gjvandersloot.ui;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableStringValue;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,10 +18,31 @@ public class SecretItem {
     }
     public StringProperty valueProperty() { return value; }
 
-
     private final BooleanProperty hidden = new SimpleBooleanProperty(this, "hidden");
     public boolean isHidden() {
         return hidden.get();
     }
     public BooleanProperty hiddenProperty() { return hidden; }
+
+    // Computed property using a binding
+    private final StringBinding display = new StringBinding() {
+        {
+            bind(value, hidden);
+        }
+
+        @Override
+        protected String computeValue() {
+            String v = value.get();
+            if (v == null) return null;
+            return hidden.get() ? "*".repeat(v.length()) : v;
+        }
+    };
+
+    public String getDisplay() {
+        return display.get();
+    }
+
+    public ObservableStringValue displayProperty() {
+        return display;
+    }
 }
