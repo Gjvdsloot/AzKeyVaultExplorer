@@ -17,7 +17,7 @@ public class SecretClientService {
     @Autowired
     private PublicClientApplication pca;
 
-    public SecretClient getOrCreateClient(String vaultUrl, String accountName) throws Exception {
+    public SecretClient getOrCreateClient(String vaultUrl, String accountName) {
         var secretClient = clients.getOrDefault(vaultUrl, null);
         if (secretClient != null) return secretClient;
 

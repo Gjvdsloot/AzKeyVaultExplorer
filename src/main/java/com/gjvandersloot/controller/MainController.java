@@ -12,12 +12,9 @@ import com.gjvandersloot.ui.SecretItem;
 import com.gjvandersloot.ui.SubscriptionItem;
 import com.gjvandersloot.ui.VaultItem;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -178,7 +175,7 @@ public class MainController {
         }
     }
 
-    private void loadVaults(TreeItem<Object> obj) throws Exception {
+    private void loadVaults(TreeItem<Object> obj) {
         var subscriptionItem = (SubscriptionItem) obj.getValue();
 
         CompletableFuture.supplyAsync(() -> {
@@ -187,32 +184,26 @@ public class MainController {
                     } catch (Exception e) {
                         throw new CompletionException(e);
                     }
-        }).thenAccept(vaults -> {
-            Platform.runLater(() -> {
-                obj.getChildren().clear();
+        }).thenAccept(vaults -> Platform.runLater(() -> {
+            obj.getChildren().clear();
 
-                for (var vault : vaults) {
-                    var vaultItem = new VaultItem();
-                    vaultItem.setVaultUri(vault.getVaultUri());
-                    vaultItem.setName(vault.getName());
-                    vaultItem.setAccountName(subscriptionItem.getAccountName());
+            for (var vault : vaults) {
+                var vaultItem = new VaultItem();
+                vaultItem.setVaultUri(vault.getVaultUri());
+                vaultItem.setName(vault.getName());
+                vaultItem.setAccountName(subscriptionItem.getAccountName());
 
-                    var treeItem = new TreeItem<>();
-                    treeItem.setValue(vaultItem);
+                var treeItem = new TreeItem<>();
+                treeItem.setValue(vaultItem);
 
-                    obj.getChildren().add(treeItem);
-                }
-            });
-        });
+                obj.getChildren().add(treeItem);
+            }
+        }));
     }
 
+    private CompletableFuture<List<SecretProperties>> listPropertySecretsFuture = null;
     public void treeViewClicked() {
-        TreeItem<Object> clickedItem;
-        try {
-            clickedItem = treeView.getSelectionModel().getSelectedItem();
-        } catch (Exception e) {
-            return;
-        }
+        TreeItem<Object> clickedItem = treeView.getSelectionModel().getSelectedItem();
         if (clickedItem == null) return;
 
         var obj = clickedItem.getValue();
@@ -222,20 +213,24 @@ public class MainController {
         var url = vaultItem.getVaultUri();
         var accountName = vaultItem.getAccountName();
 
-        SecretClient secretClient = null;
-        try {
-            secretClient = secretClientService.getOrCreateClient(url, accountName);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        if (listPropertySecretsFuture != null && !listPropertySecretsFuture.isDone() && !listPropertySecretsFuture.isCancelled())
+            listPropertySecretsFuture.cancel(true);
 
-        try {
-            List<SecretProperties> secretList =
-                    secretClient.listPropertiesOfSecrets()
-                            .stream()
-                            .toList();
+        CompletableFuture<List<SecretProperties>> fetchFuture = CompletableFuture.supplyAsync(() -> {
+            var secretClient = secretClientService.getOrCreateClient(url, accountName);
 
-            var secretItems = secretList.stream().map(s -> {
+            return secretClient.listPropertiesOfSecrets()
+                    .stream()
+                    .toList();
+        });
+
+        listPropertySecretsFuture = fetchFuture;
+
+        fetchFuture.thenAccept(secretProperties -> Platform.runLater(() -> {
+            if (fetchFuture.isCancelled())
+                return;
+
+            var secretItems = secretProperties.stream().map(s -> {
                 var secretItem = new SecretItem();
                 secretItem.setSecretName(s.getName());
                 secretItem.setAccountName(accountName);
@@ -246,9 +241,9 @@ public class MainController {
             ObservableList<SecretItem> rows =
                     FXCollections.observableArrayList(secretItems);
             secretsTable.setItems(rows);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        })).whenComplete((v, e) -> {
+
+        });
     }
 
     public void showSecret() throws Exception {
