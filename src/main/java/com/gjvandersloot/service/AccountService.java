@@ -100,10 +100,14 @@ public class AccountService {
             token = pca.acquireToken(interactiveParams).get();
         }
 
-        HttpClient client = HttpClient.newHttpClient();
+        var kvs = new ArrayList<Vault>();
 
         String url = String.format("https://management.azure.com/subscriptions/%s/providers/Microsoft.KeyVault/vaults?api-version=2022-07-01", subscriptionId);
+        kvs = getVaultsFromApi(url, token, HttpClient.newHttpClient());
+        return kvs;
+    }
 
+    private ArrayList<Vault> getVaultsFromApi(String url, IAuthenticationResult token, HttpClient client) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + token.accessToken())
@@ -116,15 +120,21 @@ public class AccountService {
             throw new RuntimeException("Failed to list keyvaults: " + response.body());
         }
 
-        var kvs = new ArrayList<Vault>();
+
         var json = new com.fasterxml.jackson.databind.ObjectMapper().readTree(response.body());
 
+        var kvs = new ArrayList<Vault>();
         for (var kv : json.get("value")) {
             var vault = new Vault();
             vault.setVaultUri(kv.get("properties").get("vaultUri").asText());
             vault.setName(kv.get("name").asText());
             kvs.add(vault);
         }
+
+        var nextUrl = json.get("nextLink");
+        if (nextUrl != null)
+            kvs.addAll(getVaultsFromApi(nextUrl.asText(), token, client));
+
         return kvs;
     }
 }
