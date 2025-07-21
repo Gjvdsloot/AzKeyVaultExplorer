@@ -162,7 +162,7 @@ public class MainController {
                         @SuppressWarnings("unchecked")
                         var obj = (TreeItem<Object>) ((ReadOnlyBooleanProperty)obs).getBean();
 
-                        if (obj.getChildren().getFirst().getValue() instanceof String) {
+                        if (obj.getChildren().stream().findFirst().get().getValue() instanceof String) {
                             try {
                                 loadVaults(obj);
                             } catch (Exception e) {
