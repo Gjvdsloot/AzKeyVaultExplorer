@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'  # Trigger only on version tags like v1.0.0
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag (e.g., v1.0.1)'
+        required: false
+        type: string
 
 jobs:
   build-msi:
@@ -24,9 +30,6 @@ jobs:
           git config --global core.autocrlf false
           ./gradlew --version
 
-#      - name: Build fat JAR
-#        run: ./gradlew shadowJar
-
       - name: Package MSI
         run: ./gradlew packageApp
 
@@ -34,7 +37,6 @@ jobs:
         id: find-msi
         run: |
           $msi = Get-ChildItem -Recurse -Filter "*.msi" | Select-Object -First 1
-          echo "MSI_PATH=$($msi.FullName)" >> $env:GITHUB_ENV
           
           $msiPath = $msi.FullName -replace '\\', '/'
           echo "MSI_PATH=$msiPath" >> $env:GITHUB_ENV
@@ -42,7 +44,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.release_tag }}
+          tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
           files: ${{ env.MSI_PATH }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
