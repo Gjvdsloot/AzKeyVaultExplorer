@@ -52,15 +52,16 @@ var buildDirectory = getLayout().getBuildDirectory().get().asFile.path
 
 tasks.register('packageApp', Exec) {
     dependsOn(shadowJar)
-    commandLine 'jpackage',
-            '--input', "${buildDirectory}/libs",
-            '--main-jar', "${application.applicationName}-${version}.jar",
-            '--runtime-image', Jvm.current().javaHome.absolutePath,
-            '--win-console',
-            '--type', 'msi',
-            '--dest', "$buildDirectory/out",
-            '--name', application.applicationName,
-            '--app-version', version
+
+    def mainOptions = ['--input', "${buildDirectory}/libs",
+                       '--main-jar', "${application.applicationName}-${version}.jar",
+                       '--runtime-image', Jvm.current().javaHome.absolutePath,
+                       '--dest', "$buildDirectory/out",
+                       '--name', application.applicationName,
+                       '--app-version', version]
+    def winOptions = ['--win-console', '--win-menu', '--win-dir-chooser', '--type', 'msi']
+    def args = ['jpackage'] + mainOptions + winOptions
+    commandLine args as List<String>
 }
 
 
