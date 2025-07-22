@@ -1,9 +1,9 @@
 name: Build and Release MSI
 
 on:
-  push:
-    tags:
-      - 'v*'  # Trigger only on version tags like v1.0.0
+#  push:
+#    tags:
+#      - 'v*'  # Trigger only on version tags like v1.0.0
   workflow_dispatch:
     inputs:
       release_tag:
@@ -41,10 +41,23 @@ jobs:
           $msiPath = $msi.FullName -replace '\\', '/'
           echo "MSI_PATH=$msiPath" >> $env:GITHUB_ENV
 
+      - name: Find fat JAR
+        id: find-jar
+        run: |
+          $jar = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\build\libs" -Filter "*.jar" | Where-Object { $_.Name -notlike "*-plain*" } | Select-Object -First 1
+          if ($null -eq $jar) {
+            Write-Error "No jar found at $env:GITHUB_WORKSPACE\build\libs"
+            exit 1
+          }
+          $jarPath = $jar.FullName -replace '\\', '/'
+          echo "FAT_JAR_PATH=$jarPath" >> $env:GITHUB_ENV
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
-          files: ${{ env.MSI_PATH }}
+          files: |
+            ${{ env.MSI_PATH }}
+            ${{ env.FAT_JAR_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
