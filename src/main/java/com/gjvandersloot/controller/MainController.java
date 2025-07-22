@@ -114,14 +114,10 @@ public class MainController {
                         store.getAccounts().put(account.getUsername(), account);
                         appDataService.saveStore();
                     } catch (Exception e) {
-                        throw new CompletionException(e);
+                        showError(e.getMessage());
                     }
                 })
                 .thenAccept((v) -> Platform.runLater(this::loadTree))
-                .exceptionally(e -> {
-                    showError(e.getMessage());
-                    return null;
-                })
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
 
         cancelController.setOnCancel(() -> {
@@ -199,7 +195,8 @@ public class MainController {
 
                 obj.getChildren().add(treeItem);
             }
-        })).exceptionally((e) -> {
+        })).exceptionally(e -> {
+            showError(e.getMessage());
             return null;
         });
     }
@@ -244,10 +241,7 @@ public class MainController {
             ObservableList<SecretItem> rows =
                     FXCollections.observableArrayList(secretItems);
             secretsTable.setItems(rows);
-        })).exceptionally(e -> {
-            showError(e.getMessage());
-            return null;
-        });
+        }));
     }
 
     public void showSecret() {
@@ -261,11 +255,7 @@ public class MainController {
                     .thenAccept((v) -> Platform.runLater(() -> {
                         secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
                         show.setText(secret.isHidden() ? "Show" : "Hide");
-                    }))
-                    .exceptionally(e -> {
-                        showError(e.getMessage());
-                        return null;
-                    });
+                    }));
         else {
             secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
             show.setText(secret.isHidden() ? "Show" : "Hide");
