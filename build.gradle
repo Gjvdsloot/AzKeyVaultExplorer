@@ -1,0 +1,94 @@
+import org.gradle.internal.jvm.Jvm
+
+plugins {
+    id 'application'
+    id 'org.springframework.boot' version '3.1.3'
+    id 'io.spring.dependency-management' version '1.1.3'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'org.beryx.runtime' version '1.13.1'
+}
+
+group = 'com.gjvandersloot'
+version = '1.0.0'
+
+application {
+    mainClass = 'com.gjvandersloot.Main'
+    applicationName = 'SimpleKeyVault'
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = '21.0.3'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+shadowJar {
+    archiveClassifier.set("") // remove "-all" from the name
+    version = project.version
+    mergeServiceFiles()
+}
+
+var buildDirectory = getLayout().getBuildDirectory().get().asFile.path
+
+//tasks.register('createRuntime', Exec) {
+//    dependsOn("shadowJar")
+//    group = 'distribution'
+//    description = 'Creates a custom runtime image using jlink'
+//
+//    def modules = 'java.base,java.compiler,java.desktop,java.instrument,java.management,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.security.jgss,java.sql,jdk.httpserver,jdk.jfr,jdk.unsupported'
+//
+//    commandLine 'jlink',
+//            '--add-modules', modules,
+//            '--output', "${buildDirectory}/custom-runtime",
+//            '--strip-debug',
+//            '--no-header-files',
+//            '--no-man-pages',
+//            '--compress=2'
+//}
+
+tasks.register('packageApp', Exec) {
+    dependsOn(shadowJar)
+    commandLine 'jpackage',
+            '--input', "${buildDirectory}/libs",
+            '--main-jar', "${application.applicationName}-${version}.jar",
+            '--runtime-image', Jvm.current().javaHome.absolutePath,
+            '--win-console',
+            '--type', 'msi',
+            '--dest', "$buildDirectory/out",
+            '--name', application.applicationName,
+            '--app-version', version
+}
+
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.19.1'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Spring
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Azure SDK
+    implementation 'com.azure:azure-identity:1.16.2'
+    implementation 'com.azure:azure-security-keyvault-secrets:4.10.0'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager:2.52.0'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager-resources:2.32.0'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager-keyvault:2.32.0'
+    implementation 'com.microsoft.azure:msal4j:1.21.0'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    testCompileOnly 'org.projectlombok:lombok:1.18.38'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+}
+
+tasks.test {
+    useJUnitPlatform()
+}

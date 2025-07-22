@@ -1,0 +1,46 @@
+name: Build and Release MSI
+
+on:
+#  push:
+#    tags:
+#      - 'v*'  # Trigger only on version tags like v1.0.0
+  workflow_dispatch:
+
+
+jobs:
+  build-msi:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Grant execute permission to Gradle wrapper
+        run: |
+          git config --global core.autocrlf false
+          ./gradlew --version
+
+#      - name: Build fat JAR
+#        run: ./gradlew shadowJar
+
+      - name: Package MSI
+        run: ./gradlew packageApp
+
+      - name: Find MSI
+        id: find-msi
+        run: |
+          $msi = Get-ChildItem -Recurse -Filter "*.msi" | Select-Object -First 1
+          echo "MSI_PATH=$($msi.FullName)" >> $env:GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.MSI_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
