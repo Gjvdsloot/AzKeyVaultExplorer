@@ -15,6 +15,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -117,6 +118,10 @@ public class MainController {
                     }
                 })
                 .thenAccept((v) -> Platform.runLater(this::loadTree))
+                .exceptionally(e -> {
+                    showError(e.getMessage());
+                    return null;
+                })
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
 
         cancelController.setOnCancel(() -> {
@@ -163,11 +168,7 @@ public class MainController {
                         var obj = (TreeItem<Object>) ((ReadOnlyBooleanProperty)obs).getBean();
 
                         if (obj.getChildren().stream().findFirst().get().getValue() instanceof String) {
-                            try {
-                                loadVaults(obj);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
+                            loadVaults(obj);
                         }
                     });
                 }
@@ -198,7 +199,9 @@ public class MainController {
 
                 obj.getChildren().add(treeItem);
             }
-        }));
+        })).exceptionally((e) -> {
+            return null;
+        });
     }
 
     private CompletableFuture<List<SecretProperties>> listPropertySecretsFuture = null;
@@ -241,7 +244,10 @@ public class MainController {
             ObservableList<SecretItem> rows =
                     FXCollections.observableArrayList(secretItems);
             secretsTable.setItems(rows);
-        }));
+        })).exceptionally(e -> {
+            showError(e.getMessage());
+            return null;
+        });
     }
 
     public void showSecret() {
@@ -250,10 +256,16 @@ public class MainController {
             return;
 
         if (secret.getValue() == null)
-            CompletableFuture.runAsync(() -> lazyLoadSecret(secret)).thenAccept((v) -> Platform.runLater(() -> {
-                secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
-                show.setText(secret.isHidden() ? "Show" : "Hide");
-            }));
+            CompletableFuture
+                    .runAsync(() -> lazyLoadSecret(secret))
+                    .thenAccept((v) -> Platform.runLater(() -> {
+                        secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
+                        show.setText(secret.isHidden() ? "Show" : "Hide");
+                    }))
+                    .exceptionally(e -> {
+                        showError(e.getMessage());
+                        return null;
+                    });
         else {
             secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
             show.setText(secret.isHidden() ? "Show" : "Hide");
@@ -267,12 +279,16 @@ public class MainController {
 
         if (secret.getValue() == null)
             CompletableFuture.runAsync(() -> lazyLoadSecret(secret))
-                    .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())));
+                    .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())))
+                    .exceptionally(e -> {
+                        showError(e.getMessage());
+                        return null;
+                    });
         else
             copyToClipBoard(secret.getValue());
     }
 
-    private static void copyToClipBoard(String value) {
+    public static void copyToClipBoard(String value) {
         Clipboard clipboard = Clipboard.getSystemClipboard();
 
         ClipboardContent content = new ClipboardContent();
@@ -289,5 +305,33 @@ public class MainController {
             secret.valueProperty().setValue((val.getValue()));
             secret.hiddenProperty().set(true);
         });
+    }
+
+    private void showError(String e) {
+        Platform.runLater(() -> {
+            var loader = new FXMLLoader(getClass().getResource("/ErrorDialog.fxml"));
+
+            Parent root;
+            try {
+                root = loader.load();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            ErrorDialogController errorCtr = loader.getController();
+
+            var dialog = new Stage(StageStyle.DECORATED);
+            dialog.initOwner(mainStageProvider.getPrimaryStage());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setScene(new Scene(root));
+
+            errorCtr.setDialogStage(dialog);
+            errorCtr.setMessage(e);
+            dialog.showAndWait();
+        });
+    }
+
+    public void addSecret(ActionEvent actionEvent) {
+        showError("OhOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo");
     }
 }

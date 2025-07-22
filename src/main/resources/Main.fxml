@@ -37,7 +37,7 @@
                    <Button onAction="#copySecret" text="Copy" />
                    <Button fx:id="show" onAction="#showSecret" text="Show" />
                    <Separator orientation="VERTICAL" />
-                   <Button text="New" />
+                   <Button text="New" onAction="#addSecret" />
                </ToolBar>
                 <TableView fx:id="secretsTable" prefHeight="434.0" prefWidth="483.0" VBox.vgrow="ALWAYS">
                     <columns>
