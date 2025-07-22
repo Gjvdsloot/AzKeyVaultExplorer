@@ -73,7 +73,7 @@ public class MainController {
         this.root = new TreeItem<>();
         treeView.setRoot(root);
         treeView.setShowRoot(false);
-        loadTree();
+        reloadTree();
 
         secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
 
@@ -118,7 +118,7 @@ public class MainController {
                         showError(e.getMessage());
                     }
                 })
-                .thenAccept((v) -> Platform.runLater(this::loadTree))
+                .thenAccept((v) -> Platform.runLater(this::reloadTree))
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
 
         cancelController.setOnCancel(() -> {
@@ -129,8 +129,9 @@ public class MainController {
         dialog.showAndWait();
     }
 
-    public void loadTree() {
+    public void reloadTree() {
         var root = this.root;
+        root.getChildren().clear();
 
         var accounts = store.getAccounts();
 
@@ -141,11 +142,6 @@ public class MainController {
                     subscriptionItem.setId(subscription.getId());
                     subscriptionItem.setName(subscription.getName());
                     subscriptionItem.setAccountName(account.getUsername());
-
-                    if (root.getChildren().stream().anyMatch(t -> {
-                        var obj = (SubscriptionItem) t.getValue();
-                        return subscription.getId().equals(obj.getId());
-                    })) continue;
 
                     var treeItem = new TreeItem<>();
                     treeItem.setValue(subscriptionItem);
