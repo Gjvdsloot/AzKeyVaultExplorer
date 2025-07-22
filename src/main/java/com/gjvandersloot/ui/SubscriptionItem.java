@@ -12,7 +12,7 @@ public class SubscriptionItem {
     private String accountName;
     private String name;
 
-    private ArrayList<VaultItem> vaults;
+    private ArrayList<VaultItem> vaults = null;
 
     @Override
     public String toString() {

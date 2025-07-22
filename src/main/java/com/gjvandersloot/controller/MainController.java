@@ -5,6 +5,7 @@ import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Store;
+import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
@@ -12,7 +13,6 @@ import com.gjvandersloot.ui.SecretItem;
 import com.gjvandersloot.ui.SubscriptionItem;
 import com.gjvandersloot.ui.VaultItem;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -153,18 +154,14 @@ public class MainController {
                     loadingItem.setValue("Loading");
 
                     treeItem.getChildren().add(loadingItem);
-                    treeItem.setExpanded(false);
 
                     root.getChildren().add(treeItem);
 
                     treeItem.expandedProperty().addListener((obs, o, n) -> {
                         if (!n) return;
 
-                        @SuppressWarnings("unchecked")
-                        var obj = (TreeItem<Object>) ((ReadOnlyBooleanProperty)obs).getBean();
-
-                        if (obj.getChildren().stream().findFirst().get().getValue() instanceof String) {
-                            loadVaults(obj);
+                        if (subscriptionItem.getVaults() == null) {
+                            loadVaults(treeItem);
                         }
                     });
                 }
@@ -172,30 +169,37 @@ public class MainController {
         }
     }
 
-    private void loadVaults(TreeItem<Object> obj) {
-        var subscriptionItem = (SubscriptionItem) obj.getValue();
+    private void loadVaults(TreeItem<Object> treeItem) {
+        var subscriptionItem = (SubscriptionItem) treeItem.getValue();
 
-        CompletableFuture.supplyAsync(() -> {
+        CompletableFuture.<ArrayList<Vault>>supplyAsync(() -> {
                     try {
+//                        throw new Exception();
                         return accountService.addKeyVaults(subscriptionItem.getId(), subscriptionItem.getAccountName());
                     } catch (Exception e) {
                         throw new CompletionException(e);
                     }
         }).thenAccept(vaults -> Platform.runLater(() -> {
-            obj.getChildren().clear();
+            treeItem.getChildren().clear();
 
+            var vaultItems = new ArrayList<VaultItem>();
             for (var vault : vaults) {
                 var vaultItem = new VaultItem();
                 vaultItem.setVaultUri(vault.getVaultUri());
                 vaultItem.setName(vault.getName());
                 vaultItem.setAccountName(subscriptionItem.getAccountName());
 
-                var treeItem = new TreeItem<>();
-                treeItem.setValue(vaultItem);
+                var child = new TreeItem<>();
+                child.setValue(vaultItem);
 
-                obj.getChildren().add(treeItem);
+
+                treeItem.getChildren().add(child);
+                vaultItems.add(vaultItem);
             }
+
+            subscriptionItem.setVaults(vaultItems);
         })).exceptionally(e -> {
+            Platform.runLater(() -> treeItem.getChildren().clear());
             showError(e.getMessage());
             return null;
         });
@@ -219,9 +223,14 @@ public class MainController {
         CompletableFuture<List<SecretProperties>> fetchFuture = CompletableFuture.supplyAsync(() -> {
             var secretClient = secretClientService.getOrCreateClient(url, accountName);
 
-            return secretClient.listPropertiesOfSecrets()
-                    .stream()
-                    .toList();
+            try {
+                return secretClient.listPropertiesOfSecrets()
+                        .stream()
+                        .toList();
+            } catch(Exception e) {
+                showError(e.getMessage());
+                throw e;
+            }
         });
 
         listPropertySecretsFuture = fetchFuture;
@@ -238,10 +247,18 @@ public class MainController {
                 return secretItem;
             }).toList();
 
-            ObservableList<SecretItem> rows =
-                    FXCollections.observableArrayList(secretItems);
-            secretsTable.setItems(rows);
-        }));
+            Platform.runLater(() -> {
+                ObservableList<SecretItem> rows =
+                        FXCollections.observableArrayList(secretItems);
+                secretsTable.setItems(rows);
+            });
+        })).exceptionally((e) -> {
+            Platform.runLater(() -> {
+                secretsTable.getItems().clear();
+                treeView.getSelectionModel().clearSelection();
+            });
+            return null;
+        });
     }
 
     public void showSecret() {
