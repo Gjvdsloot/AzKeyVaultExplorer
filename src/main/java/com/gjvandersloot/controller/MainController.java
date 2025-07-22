@@ -28,6 +28,7 @@ import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -94,7 +95,7 @@ public class MainController {
                         });
     }
 
-    public void addSubscription() throws Exception {
+    public void addSubscription() throws IOException {
         var loader = new FXMLLoader(getClass().getResource("/CancelDialog.fxml"));
         Parent root = loader.load();
 
@@ -109,12 +110,11 @@ public class MainController {
                     Account account;
                     try {
                         account = accountService.addAccount();
+                        store.getAccounts().put(account.getUsername(), account);
+                        appDataService.saveStore();
                     } catch (Exception e) {
                         throw new CompletionException(e);
                     }
-
-                    store.getAccounts().put(account.getUsername(), account);
-                    appDataService.saveStore();
                 })
                 .thenAccept((v) -> Platform.runLater(this::loadTree))
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
@@ -241,12 +241,10 @@ public class MainController {
             ObservableList<SecretItem> rows =
                     FXCollections.observableArrayList(secretItems);
             secretsTable.setItems(rows);
-        })).whenComplete((v, e) -> {
-
-        });
+        }));
     }
 
-    public void showSecret() throws Exception {
+    public void showSecret() {
         var secret = secretsTable.getSelectionModel().getSelectedItem();
         if (secret == null)
             return;
@@ -285,15 +283,11 @@ public class MainController {
 
     private void lazyLoadSecret(SecretItem secret) {
         SecretClient client;
-        try {
-            client = secretClientService.getOrCreateClient(secret.getVaultUri(), secret.getAccountName());
-            var val = client.getSecret(secret.getSecretName());
-            Platform.runLater(() -> {
-                secret.valueProperty().setValue((val.getValue()));
-                secret.hiddenProperty().set(true);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        client = secretClientService.getOrCreateClient(secret.getVaultUri(), secret.getAccountName());
+        var val = client.getSecret(secret.getSecretName());
+        Platform.runLater(() -> {
+            secret.valueProperty().setValue((val.getValue()));
+            secret.hiddenProperty().set(true);
+        });
     }
 }
