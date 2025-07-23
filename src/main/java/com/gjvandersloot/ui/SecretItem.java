@@ -8,7 +8,16 @@ import lombok.Setter;
 
 @Getter @Setter
 public class SecretItem {
-    private String secretName;
+    public SecretItem() {
+        hidden.set(true);
+    }
+
+    private final StringProperty secretName = new SimpleStringProperty(this, "secretName");
+    public StringProperty secretNameProperty() { return secretName; }
+    public String getSecretName() { return secretName.get(); }
+    public void setSecretName(String secretName) { this.secretName.set(secretName); }
+
+
     private String vaultUri;
     private String accountName;
 

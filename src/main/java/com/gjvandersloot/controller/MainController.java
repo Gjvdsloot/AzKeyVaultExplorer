@@ -13,8 +13,11 @@ import com.gjvandersloot.ui.SecretItem;
 import com.gjvandersloot.ui.SubscriptionItem;
 import com.gjvandersloot.ui.VaultItem;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,8 +35,12 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+
+import static javafx.beans.binding.Bindings.selectBoolean;
+import static javafx.beans.binding.Bindings.when;
 
 @Component
 public class MainController {
@@ -52,6 +59,12 @@ public class MainController {
     @FXML
     public Button show;
 
+    @FXML
+    public TextField filterField;
+
+    @FXML
+    public TextField treeFilter;
+
     @Autowired
     AccountService accountService;
 
@@ -68,6 +81,8 @@ public class MainController {
     AppDataService appDataService;
     private TreeItem<Object> root;
 
+    private final ObservableList<SecretItem> secrets = FXCollections.observableArrayList();
+
     @FXML
     public void initialize() {
         this.root = new TreeItem<>();
@@ -75,26 +90,81 @@ public class MainController {
         treeView.setShowRoot(false);
         reloadTree();
 
+        setupVaultFilter();
+        setupTreeFilter();
+
         secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
 
-        secretsTable.getSelectionModel().selectedItemProperty()
-                        .addListener((obs, o, n) -> {
-                            var secret = secretsTable.getSelectionModel().getSelectedItem();
+        var selection = secretsTable.getSelectionModel().selectedItemProperty();
 
-                            if (secret == null) {
-                                show.setDisable(true);
-                                return;
-                            }
+        show.disableProperty().bind(selection.isNull());
+        var hidden = selectBoolean(selection, "hidden");
+        show.textProperty().bind(when(selection.isNull().or(hidden))
+                .then("Show").otherwise("Hide"));
+    }
 
-                            show.setDisable(false);
+    private void setupTreeFilter() {
+        treeView.setRoot(this.root);
 
-                            if (secret.valueProperty().get() == null) {
-                                show.setText("Show");
-                                return;
-                            }
+        treeFilter.textProperty().addListener((obs, old, nw) -> {
+            if (nw == null || nw.isBlank()) {
+                treeView.setRoot(this.root);
+            } else {
+                treeView.setRoot(filterTree(root, nw.toLowerCase().trim()));
+            }
+        });
+    }
 
-                            show.setText(secret.isHidden() ? "Show" : "Hide");
-                        });
+    private TreeItem<Object> filterTree(TreeItem<Object> root, String filter) {
+        if (root.getValue() instanceof String)
+            return null;
+
+        String text = Optional.ofNullable(root.getValue())
+                .map(Object::toString)
+                .orElse("")
+                .toLowerCase();
+
+        var copy = new TreeItem<>(root.getValue());
+
+        for (TreeItem<Object> child : root.getChildren()) {
+            TreeItem<Object> filteredChild = filterTree(child, filter);
+            if (filteredChild != null) {
+                copy.getChildren().add(filteredChild);
+            }
+        }
+
+        // Include this node if (a) it matches the filter itself, or (b) any child matched:
+        boolean matchesSelf = text.contains(filter.toLowerCase());
+        return (matchesSelf || !copy.getChildren().isEmpty())
+                ? copy
+                : null;
+    }
+
+    private void setupVaultFilter() {
+        // 1) set up your columns (if you haven’t already):
+        secretsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
+
+        FilteredList<SecretItem> filteredData = new FilteredList<>(secrets, p -> true);
+
+        SortedList<SecretItem> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(secretsTable.comparatorProperty());
+
+        secretsTable.setItems(sortedData);
+
+        filterField.textProperty().addListener((obs, oldVal, newVal) -> {
+            String lower = (newVal == null ? "" : newVal.toLowerCase().trim());
+            filteredData.setPredicate(item -> {
+                // show all if filter is empty
+                if (lower.isEmpty()) {
+                    return true;
+                }
+                // otherwise compare against whatever fields you like:
+                boolean matchesName = item.getSecretName() != null
+                        && item.getSecretName().toLowerCase().contains(lower);
+
+                return matchesName;
+            });
+        });
     }
 
     public void addSubscription() throws IOException {
@@ -244,13 +314,12 @@ public class MainController {
             }).toList();
 
             Platform.runLater(() -> {
-                ObservableList<SecretItem> rows =
-                        FXCollections.observableArrayList(secretItems);
-                secretsTable.setItems(rows);
+                secrets.clear();
+                secrets.addAll(secretItems);
             });
         })).exceptionally((e) -> {
             Platform.runLater(() -> {
-                secretsTable.getItems().clear();
+                secrets.clear();
                 treeView.getSelectionModel().clearSelection();
             });
             return null;
@@ -267,11 +336,9 @@ public class MainController {
                     .runAsync(() -> lazyLoadSecret(secret))
                     .thenAccept((v) -> Platform.runLater(() -> {
                         secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
-                        show.setText(secret.isHidden() ? "Show" : "Hide");
                     }));
         else {
             secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
-            show.setText(secret.isHidden() ? "Show" : "Hide");
         }
     }
 
