@@ -1,14 +1,38 @@
 package com.gjvandersloot.controller;
 
-import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.Node;
+import org.springframework.stereotype.Component;
 
-public class WireframeController {
-    public void onAbout(ActionEvent actionEvent) {
+@Component
+public class WireframeController{
+    @FXML private Node mainView;
+    @FXML private Node settingsView;
+
+    @FXML
+    public void initialize() {
+        mainView.setVisible(true);
+        mainView.setManaged(true);
+
+        settingsView.setVisible(false);
+        settingsView.setManaged(false);
     }
 
-    public void onSettings(ActionEvent actionEvent) {
+    @FXML
+    private void onHome() {
+        mainView.setVisible(true);
+        mainView.setManaged(true);
+
+        settingsView.setVisible(false);
+        settingsView.setManaged(false);
     }
 
-    public void onHome(ActionEvent actionEvent) {
+    @FXML
+    private void onSettings() {
+        settingsView.setVisible(true);
+        settingsView.setManaged(true);
+
+        mainView.setVisible(false);
+        mainView.setManaged(false);
     }
 }

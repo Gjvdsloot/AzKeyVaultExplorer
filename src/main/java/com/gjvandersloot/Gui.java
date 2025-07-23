@@ -25,7 +25,7 @@ public class Gui extends Application {
 
         springContext.getBean(MainStageProvider.class).setPrimaryStage(stage);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Wireframe.fxml"));
         loader.setControllerFactory(springContext::getBean);
 
         Parent root = loader.load();

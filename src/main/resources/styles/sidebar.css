@@ -1,0 +1,12 @@
+.sidebar {
+  -fx-background-color: #2C3E50;
+}
+.sidebar-button {
+  -fx-background-color: transparent;
+  -fx-padding: 10;
+  -fx-
+}
+.sidebar-button:selected,
+.sidebar-button:hover {
+  -fx-background-color: #34495E;
+}
