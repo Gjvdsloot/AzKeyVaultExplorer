@@ -13,7 +13,6 @@ import com.gjvandersloot.ui.SecretItem;
 import com.gjvandersloot.ui.SubscriptionItem;
 import com.gjvandersloot.ui.VaultItem;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;

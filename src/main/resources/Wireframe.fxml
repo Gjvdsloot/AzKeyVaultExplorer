@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.WireframeController">
+    <left>
+        <VBox fx:id="sidebar" prefHeight="486.0" prefWidth="161.0" spacing="10" BorderPane.alignment="CENTER_LEFT">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
+            <style>
+                -fx-background-color: #2C3E50;
+            </style>
+            <Button maxWidth="Infinity" onAction="#onHome" text="Home" />
+            <Button maxWidth="Infinity" onAction="#onSettings" text="Settings" />
+            <Button maxWidth="Infinity" onAction="#onAbout" text="About" />
+        </VBox>
+    </left>
+
+    <center>
+        <VBox fx:id="contentPane" prefHeight="486.0" prefWidth="720.0" spacing="10">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+            <Button text="Main Content" />
+        </VBox>
+    </center>
+</BorderPane>
