@@ -3,9 +3,7 @@ package com.gjvandersloot.controller;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
-import com.gjvandersloot.data.Account;
-import com.gjvandersloot.data.Store;
-import com.gjvandersloot.data.Vault;
+import com.gjvandersloot.data.*;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
@@ -14,6 +12,7 @@ import com.gjvandersloot.ui.SubscriptionItem;
 import com.gjvandersloot.ui.VaultItem;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 import static javafx.beans.binding.Bindings.selectBoolean;
 import static javafx.beans.binding.Bindings.when;
@@ -87,7 +87,8 @@ public class MainController {
         this.root = new TreeItem<>();
         treeView.setRoot(root);
         treeView.setShowRoot(false);
-        reloadTree();
+        loadTreeListeners();
+        loadTree();
 
         setupVaultFilter();
         setupTreeFilter();
@@ -100,6 +101,33 @@ public class MainController {
         var hidden = selectBoolean(selection, "hidden");
         show.textProperty().bind(when(selection.isNull().or(hidden))
                 .then("Show").otherwise("Hide"));
+    }
+
+    private void loadTreeListeners() {
+        store.getAccounts().addListener((MapChangeListener<String, Account>) change -> {
+            if (change.wasAdded() && !change.wasRemoved()) {
+                var account = change.getValueAdded();
+                var subs = change.getValueAdded().getTenants().values().stream().flatMap(t ->
+                        t.getSubscriptions().values().stream()).collect(Collectors.toSet());
+
+                subs.forEach(s -> addSubscriptionItem(account, s, root));
+                return;
+            }
+            if (!change.wasAdded() && change.wasRemoved()) {
+                var subs = change.getValueRemoved().getTenants().values().stream().flatMap(t ->
+                        t.getSubscriptions().keySet().stream()).collect(Collectors.toSet());
+
+                var subItems = root.getChildren().stream()
+                        .filter(t -> {
+                            if (!(t.getValue() instanceof SubscriptionItem s))
+                                return false;
+
+                            return subs.contains(s.getId());
+                        }).toList();
+
+                root.getChildren().removeAll(subItems);
+            }
+        });
     }
 
     private void setupTreeFilter() {
@@ -140,7 +168,6 @@ public class MainController {
     }
 
     private void setupVaultFilter() {
-        // 1) set up your columns (if you haven’t already):
         secretsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
 
         FilteredList<SecretItem> filteredData = new FilteredList<>(secrets, p -> true);
@@ -187,7 +214,7 @@ public class MainController {
                         showError(e.getMessage());
                     }
                 })
-                .thenAccept((v) -> Platform.runLater(this::reloadTree))
+//                .thenAccept((v) -> Platform.runLater(this::loadTree))
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
 
         cancelController.setOnCancel(() -> {
@@ -198,7 +225,7 @@ public class MainController {
         dialog.showAndWait();
     }
 
-    public void reloadTree() {
+    public void loadTree() {
         var root = this.root;
         root.getChildren().clear();
 
@@ -207,31 +234,35 @@ public class MainController {
         for (var account : accounts.values()) {
             for (var tenant : account.getTenants().values()) {
                 for (var subscription : tenant.getSubscriptions().values()) {
-                    var subscriptionItem = new SubscriptionItem();
-                    subscriptionItem.setId(subscription.getId());
-                    subscriptionItem.setName(subscription.getName());
-                    subscriptionItem.setAccountName(account.getUsername());
-
-                    var treeItem = new TreeItem<>();
-                    treeItem.setValue(subscriptionItem);
-
-                    var loadingItem = new TreeItem<>();
-                    loadingItem.setValue("Loading");
-
-                    treeItem.getChildren().add(loadingItem);
-
-                    root.getChildren().add(treeItem);
-
-                    treeItem.expandedProperty().addListener((obs, o, n) -> {
-                        if (!n) return;
-
-                        if (subscriptionItem.getVaults() == null) {
-                            loadVaults(treeItem);
-                        }
-                    });
+                    addSubscriptionItem(account, subscription, root);
                 }
             }
         }
+    }
+
+    private void addSubscriptionItem(Account account, Subscription subscription, TreeItem<Object> root) {
+        var subscriptionItem = new SubscriptionItem();
+        subscriptionItem.setId(subscription.getId());
+        subscriptionItem.setName(subscription.getName());
+        subscriptionItem.setAccountName(account.getUsername());
+
+        var treeItem = new TreeItem<>();
+        treeItem.setValue(subscriptionItem);
+
+        var loadingItem = new TreeItem<>();
+        loadingItem.setValue("Loading");
+
+        treeItem.getChildren().add(loadingItem);
+
+        root.getChildren().add(treeItem);
+
+        treeItem.expandedProperty().addListener((obs, o, n) -> {
+            if (!n) return;
+
+            if (subscriptionItem.getVaults() == null) {
+                loadVaults(treeItem);
+            }
+        });
     }
 
     private void loadVaults(TreeItem<Object> treeItem) {
@@ -400,5 +431,13 @@ public class MainController {
 
     public void addSecret(ActionEvent actionEvent) {
         showError("OhOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo");
+    }
+
+    public void delete(ActionEvent actionEvent) {
+        var y = treeView.getSelectionModel().getSelectedItem();
+
+        if (y.getValue() instanceof SubscriptionItem si) {
+            store.getAccounts().remove(si.getAccountName());
+        }
     }
 }

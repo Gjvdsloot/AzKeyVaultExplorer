@@ -78,7 +78,7 @@ public class AccountService {
             tenant.getSubscriptions().put(subscription.getId(), subscription);
         }
 
-        account.setTenants(tenants);
+        account.getTenants().putAll(tenants);
 
         return account;
     }

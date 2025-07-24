@@ -1,7 +1,7 @@
 package com.gjvandersloot;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.gjvandersloot.data.Store;
 import com.microsoft.aad.msal4jextensions.PersistenceSettings;
 import com.microsoft.aad.msal4jextensions.PersistenceTokenCacheAccessAspect;
@@ -77,7 +77,7 @@ public class AppDataService {
 
         try {
             var loadedStore = mapper.readValue(path.toFile(), typeRef);
-            store.setAccounts(loadedStore.getAccounts());
+            store.getAccounts().putAll(loadedStore.getAccounts());
         } catch (IOException e) {
             e.printStackTrace();
         }
