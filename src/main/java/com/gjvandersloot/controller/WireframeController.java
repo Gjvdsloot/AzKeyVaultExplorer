@@ -11,28 +11,24 @@ public class WireframeController{
 
     @FXML
     public void initialize() {
-        mainView.setVisible(true);
-        mainView.setManaged(true);
+        mainView.toFront();
+        onHome();
 
-        settingsView.setVisible(false);
-        settingsView.setManaged(false);
+        mainView.setManaged(true);
+        settingsView.setManaged(true);
     }
 
     @FXML
     private void onHome() {
+        mainView.toFront();
         mainView.setVisible(true);
-        mainView.setManaged(true);
-
         settingsView.setVisible(false);
-        settingsView.setManaged(false);
     }
 
     @FXML
     private void onSettings() {
-        settingsView.setVisible(true);
-        settingsView.setManaged(true);
-
+        settingsView.toFront();
         mainView.setVisible(false);
-        mainView.setManaged(false);
+        settingsView.setVisible(true);
     }
 }

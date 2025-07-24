@@ -31,6 +31,7 @@ public class SecretItem {
     public boolean isHidden() {
         return hidden.get();
     }
+    public void setHidden(boolean hidden) { this.hidden.set(hidden); }
     public BooleanProperty hiddenProperty() { return hidden; }
 
     // Computed property using a binding

@@ -8,17 +8,13 @@
     <top>
         <VBox>
             <MenuBar>
-                <menus>
-                    <Menu text="File">
-                        <items>
-<!--                            <MenuItem text="New" onAction="#onNew"/>-->
-<!--                            <MenuItem text="Open" onAction="#onOpen"/>-->
-                            <MenuItem text="New" />
-                            <MenuItem text="Open" />
-                        </items>
-                    </Menu>
-                    <!-- …other menus… -->
-                </menus>
+                <Menu text="File">
+                    <!--                            <MenuItem text="New" onAction="#onNew"/>-->
+                    <!--                            <MenuItem text="Open" onAction="#onOpen"/>-->
+                    <MenuItem text="New"/>
+                    <MenuItem text="Open"/>
+                </Menu>
+                <!-- …other menus… -->
             </MenuBar>
         </VBox>
     </top>

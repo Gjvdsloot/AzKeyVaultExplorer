@@ -333,11 +333,9 @@ public class MainController {
         if (secret.getValue() == null)
             CompletableFuture
                     .runAsync(() -> lazyLoadSecret(secret))
-                    .thenAccept((v) -> Platform.runLater(() -> {
-                        secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
-                    }));
+                    .thenAccept((v) -> Platform.runLater(() -> secret.setHidden(!secret.isHidden())));
         else {
-            secret.hiddenProperty().setValue(!secret.hiddenProperty().getValue());
+            secret.setHidden(!secret.hiddenProperty().getValue());
         }
     }
 
