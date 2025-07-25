@@ -42,15 +42,24 @@ public class SettingsController {
                         TreeItem<Object> treeItem = getTreeItem();
 
                         if (treeItem instanceof CheckBoxTreeItem<Object> cbItem) {
-                            // This will give you the standard checkbox behavior
                             CheckBox checkBox = new CheckBox();
 
-                            checkBox.selectedProperty().bindBidirectional(cbItem.selectedProperty());
+                            if (cbItem.getChildren().isEmpty()) {
+                                checkBox.selectedProperty().bindBidirectional(cbItem.selectedProperty());
+                            } else {
+                                checkBox.setSelected(cbItem.isSelected());
+                                checkBox.setIndeterminate(cbItem.isIndeterminate());
 
-                            if (!cbItem.getChildren().isEmpty())
-                                checkBox.indeterminateProperty().bind(cbItem.indeterminateProperty());
+                                cbItem.selectedProperty().addListener((obs, old, val) -> checkBox.setSelected(val));
+                                cbItem.indeterminateProperty().addListener((obs, old, val) -> checkBox.setIndeterminate(val));
 
-                            // Set text next to it
+                                checkBox.selectedProperty().addListener((obs, old, val) -> {
+                                    if (!checkBox.isIndeterminate()) {
+                                        cbItem.setSelected(val);
+                                    }
+                                });
+                            }
+
                             Label label = new Label(item.toString());
 
                             HBox hBox = new HBox(5, checkBox, label);
@@ -87,7 +96,7 @@ public class SettingsController {
 
                 for (var s : t.getSubscriptions().values()) {
                     var si = new CheckBoxTreeItem<Object>(new Wrapper<>(s, s.getName()));
-//                    si.selectedProperty().bindBidirectional(s.visibleProperty());
+                    si.selectedProperty().bindBidirectional(s.visibleProperty());
                     checkAll.getChildren().add(si);
                 }
 
