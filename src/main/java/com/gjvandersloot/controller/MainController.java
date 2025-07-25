@@ -152,11 +152,13 @@ public class MainController {
                 .toLowerCase();
 
         var copy = new TreeItem<>(root.getValue());
+        copy.setExpanded(true);
 
         for (TreeItem<Object> child : root.getChildren()) {
             TreeItem<Object> filteredChild = filterTree(child, filter);
             if (filteredChild != null) {
                 copy.getChildren().add(filteredChild);
+                filteredChild.setExpanded(true);
             }
         }
 
@@ -209,6 +211,7 @@ public class MainController {
                     try {
                         account = accountService.addAccount();
                         store.getAccounts().put(account.getUsername(), account);
+
                         appDataService.saveStore();
                     } catch (Exception e) {
                         showError(e.getMessage());
@@ -254,7 +257,8 @@ public class MainController {
 
         treeItem.getChildren().add(loadingItem);
 
-        root.getChildren().add(treeItem);
+        if (subscription.isVisible())
+            root.getChildren().add(treeItem);
 
         treeItem.expandedProperty().addListener((obs, o, n) -> {
             if (!n) return;

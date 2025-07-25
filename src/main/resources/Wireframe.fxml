@@ -9,9 +9,16 @@
     <stylesheets>
         <String fx:value="/styles/sidebar.css" />
     </stylesheets>
-    <fx:define>
-        <ToggleGroup fx:id="sidebarGroup" />
-    </fx:define>
+    <top>
+        <VBox>
+            <MenuBar>
+                <Menu text="File">
+                    <MenuItem text="New" />
+                    <MenuItem text="Open" />
+                </Menu>
+            </MenuBar>
+        </VBox>
+    </top>
     <left>
         <VBox fx:id="sidebar" prefHeight="496.0" prefWidth="34.0" styleClass="sidebar" BorderPane.alignment="CENTER_LEFT">
             <!-- Settings icon button -->

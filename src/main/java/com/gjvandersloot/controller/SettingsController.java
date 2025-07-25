@@ -1,12 +1,9 @@
 package com.gjvandersloot.controller;
 
+import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.ui.settings.Wrapper;
-import javafx.application.Platform;
-import javafx.beans.Observable;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -16,8 +13,6 @@ import javafx.scene.layout.HBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class SettingsController {
 
@@ -26,54 +21,13 @@ public class SettingsController {
     private final TreeItem<Object> root = new TreeItem<>();
 
     @Autowired
+    AppDataService appDataService;
+
+    @Autowired
     Store store;
 
     @FXML
     public void initialize() {
-        treeView.setCellFactory(tv -> new TreeCell<>() {
-                @Override
-                protected void updateItem(Object item, boolean empty) {
-                    super.updateItem(item, empty);
-
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        TreeItem<Object> treeItem = getTreeItem();
-
-                        if (treeItem instanceof CheckBoxTreeItem<Object> cbItem) {
-                            CheckBox checkBox = new CheckBox();
-
-                            if (cbItem.getChildren().isEmpty()) {
-                                checkBox.selectedProperty().bindBidirectional(cbItem.selectedProperty());
-                            } else {
-                                checkBox.setSelected(cbItem.isSelected());
-                                checkBox.setIndeterminate(cbItem.isIndeterminate());
-
-                                cbItem.selectedProperty().addListener((obs, old, val) -> checkBox.setSelected(val));
-                                cbItem.indeterminateProperty().addListener((obs, old, val) -> checkBox.setIndeterminate(val));
-
-                                checkBox.selectedProperty().addListener((obs, old, val) -> {
-                                    if (!checkBox.isIndeterminate()) {
-                                        cbItem.setSelected(val);
-                                    }
-                                });
-                            }
-
-                            Label label = new Label(item.toString());
-
-                            HBox hBox = new HBox(5, checkBox, label);
-                            hBox.setAlignment(Pos.CENTER_LEFT);
-                            setGraphic(hBox);
-                            setText(null);
-                        } else {
-                            setText(item.toString());
-                            setGraphic(getTreeItem().getGraphic());
-                        }
-                    }
-                }
-            });
-
 
         treeView.setRoot(root);
         treeView.setShowRoot(false);
@@ -84,37 +38,84 @@ public class SettingsController {
         });
 
         for (var a : store.getAccounts().values()) {
-            var ai = createAccountItem(a);
-            for (var t : a.getTenants().values()) {
-                var ti = new TreeItem<>();
-                ti.setValue(new Wrapper<>(t, "Tenant: " + t.getId()));
-                ai.getChildren().add(ti);
-
-                CheckBoxTreeItem<Object> checkAll = new CheckBoxTreeItem<>("Select all subscriptions");
-                checkAll.setIndependent(false);
-                ti.getChildren().add(checkAll);
-
-                for (var s : t.getSubscriptions().values()) {
-                    var si = new CheckBoxTreeItem<Object>(new Wrapper<>(s, s.getName()));
-                    si.selectedProperty().bindBidirectional(s.visibleProperty());
-                    checkAll.getChildren().add(si);
-                }
-
-                refreshSelectAll(checkAll);
-            }
+            createAccountItem(a);
         }
 
         expandAll(root);
     }
 
-    private void refreshSelectAll(CheckBoxTreeItem<?> parent) {
+    private void createAccountItem(Account a) {
+        var ai = new TreeItem<>();
+
+        Label prefix = new Label("Account: ");
+        prefix.setStyle("-fx-font-weight: bold;");
+
+        Label username = new Label(a.getUsername());
+        var removeLink = new Hyperlink("Remove");
+
+        var box = new HBox(10, prefix, username, removeLink);
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.setPadding(new Insets(2));
+
+        ai.setGraphic(box);
+        ai.setValue("");
+
+        root.getChildren().add(ai);
+
+        removeLink.setOnAction(e -> {
+            root.getChildren().remove(ai);
+            store.getAccounts().remove(a.getUsername());
+        });
+
+        for (var t : a.getTenants().values()) {
+            var ti = new TreeItem<>();
+            ti.setValue(new Wrapper<>(t, "Tenant: " + t.getId()));
+            ai.getChildren().add(ti);
+
+            TreeItem<Object> checkAllItem = new TreeItem<>("Select all subscriptions");
+            var checkAll = new CheckBox();
+
+            checkAll.setOnAction((e) -> {
+                var isSelected = checkAll.isSelected();
+                var isIndeterminate = checkAll.isIndeterminate();
+                for (var c : checkAllItem.getChildren()) {
+                    var sel = (CheckBox) c.getGraphic();
+
+                    sel.setSelected(isSelected && !isIndeterminate);
+                }
+            });
+
+            checkAllItem.setGraphic(checkAll);
+            ti.getChildren().add(checkAllItem);
+
+            for (var s : t.getSubscriptions().values()) {
+                var si = new TreeItem<Object>(new Wrapper<>(s, s.getName()));
+
+                var sCheckBox = new CheckBox();
+                sCheckBox.selectedProperty().bindBidirectional(s.visibleProperty());
+                sCheckBox.setOnAction((e) -> refreshSelectAll(checkAllItem));
+                checkAllItem.getChildren().add(si);
+
+                s.visibleProperty().addListener(obs -> {
+                    appDataService.saveStore();
+                });
+
+                si.setGraphic(sCheckBox);
+            }
+
+            refreshSelectAll(checkAllItem);
+        }
+    }
+
+    private void refreshSelectAll(TreeItem<Object> checkAll) {
         boolean any = false, all = true;
-        for (TreeItem<?> c : parent.getChildren()) {
-            boolean sel = ((CheckBoxTreeItem<?>)c).isSelected();
+        for (TreeItem<?> c : checkAll.getChildren()) {
+            boolean sel = ((CheckBox) c.getGraphic()).isSelected();
             any |= sel; all &= sel;
         }
-        parent.setSelected(all);
-        parent.setIndeterminate(any && !all);
+        var gfx = (CheckBox) checkAll.getGraphic();
+        gfx.setSelected(all);
+        gfx.setIndeterminate(any && !all);
     }
 
     private void expandAll(TreeItem<?> item) {
@@ -124,34 +125,5 @@ public class SettingsController {
         for (TreeItem<?> child : item.getChildren()) {
             expandAll(child);
         }
-    }
-
-    private TreeItem<Object> createAccountItem(Account a) {
-        var treeItem = new TreeItem<>();
-
-//        var aw = new Wrapper<>(a, a.getUsername());
-
-        Label prefix = new Label("Account: ");
-        prefix.setStyle("-fx-font-weight: bold;");
-
-        Label username = new Label(a.getUsername());
-        var removeLink = new Hyperlink("Remove");
-
-
-        var box = new HBox(10, prefix, username, removeLink);
-        box.setAlignment(Pos.CENTER_LEFT);
-        box.setPadding(new Insets(2));
-
-        treeItem.setGraphic(box);
-        treeItem.setValue("");
-
-        root.getChildren().add(treeItem);
-
-        removeLink.setOnAction(e -> {
-            root.getChildren().remove(treeItem);
-            store.getAccounts().remove(a.getUsername());
-        });
-
-        return treeItem;
     }
 }
