@@ -214,7 +214,6 @@ public class MainController {
                         showError(e.getMessage());
                     }
                 })
-//                .thenAccept((v) -> Platform.runLater(this::loadTree))
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
 
         cancelController.setOnCancel(() -> {
@@ -270,7 +269,6 @@ public class MainController {
 
         CompletableFuture.<ArrayList<Vault>>supplyAsync(() -> {
                     try {
-//                        throw new Exception();
                         return accountService.addKeyVaults(subscriptionItem.getId(), subscriptionItem.getAccountName());
                     } catch (Exception e) {
                         throw new CompletionException(e);

@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import java.lang.String?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
 <BorderPane prefHeight="496.0" prefWidth="762.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.WireframeController">
     <stylesheets>
-        <String fx:value="/styles/sidebar.css"/>
+        <String fx:value="/styles/sidebar.css" />
     </stylesheets>
     <fx:define>
         <ToggleGroup fx:id="sidebarGroup" />
@@ -18,12 +15,15 @@
     <left>
         <VBox fx:id="sidebar" prefHeight="496.0" prefWidth="34.0" styleClass="sidebar" BorderPane.alignment="CENTER_LEFT">
             <!-- Settings icon button -->
-            <ToggleButton fx:id="homeBtn" onAction="#onHome" styleClass="sidebar-button" toggleGroup="$sidebarGroup">
+            <ToggleButton fx:id="homeBtn" onAction="#onHome" styleClass="sidebar-button">
                 <graphic>
                     <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
                         <Image url="@/img/home.png" />
                     </ImageView>
                 </graphic>
+            <toggleGroup>
+               <ToggleGroup fx:id="sidebarGroup" />
+            </toggleGroup>
             </ToggleButton>
             <ToggleButton fx:id="settingsBtn" onAction="#onSettings" styleClass="sidebar-button" toggleGroup="$sidebarGroup">
                 <graphic>
@@ -36,8 +36,8 @@
     </left>
     <center>
         <StackPane fx:id="contentPane">
-            <fx:include fx:id="mainView" source="Main.fxml"/>
-            <fx:include fx:id="settingsView" source="Settings.fxml"/>
+            <fx:include fx:id="settingsView" source="Settings.fxml" />
+            <fx:include fx:id="mainView" source="Main.fxml" />
         </StackPane>
     </center>
 </BorderPane>
