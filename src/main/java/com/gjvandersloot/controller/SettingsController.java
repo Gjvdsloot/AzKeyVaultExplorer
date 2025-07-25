@@ -3,17 +3,20 @@ package com.gjvandersloot.controller;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.ui.settings.Wrapper;
+import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class SettingsController {
@@ -28,35 +31,40 @@ public class SettingsController {
     @FXML
     public void initialize() {
         treeView.setCellFactory(tv -> new TreeCell<>() {
-            @Override
-            protected void updateItem(Object item, boolean empty) {
-                super.updateItem(item, empty);
+                @Override
+                protected void updateItem(Object item, boolean empty) {
+                    super.updateItem(item, empty);
 
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    TreeItem<Object> treeItem = getTreeItem();
-
-                    if (treeItem instanceof CheckBoxTreeItem<Object> cbItem) {
-                        // This will give you the standard checkbox behavior
-                        CheckBox checkBox = new CheckBox();
-                        checkBox.selectedProperty().bindBidirectional(cbItem.selectedProperty());
-
-                        // Set text next to it
-                        Label label = new Label(item.toString());
-
-                        HBox hBox = new HBox(5, checkBox, label);
-                        hBox.setAlignment(Pos.CENTER_LEFT);
-                        setGraphic(hBox);
+                    if (empty || item == null) {
                         setText(null);
+                        setGraphic(null);
                     } else {
-                        setText(item.toString());
-                        setGraphic(getTreeItem().getGraphic());
+                        TreeItem<Object> treeItem = getTreeItem();
+
+                        if (treeItem instanceof CheckBoxTreeItem<Object> cbItem) {
+                            // This will give you the standard checkbox behavior
+                            CheckBox checkBox = new CheckBox();
+
+                            checkBox.selectedProperty().bindBidirectional(cbItem.selectedProperty());
+
+                            if (!cbItem.getChildren().isEmpty())
+                                checkBox.indeterminateProperty().bind(cbItem.indeterminateProperty());
+
+                            // Set text next to it
+                            Label label = new Label(item.toString());
+
+                            HBox hBox = new HBox(5, checkBox, label);
+                            hBox.setAlignment(Pos.CENTER_LEFT);
+                            setGraphic(hBox);
+                            setText(null);
+                        } else {
+                            setText(item.toString());
+                            setGraphic(getTreeItem().getGraphic());
+                        }
                     }
                 }
-            }
-        });
+            });
+
 
         treeView.setRoot(root);
         treeView.setShowRoot(false);
@@ -79,13 +87,25 @@ public class SettingsController {
 
                 for (var s : t.getSubscriptions().values()) {
                     var si = new CheckBoxTreeItem<Object>(new Wrapper<>(s, s.getName()));
-                    si.selectedProperty().bindBidirectional(s.visibleProperty());
+//                    si.selectedProperty().bindBidirectional(s.visibleProperty());
                     checkAll.getChildren().add(si);
                 }
+
+                refreshSelectAll(checkAll);
             }
         }
 
         expandAll(root);
+    }
+
+    private void refreshSelectAll(CheckBoxTreeItem<?> parent) {
+        boolean any = false, all = true;
+        for (TreeItem<?> c : parent.getChildren()) {
+            boolean sel = ((CheckBoxTreeItem<?>)c).isSelected();
+            any |= sel; all &= sel;
+        }
+        parent.setSelected(all);
+        parent.setIndeterminate(any && !all);
     }
 
     private void expandAll(TreeItem<?> item) {
