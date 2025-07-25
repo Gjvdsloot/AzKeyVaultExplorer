@@ -239,6 +239,7 @@ public class MainController {
         }
     }
 
+    // Maybe remove root as it's equal to this.root. Might change later though when attached resources are added.
     private void addSubscriptionItem(Account account, Subscription subscription, TreeItem<Object> root) {
         var subscriptionItem = new SubscriptionItem();
         subscriptionItem.setId(subscription.getId());
@@ -260,6 +261,14 @@ public class MainController {
 
             if (subscriptionItem.getVaults() == null) {
                 loadVaults(treeItem);
+            }
+        });
+
+        subscription.visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
+            if (isNowVisible) {
+                root.getChildren().add(treeItem);
+            } else {
+                root.getChildren().remove(treeItem);
             }
         });
     }

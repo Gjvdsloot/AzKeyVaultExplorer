@@ -12,7 +12,7 @@ import net.minidev.json.annotate.JsonIgnore;
 
 public class Subscription {
     @JsonIgnore
-    private final BooleanProperty visible = new SimpleBooleanProperty(false);
+    private final BooleanProperty visible = new SimpleBooleanProperty(true);
     public BooleanProperty visibleProperty() { return visible; }
 
     @JsonSetter("visible")
