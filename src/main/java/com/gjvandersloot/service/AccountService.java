@@ -16,6 +16,8 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Service
 public class AccountService {
@@ -83,21 +85,23 @@ public class AccountService {
         return account;
     }
 
-    public ArrayList<Vault> addKeyVaults(String subscriptionId, String accountName) throws Exception {
-        var account = pca.getAccounts().get().stream().filter(a -> accountName.equals(a.username())).findFirst().get();
-
-        var params = SilentParameters.builder(ARM_SCOPE, account).build();
-
-        InteractiveRequestParameters interactiveParams = InteractiveRequestParameters.builder(URI.create("http://localhost"))
-                .prompt(Prompt.SELECT_ACCOUNT)
-                .scopes(ARM_SCOPE)
-                .build();
-
-        IAuthenticationResult token;
+    public ArrayList<Vault> addKeyVaults(String subscriptionId, String accountName, Runnable onInteractiveAuthRequired, Runnable onFinish) throws Exception {
+                IAuthenticationResult token;
         try {
+            var account = pca.getAccounts().get().stream().filter(a -> accountName.equals(a.username())).findFirst().get();
+
+            var params = SilentParameters.builder(ARM_SCOPE, account).build();
+
             token = pca.acquireTokenSilently(params).get();
         } catch(Exception e) {
+            InteractiveRequestParameters interactiveParams = InteractiveRequestParameters.builder(URI.create("http://localhost"))
+                    .prompt(Prompt.SELECT_ACCOUNT)
+                    .scopes(ARM_SCOPE)
+                    .build();
+
+            onInteractiveAuthRequired.run();
             token = pca.acquireToken(interactiveParams).get();
+            onFinish.run();
         }
 
         var kvs = new ArrayList<Vault>();

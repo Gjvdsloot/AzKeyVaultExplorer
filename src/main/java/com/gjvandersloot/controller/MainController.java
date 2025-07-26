@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static javafx.beans.binding.Bindings.selectBoolean;
@@ -196,22 +197,14 @@ public class MainController {
     }
 
     public void addSubscription() throws IOException {
-        var loader = new FXMLLoader(getClass().getResource("/CancelDialog.fxml"));
-        Parent root = loader.load();
 
-        CancelDialogController cancelController = loader.getController();
-        var dialog = new Stage(StageStyle.UNDECORATED);
-        dialog.initOwner(mainStageProvider.getPrimaryStage());               // your main window
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setScene(new Scene(root));
-        cancelController.setDialogStage(dialog);
+        var dialog = createCancelDialog();
 
         var future = CompletableFuture.runAsync(() -> {
                     Account account;
                     try {
                         account = accountService.addAccount();
                         store.getAccounts().put(account.getUsername(), account);
-
                         appDataService.saveStore();
                     } catch (Exception e) {
                         showError(e.getMessage());
@@ -219,12 +212,31 @@ public class MainController {
                 })
                 .whenComplete((r, e) -> Platform.runLater(dialog::close));
 
-        cancelController.setOnCancel(() -> {
-            future.cancel(true);
-            Platform.runLater(dialog::close);
-        });
+//        cancelController.setOnCancel(() -> {
+//            future.cancel(true);
+//            Platform.runLater(dialog::close);
+//        });
 
         dialog.showAndWait();
+    }
+
+    private Stage createCancelDialog() {
+        var loader = new FXMLLoader(getClass().getResource("/CancelDialog.fxml"));
+        Parent root = null;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        CancelDialogController cancelController = loader.getController();
+        var dialog = new Stage(StageStyle.UNDECORATED);
+        dialog.initOwner(mainStageProvider.getPrimaryStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setScene(new Scene(root));
+        cancelController.setOnCancel(dialog::close);
+        cancelController.setDialogStage(dialog);
+        return dialog;
     }
 
     public void loadTree() {
@@ -282,7 +294,17 @@ public class MainController {
 
         CompletableFuture.<ArrayList<Vault>>supplyAsync(() -> {
                     try {
-                        return accountService.addKeyVaults(subscriptionItem.getId(), subscriptionItem.getAccountName());
+                        AtomicReference<Stage> dlg = new AtomicReference<>();
+
+                        return accountService.addKeyVaults(
+                                subscriptionItem.getId(),
+                                subscriptionItem.getAccountName(),
+                                () -> Platform.runLater(() -> {
+                                    dlg.set(createCancelDialog());
+                                    dlg.get().showAndWait();
+                                }),
+                                () -> Platform.runLater(() -> dlg.get().close())
+                        );
                     } catch (Exception e) {
                         throw new CompletionException(e);
                     }
