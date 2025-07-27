@@ -19,7 +19,7 @@ public class SecretItem {
 
 
     private String vaultUri;
-    private String accountName;
+    private String accountName = null;
 
     private final StringProperty value = new SimpleStringProperty(this, "value");
     public String getValue() {

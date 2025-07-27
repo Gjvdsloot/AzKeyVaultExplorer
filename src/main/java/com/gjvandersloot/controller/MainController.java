@@ -69,6 +69,7 @@ public class MainController {
 
     @FXML
     public TextField treeFilter;
+    public Button copy;
 
     @Autowired
     private ApplicationContext context;
@@ -112,6 +113,7 @@ public class MainController {
 
         var selection = secretsTable.getSelectionModel().selectedItemProperty();
 
+        copy.disableProperty().bind(selection.isNull());
         show.disableProperty().bind(selection.isNull());
         var hidden = selectBoolean(selection, "hidden");
         show.textProperty().bind(when(selection.isNull().or(hidden))
@@ -281,6 +283,8 @@ public class MainController {
                 }
             }
         }
+
+        store.getAttachedVaults().forEach((s, vault) -> addAttachedVaultItem(vault));
     }
 
     // Maybe remove root as it's equal to this.root. Might change later though when attached resources are added.
@@ -364,23 +368,36 @@ public class MainController {
     }
 
     private CompletableFuture<List<SecretProperties>> listPropertySecretsFuture = null;
-    public void treeViewClicked() {
+    public void treeViewClicked() throws Exception {
         TreeItem<Object> clickedItem = treeView.getSelectionModel().getSelectedItem();
         if (clickedItem == null) return;
 
         var obj = clickedItem.getValue();
 
-        if (!(obj instanceof VaultItem vaultItem)) return;
+//        if (!(obj instanceof VaultItem vaultItem)) return;
 
-        var url = vaultItem.getVaultUri();
-        var accountName = vaultItem.getAccountName();
+        String accountName;
+        String url;
+
+        SecretClient secretClient;
+        if (obj instanceof AttachedVault av) {
+            url = av.getVaultUri();
+            accountName = null;
+            secretClient = secretClientService.getOrCreateClient(av);
+        } else if (obj instanceof VaultItem vaultItem) {
+            url = vaultItem.getVaultUri();
+            accountName = vaultItem.getAccountName();
+            secretClient = secretClientService.getOrCreateClient(url, accountName);
+        } else {
+            url = null;
+            accountName = null;
+            return;
+        }
 
         if (listPropertySecretsFuture != null && !listPropertySecretsFuture.isDone() && !listPropertySecretsFuture.isCancelled())
             listPropertySecretsFuture.cancel(true);
 
         CompletableFuture<List<SecretProperties>> fetchFuture = CompletableFuture.supplyAsync(() -> {
-            var secretClient = secretClientService.getOrCreateClient(url, accountName);
-
             try {
                 return secretClient.listPropertiesOfSecrets()
                         .stream()
@@ -401,7 +418,7 @@ public class MainController {
                 var secretItem = new SecretItem();
                 secretItem.setSecretName(s.getName());
                 secretItem.setAccountName(accountName);
-                secretItem.setVaultUri(vaultItem.getVaultUri());
+                secretItem.setVaultUri(url);
                 return secretItem;
             }).toList();
 
@@ -459,7 +476,11 @@ public class MainController {
 
     private void lazyLoadSecret(SecretItem secret) {
         SecretClient client;
-        client = secretClientService.getOrCreateClient(secret.getVaultUri(), secret.getAccountName());
+        try {
+            client = secretClientService.getClient(secret.getVaultUri());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         var val = client.getSecret(secret.getSecretName());
         Platform.runLater(() -> {
             secret.valueProperty().setValue((val.getValue()));

@@ -21,7 +21,7 @@
     </VBox>
     <VBox prefHeight="291.0" prefWidth="454.0" GridPane.columnIndex="1">
         <ToolBar style="-fx-background-color: #f0f0f0">
-            <Button onAction="#copySecret" text="Copy" />
+            <Button fx:id="copy" onAction="#copySecret" text="Copy" />
             <Button fx:id="show" onAction="#showSecret" text="Show" />
             <Separator orientation="VERTICAL" />
             <Button onAction="#addSecret" text="New" />
