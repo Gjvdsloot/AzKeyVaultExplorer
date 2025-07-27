@@ -16,7 +16,6 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -183,20 +182,17 @@ public class MainController {
         filterField.textProperty().addListener((obs, oldVal, newVal) -> {
             String lower = (newVal == null ? "" : newVal.toLowerCase().trim());
             filteredData.setPredicate(item -> {
-                // show all if filter is empty
                 if (lower.isEmpty()) {
                     return true;
                 }
-                // otherwise compare against whatever fields you like:
-                boolean matchesName = item.getSecretName() != null
-                        && item.getSecretName().toLowerCase().contains(lower);
 
-                return matchesName;
+                return item.getSecretName() != null
+                        && item.getSecretName().toLowerCase().contains(lower);
             });
         });
     }
 
-    public void addSubscription() throws IOException {
+    public void addSubscription() {
 
         var dialog = createCancelDialog();
 
@@ -210,19 +206,19 @@ public class MainController {
                         showError(e.getMessage());
                     }
                 })
-                .whenComplete((r, e) -> Platform.runLater(dialog::close));
+                .whenComplete((r, e) -> Platform.runLater((dialog.getStage())::close));
 
-//        cancelController.setOnCancel(() -> {
-//            future.cancel(true);
-//            Platform.runLater(dialog::close);
-//        });
+        dialog.setOnCancel(() -> {
+            future.cancel(true);
+            Platform.runLater((dialog.getStage())::close);
+        });
 
-        dialog.showAndWait();
+        dialog.getStage().showAndWait();
     }
 
-    private Stage createCancelDialog() {
+    private CancelDialogController createCancelDialog() {
         var loader = new FXMLLoader(getClass().getResource("/CancelDialog.fxml"));
-        Parent root = null;
+        Parent root;
         try {
             root = loader.load();
         } catch (IOException e) {
@@ -235,8 +231,8 @@ public class MainController {
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setScene(new Scene(root));
         cancelController.setOnCancel(dialog::close);
-        cancelController.setDialogStage(dialog);
-        return dialog;
+        cancelController.setStage(dialog);
+        return cancelController;
     }
 
     public void loadTree() {
@@ -292,18 +288,18 @@ public class MainController {
     private void loadVaults(TreeItem<Object> treeItem) {
         var subscriptionItem = (SubscriptionItem) treeItem.getValue();
 
-        CompletableFuture.<ArrayList<Vault>>supplyAsync(() -> {
+        CompletableFuture.supplyAsync(() -> {
                     try {
-                        AtomicReference<Stage> dlg = new AtomicReference<>();
+                        AtomicReference<CancelDialogController> dlg = new AtomicReference<>();
 
                         return accountService.addKeyVaults(
                                 subscriptionItem.getId(),
                                 subscriptionItem.getAccountName(),
                                 () -> Platform.runLater(() -> {
                                     dlg.set(createCancelDialog());
-                                    dlg.get().showAndWait();
+                                    dlg.get().getStage().showAndWait();
                                 }),
-                                () -> Platform.runLater(() -> dlg.get().close())
+                                () -> Platform.runLater((dlg.get().getStage())::close)
                         );
                     } catch (Exception e) {
                         throw new CompletionException(e);
@@ -462,11 +458,11 @@ public class MainController {
         });
     }
 
-    public void addSecret(ActionEvent actionEvent) {
+    public void addSecret() {
         showError("OhOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo");
     }
 
-    public void delete(ActionEvent actionEvent) {
+    public void delete() {
         var y = treeView.getSelectionModel().getSelectedItem();
 
         if (y.getValue() instanceof SubscriptionItem si) {

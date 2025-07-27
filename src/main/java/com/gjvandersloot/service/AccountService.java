@@ -16,17 +16,10 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 @Service
 public class AccountService {
-    private static final String AUTHORITY = "https://login.microsoftonline.com/common";
-    private static final String CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
-
     private static final Set<String> ARM_SCOPE = Set.of("https://management.azure.com/.default");
-    private static final Set<String> VAULT_SCOPE = Set.of("https://vault.azure.net/.default");
-    private static final Set<String> GRAPH_SCOPE = Set.of("https://vault.azure.net/.default");
 
     @Autowired
     private PublicClientApplication pca;
@@ -88,10 +81,8 @@ public class AccountService {
     public ArrayList<Vault> addKeyVaults(String subscriptionId, String accountName, Runnable onInteractiveAuthRequired, Runnable onFinish) throws Exception {
                 IAuthenticationResult token;
         try {
-            var account = pca.getAccounts().get().stream().filter(a -> accountName.equals(a.username())).findFirst().get();
-
+            var account = pca.getAccounts().get().stream().filter(a -> accountName.equals(a.username())).findFirst().orElseThrow();
             var params = SilentParameters.builder(ARM_SCOPE, account).build();
-
             token = pca.acquireTokenSilently(params).get();
         } catch(Exception e) {
             InteractiveRequestParameters interactiveParams = InteractiveRequestParameters.builder(URI.create("http://localhost"))
