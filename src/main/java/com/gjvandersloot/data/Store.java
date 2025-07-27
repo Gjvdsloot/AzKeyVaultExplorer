@@ -31,4 +31,8 @@ public class Store {
     public void setAccountsMap(Map<String,Account> map) {
         this.accounts = FXCollections.observableMap(map);
     }
+
+    @JsonIgnore
+    @Getter @Setter
+    public Map<String, AttachedVault> attachedVaults = FXCollections.observableHashMap();
 }

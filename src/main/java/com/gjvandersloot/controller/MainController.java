@@ -3,6 +3,7 @@ package com.gjvandersloot.controller;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
+import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.data.Subscription;
@@ -85,6 +86,9 @@ public class MainController {
 
     @Autowired
     MainStageProvider mainStageProvider;
+
+    @Autowired
+    FxmlViewLoader loader;
 
     @Autowired
     AppDataService appDataService;
@@ -482,9 +486,7 @@ public class MainController {
 
     // Button bar, with default account
     public void addAttached() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/WizardView.fxml"));
-        loader.setControllerFactory(context::getBean);
-        Parent root = loader.load();
+        Parent root = loader.load("/WizardView.fxml");
 
         var stage = new Stage(StageStyle.DECORATED);
         stage.setTitle("Add attached key vault");

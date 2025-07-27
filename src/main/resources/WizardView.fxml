@@ -13,19 +13,22 @@
         <Insets bottom="10" left="10" right="10" top="10" />
     </padding>
 
-    <Label text="Client ID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <TextField fx:id="clientIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+    <Label text="Vault URI" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <TextField fx:id="vaultUriField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-    <Label text="Tenant ID:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <TextField fx:id="tenantIdField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    <Label text="Client ID:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <TextField fx:id="clientIdField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-    <Label text="Authentication" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <Label text="Tenant ID:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <TextField fx:id="tenantIdField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+    <Label text="Authentication" GridPane.columnIndex="0" GridPane.rowIndex="3" />
     <fx:define>
         <ToggleGroup fx:id="authToggleGroup"/>
     </fx:define>
 
     <!-- Auth radio buttons -->
-    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
+    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="3">
         <RadioButton fx:id="secretRadio"
                      text="Secret"
                      toggleGroup="$authToggleGroup"
@@ -36,20 +39,21 @@
     </HBox>
 
     <!-- Dynamic auth pane -->
-    <StackPane fx:id="authStack" GridPane.columnSpan="2" GridPane.rowIndex="3">
+    <StackPane fx:id="authStack" GridPane.columnSpan="2" GridPane.rowIndex="4">
         <VBox fx:id="secretPane" spacing="10">
-            <PasswordField promptText="Enter your client secret"/>
+            <PasswordField fx:id="secretField" promptText="Enter your client secret"/>
         </VBox>
         <VBox fx:id="certPane" spacing="10">
             <HBox spacing="10">
-                <TextField fx:id="certPathField" promptText="Choose certificate..."/>
-                <Button text="Browse"/>
+                <TextField HBox.hgrow="ALWAYS" fx:id="certPathField" promptText="Choose certificate..."/>
+                <Button fx:id="browseButton" text="Browse" onAction="#onBrowseCertificate"/>
             </HBox>
             <PasswordField promptText="Enter certificate password (optional)"/>
         </VBox>
     </StackPane>
 
-    <Button fx:id="attachButton" text="Attach Vault" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+    <Button fx:id="attachButton" text="Attach Vault" GridPane.columnIndex="1" GridPane.halignment="RIGHT"
+            GridPane.rowIndex="5" onAction="#onAttach"/>
    <rowConstraints>
       <RowConstraints />
       <RowConstraints />
