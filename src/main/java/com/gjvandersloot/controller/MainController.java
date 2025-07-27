@@ -6,6 +6,7 @@ import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.data.Subscription;
+import com.gjvandersloot.mvvm.view.WizardView;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
@@ -29,6 +30,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -67,10 +69,16 @@ public class MainController {
     public TextField treeFilter;
 
     @Autowired
+    private ApplicationContext context;
+
+    @Autowired
     AccountService accountService;
 
     @Autowired
     Store store;
+
+    @Autowired
+    WizardView wizardView;
 
     @Autowired
     SecretClientService secretClientService;
@@ -473,7 +481,16 @@ public class MainController {
     }
 
     // Button bar, with default account
-    public void addAttached() {
+    public void addAttached() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/WizardView.fxml"));
+        loader.setControllerFactory(context::getBean);
+        Parent root = loader.load();
 
+        var stage = new Stage(StageStyle.DECORATED);
+        stage.setTitle("Add attached key vault");
+        stage.initOwner(mainStageProvider.getPrimaryStage());
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene(root));
+        stage.showAndWait();
     }
 }

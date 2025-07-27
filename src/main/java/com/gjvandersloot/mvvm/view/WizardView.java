@@ -3,13 +3,12 @@ package com.gjvandersloot.mvvm.view;
 import com.gjvandersloot.mvvm.viewmodel.WizardViewModel;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.RadioButton;
 import javafx.scene.layout.VBox;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
+@Component
 public class WizardView {
     @Autowired
     WizardViewModel viewModel;
@@ -18,12 +17,6 @@ public class WizardView {
     @FXML private RadioButton certRadio;
     @FXML private VBox secretPane;
     @FXML private VBox certPane;
-
-    public WizardView() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("WizardView.fxml"));
-        loader.setController(this);
-        loader.load();
-    }
 
     @FXML
     public void initialize() {

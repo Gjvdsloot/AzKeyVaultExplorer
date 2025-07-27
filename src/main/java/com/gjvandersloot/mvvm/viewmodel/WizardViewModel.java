@@ -2,9 +2,9 @@ package com.gjvandersloot.mvvm.viewmodel;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import org.springframework.stereotype.Component;
 
-import java.net.DatagramSocket;
-
+@Component
 public class WizardViewModel {
     private final StringProperty selectedAuthMethod = new SimpleStringProperty("Secret");
 
