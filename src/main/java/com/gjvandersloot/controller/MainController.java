@@ -3,7 +3,9 @@ package com.gjvandersloot.controller;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
-import com.gjvandersloot.data.*;
+import com.gjvandersloot.data.Account;
+import com.gjvandersloot.data.Store;
+import com.gjvandersloot.data.Subscription;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
@@ -468,5 +470,10 @@ public class MainController {
         if (y.getValue() instanceof SubscriptionItem si) {
             store.getAccounts().remove(si.getAccountName());
         }
+    }
+
+    // Button bar, with default account
+    public void addAttached() {
+
     }
 }

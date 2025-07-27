@@ -4,39 +4,41 @@
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.gjvandersloot.controller.MainController" dividerPositions="0.3">
-    <VBox alignment="TOP_CENTER" prefHeight="529.0" prefWidth="150.0" GridPane.columnIndex="0">
+<SplitPane dividerPositions="0.3" prefHeight="400" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.MainController">
+    <VBox alignment="TOP_CENTER" GridPane.columnIndex="0">
         <ToolBar style="-fx-background-color: #f0f0f0;">
-            <Button alignment="TOP_CENTER" onMouseClicked="#addSubscription" prefWidth="100"
-                    style="-fx-font-weight: bold;" text="Add account"/>
-            <Hyperlink onAction="#loadTree" text="Refresh"/>
+         <SplitMenuButton prefWidth="120" onAction="#addSubscription" style="-fx-font-weight: bold;" text="Add account" >
+           <items>
+             <MenuItem onAction="#addAttached" text="Add attached" />
+           </items>
+         </SplitMenuButton>
+            <Hyperlink onAction="#loadTree" text="Refresh" />
         </ToolBar>
-        <TextField fx:id="treeFilter" promptText="Search"/>
-        <TreeView fx:id="treeView" onMouseClicked="#treeViewClicked" prefHeight="494.0" prefWidth="150.0"
-                  VBox.vgrow="ALWAYS">
+        <TextField fx:id="treeFilter" promptText="Search" />
+        <TreeView fx:id="treeView" onMouseClicked="#treeViewClicked" prefHeight="494.0" prefWidth="150.0" VBox.vgrow="ALWAYS">
 
         </TreeView>
     </VBox>
     <VBox prefHeight="291.0" prefWidth="454.0" GridPane.columnIndex="1">
         <ToolBar style="-fx-background-color: #f0f0f0">
-            <Button onAction="#copySecret" text="Copy"/>
-            <Button fx:id="show" onAction="#showSecret" text="Show"/>
-            <Separator orientation="VERTICAL"/>
-            <Button onAction="#addSecret" text="New"/>
-            <Button mnemonicParsing="false" text="Delete" onAction="#delete"/>
-            <Separator orientation="VERTICAL"/>
-            <TextField fx:id="filterField" promptText="Search secret"/>
+            <Button onAction="#copySecret" text="Copy" />
+            <Button fx:id="show" onAction="#showSecret" text="Show" />
+            <Separator orientation="VERTICAL" />
+            <Button onAction="#addSecret" text="New" />
+            <Button mnemonicParsing="false" onAction="#delete" text="Delete" />
+            <Separator orientation="VERTICAL" />
+            <TextField fx:id="filterField" promptText="Search secret" />
         </ToolBar>
-        <TableView fx:id="secretsTable" prefHeight="434.0" prefWidth="483.0" VBox.vgrow="ALWAYS">
+        <TableView fx:id="secretsTable" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="secretsColumn" prefWidth="150" text="Secret name">
                     <cellValueFactory>
-                        <PropertyValueFactory property="secretName"/>
+                        <PropertyValueFactory property="secretName" />
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn fx:id="secretValueColumn" prefWidth="200" text="Value">
                     <cellValueFactory>
-                        <PropertyValueFactory property="display"/>
+                        <PropertyValueFactory property="display" />
                     </cellValueFactory>
                 </TableColumn>
             </columns>
