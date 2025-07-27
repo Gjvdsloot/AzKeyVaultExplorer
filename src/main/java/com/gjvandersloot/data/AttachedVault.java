@@ -13,9 +13,23 @@ public class AttachedVault extends Vault {
         this.authType = authType;
     }
 
+    public AttachedVault() {}
+
     AuthType authType;
     String vaultUri;
     String clientId;
     String tenantId;
     String secret;
+
+    public String getName() {
+        return vaultUri.replaceFirst(
+                "^(?:.*://)?(.*?)\\.vault.*$",
+                "$1"
+        );
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

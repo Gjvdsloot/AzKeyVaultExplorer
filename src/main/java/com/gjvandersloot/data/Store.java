@@ -21,12 +21,10 @@ public class Store {
     @Setter
     @JsonIgnore
     private ObservableMap<String, Account> accounts = FXCollections.observableHashMap();
-
     @JsonProperty("accounts")
     public Map<String,Account> getAccountsMap() {
         return new HashMap<>(accounts);
     }
-
     @JsonProperty("accounts")
     public void setAccountsMap(Map<String,Account> map) {
         this.accounts = FXCollections.observableMap(map);
@@ -34,5 +32,13 @@ public class Store {
 
     @JsonIgnore
     @Getter @Setter
-    public Map<String, AttachedVault> attachedVaults = FXCollections.observableHashMap();
+    private ObservableMap<String, AttachedVault> attachedVaults = FXCollections.observableHashMap();
+    @JsonProperty("attachedVaults")
+    public Map<String,AttachedVault> setAttachedVaultsMap() {
+        return new HashMap<>(attachedVaults);
+    }
+    @JsonProperty("attachedVaults")
+    public void setAttachedVaultsMap(Map<String,AttachedVault> map) {
+        this.attachedVaults = FXCollections.observableMap(map);
+    }
 }

@@ -78,6 +78,7 @@ public class AppDataService {
         try {
             var loadedStore = mapper.readValue(path.toFile(), typeRef);
             store.getAccounts().putAll(loadedStore.getAccounts());
+            store.getAttachedVaults().putAll(loadedStore.getAttachedVaults());
         } catch (IOException e) {
             e.printStackTrace();
         }

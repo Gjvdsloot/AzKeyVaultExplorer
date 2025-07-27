@@ -62,6 +62,9 @@ public class WizardViewModel {
         if (mode.equals("Secret")) {
             try {
                 var vault = attachedVaultService.createVaultWithSecret(vaultUri.get(), clientId.get(), tenantId.get(), secret.get());
+
+                store.getAttachedVaults().put(vault.getVaultUri(), vault);
+
                 success.set(true);
             } catch (Exception e) {
                 error.set(e.getMessage());

@@ -5,6 +5,7 @@ import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.Account;
+import com.gjvandersloot.data.AttachedVault;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.data.Subscription;
 import com.gjvandersloot.mvvm.view.WizardView;
@@ -142,6 +143,25 @@ public class MainController {
                 root.getChildren().removeAll(subItems);
             }
         });
+
+        store.getAttachedVaults().addListener((MapChangeListener<String, AttachedVault>) change -> {
+            if (change.wasAdded()) {
+                addAttachedVaultItem(change.getValueAdded());
+            }
+        });
+    }
+
+    private void addAttachedVaultItem(AttachedVault vault) {
+        var attachedRoot = root.getChildren().stream()
+                .filter(v -> v.getValue() instanceof String s && s.equals("Attached"))
+                .findFirst().orElse(null);
+        if (attachedRoot == null) {
+            attachedRoot = new TreeItem<>("Attached");
+            root.getChildren().add(attachedRoot);
+        }
+
+        var ti = new TreeItem<Object>(vault);
+        attachedRoot.getChildren().add(ti);
     }
 
     private void setupTreeFilter() {
@@ -215,7 +235,6 @@ public class MainController {
                     try {
                         account = accountService.addAccount();
                         store.getAccounts().put(account.getUsername(), account);
-                        appDataService.saveStore();
                     } catch (Exception e) {
                         showError(e.getMessage());
                     }
