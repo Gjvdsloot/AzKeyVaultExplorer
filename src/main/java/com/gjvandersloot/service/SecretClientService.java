@@ -41,7 +41,7 @@ public class SecretClientService {
     }
 
     public SecretClient getOrCreateClient(AttachedVault vault) throws Exception {
-        var secretClient = clients.getOrDefault(vault.getVaultUri(), null);
+        var secretClient = clients.getOrDefault(vault.getVaultUrl(), null);
         if (secretClient != null)
             return secretClient;
 
@@ -53,11 +53,11 @@ public class SecretClientService {
                     .build();
 
             secretClient = new SecretClientBuilder()
-                    .vaultUrl(vault.getVaultUri())
+                    .vaultUrl(vault.getVaultUrl())
                     .credential(clientSecretCredential)
                     .buildClient();
 
-            clients.put(vault.getVaultUri(), secretClient);
+            clients.put(vault.getVaultUrl(), secretClient);
             return secretClient;
         } else {
             throw new Exception("Not implemented");

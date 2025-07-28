@@ -2,6 +2,8 @@ package com.gjvandersloot.controller;
 
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
+import com.gjvandersloot.data.AttachedVault;
+import com.gjvandersloot.data.ILoadable;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.ui.settings.Wrapper;
 import javafx.collections.MapChangeListener;
@@ -20,6 +22,8 @@ public class SettingsController {
 
     private final TreeItem<Object> root = new TreeItem<>();
 
+    private final TreeItem<Object> attachedRoot = new TreeItem<>("");
+
     @Autowired
     AppDataService appDataService;
 
@@ -28,20 +32,54 @@ public class SettingsController {
 
     @FXML
     public void initialize() {
-
         treeView.setRoot(root);
         treeView.setShowRoot(false);
+
+        var label = new Label("Attached");
+        label.setStyle("-fx-font-weight: bold;");
+        attachedRoot.setGraphic(label);
+        root.getChildren().add(attachedRoot);
+        attachedRoot.setExpanded(true);
 
         store.getAccounts().addListener((MapChangeListener<String, Account>) change -> {
             if (change.wasAdded() && !change.wasRemoved())
                 createAccountItem(change.getValueAdded());
         });
 
+        store.getAttachedVaults().addListener((MapChangeListener<String, AttachedVault>) change -> {
+            if (change.wasAdded() && !change.wasRemoved())
+                createAttachedVaultItem(change.getValueAdded());
+        });
+
         for (var a : store.getAccounts().values()) {
             createAccountItem(a);
         }
 
+        for (var a : store.getAttachedVaults().values()) {
+            createAttachedVaultItem(a);
+        }
+
         expandAll(root);
+    }
+
+    private void createAttachedVaultItem(AttachedVault vault) {
+        var ti = new TreeItem<Object>("");
+
+        Label vaultName = new Label(vault.getName());
+        var removeLink = new Hyperlink("Remove");
+
+        removeLink.setOnAction(e -> {
+            attachedRoot.getChildren().remove(ti);
+            store.getAttachedVaults().remove(vault.getVaultUrl());
+        });
+
+        var box = new HBox(10, vaultName, removeLink);
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.setPadding(new Insets(2));
+
+        ti.setGraphic(box);
+
+        attachedRoot.getChildren().add(ti);
     }
 
     private void createAccountItem(Account a) {

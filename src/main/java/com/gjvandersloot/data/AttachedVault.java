@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class AttachedVault extends Vault {
-    public AttachedVault(String vaultUri, String clientId, String tenantId, AuthType authType) {
-        this.vaultUri = vaultUri;
+    public AttachedVault(String vaultUrl, String clientId, String tenantId, AuthType authType) {
+        this.vaultUrl = vaultUrl;
         this.clientId = clientId;
         this.tenantId = tenantId;
         this.authType = authType;
@@ -14,13 +14,13 @@ public class AttachedVault extends Vault {
     public AttachedVault() {}
 
     @Getter @Setter AuthType authType;
-    @Getter @Setter String vaultUri;
+    @Getter @Setter String vaultUrl;
     @Getter @Setter String clientId;
     @Getter @Setter String tenantId;
     @Getter @Setter String secret;
 
     public String getName() {
-        return vaultUri.replaceFirst(
+        return vaultUrl.replaceFirst(
                 "^(?:.*://)?(.*?)\\.vault.*$",
                 "$1"
         );

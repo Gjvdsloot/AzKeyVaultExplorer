@@ -14,7 +14,7 @@
     </padding>
 
     <Label text="Vault URI" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <TextField fx:id="vaultUriField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+    <TextField fx:id="vaultUrlField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
     <Label text="Client ID:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
     <TextField fx:id="clientIdField" GridPane.columnIndex="1" GridPane.rowIndex="1" />

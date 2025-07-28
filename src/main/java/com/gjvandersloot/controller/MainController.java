@@ -29,7 +29,6 @@ import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -360,7 +359,7 @@ public class MainController {
             var vaultItems = new ArrayList<Vault>();
             for (var vault : vaults) {
                 var vaultItem = new Vault();
-                vaultItem.setVaultUri(vault.getVaultUri());
+                vaultItem.setVaultUrl(vault.getVaultUrl());
                 vaultItem.setName(vault.getName());
                 vaultItem.setAccountName(subscription.getAccountName());
 
@@ -393,12 +392,12 @@ public class MainController {
         SecretClient secretClient;
         ILoadable sel;
         if (obj instanceof AttachedVault av) {
-            url = av.getVaultUri();
+            url = av.getVaultUrl();
             accountName = null;
             sel = av;
             secretClient = secretClientService.getOrCreateClient(av);
         } else if (obj instanceof Vault vaultItem) {
-            url = vaultItem.getVaultUri();
+            url = vaultItem.getVaultUrl();
             accountName = vaultItem.getAccountName();
             sel = vaultItem;
             secretClient = secretClientService.getOrCreateClient(url, accountName);
@@ -432,7 +431,7 @@ public class MainController {
                 var secretItem = new Secret();
                 secretItem.setSecretName(s.getName());
                 secretItem.setAccountName(accountName);
-                secretItem.setVaultUri(url);
+                secretItem.setVaultUrl(url);
                 return secretItem;
             }).toList();
 
@@ -491,7 +490,7 @@ public class MainController {
     private void lazyLoadSecret(Secret secret) {
         SecretClient client;
         try {
-            client = secretClientService.getClient(secret.getVaultUri());
+            client = secretClientService.getClient(secret.getVaultUrl());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

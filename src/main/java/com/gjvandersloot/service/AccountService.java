@@ -121,7 +121,7 @@ public class AccountService {
         var kvs = new ArrayList<Vault>();
         for (var kv : json.get("value")) {
             var vault = new Vault();
-            vault.setVaultUri(kv.get("properties").get("vaultUri").asText());
+            vault.setVaultUrl(kv.get("properties").get("vaultUrl").asText());
             vault.setName(kv.get("name").asText());
             kvs.add(vault);
         }

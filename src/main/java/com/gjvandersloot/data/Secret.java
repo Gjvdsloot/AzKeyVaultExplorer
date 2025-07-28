@@ -18,7 +18,7 @@ public class Secret {
     public void setSecretName(String secretName) { this.secretName.set(secretName); }
 
 
-    private String vaultUri;
+    private String vaultUrl;
     private String accountName = null;
 
     private final StringProperty value = new SimpleStringProperty(this, "value");
