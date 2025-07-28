@@ -6,10 +6,7 @@ import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.gjvandersloot.data.AttachedVault;
 import com.gjvandersloot.data.AuthType;
-import com.gjvandersloot.data.Vault;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class AttachedVaultService {

@@ -1,8 +1,6 @@
 package com.gjvandersloot;
 
 import com.microsoft.aad.msal4j.PublicClientApplication;
-import javafx.application.HostServices;
-import javafx.stage.Stage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

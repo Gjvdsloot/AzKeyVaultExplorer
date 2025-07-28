@@ -9,7 +9,6 @@ import com.gjvandersloot.mvvm.view.WizardView;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
-import com.gjvandersloot.data.Secret;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
