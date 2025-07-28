@@ -28,6 +28,14 @@ public class Subscription {
     private String id;
 
     @Getter @Setter
+    private String accountName;
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    @Getter @Setter
     @JsonIgnore
     private ArrayList<Vault> vaults;
 }

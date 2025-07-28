@@ -6,11 +6,8 @@ import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.gjvandersloot.data.AttachedVault;
 import com.gjvandersloot.data.AuthType;
-import com.gjvandersloot.data.Store;
 import com.gjvandersloot.service.token.MsalInteractiveCredential;
-import com.gjvandersloot.ui.SecretItem;
 import com.microsoft.aad.msal4j.*;
-import jdk.jshell.spi.ExecutionControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

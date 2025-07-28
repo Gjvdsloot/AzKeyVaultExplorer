@@ -1,4 +1,4 @@
-package com.gjvandersloot.ui;
+package com.gjvandersloot.data;
 
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.*;
@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class SecretItem {
-    public SecretItem() {
+public class Secret {
+    public Secret() {
         hidden.set(true);
     }
 

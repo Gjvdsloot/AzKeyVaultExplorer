@@ -9,9 +9,7 @@ import com.gjvandersloot.mvvm.view.WizardView;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
-import com.gjvandersloot.ui.SecretItem;
-import com.gjvandersloot.ui.SubscriptionItem;
-import com.gjvandersloot.ui.VaultItem;
+import com.gjvandersloot.data.Secret;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -28,7 +26,6 @@ import javafx.scene.input.ClipboardContent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -52,12 +49,12 @@ public class MainController {
     public TreeView<Object> treeView;
 
     @FXML
-    public TableView<SecretItem> secretsTable;
+    public TableView<Secret> secretsTable;
 
     @FXML
-    public TableColumn<SecretItem, String> secretsColumn;
+    public TableColumn<Secret, String> secretsColumn;
     @FXML
-    public TableColumn<SecretItem, String> secretValueColumn;
+    public TableColumn<Secret, String> secretValueColumn;
 
     @FXML
     public Button show;
@@ -92,9 +89,10 @@ public class MainController {
 
     @Autowired
     AppDataService appDataService;
+
     private TreeItem<Object> root;
 
-    private final ObservableList<SecretItem> secrets = FXCollections.observableArrayList();
+    private final ObservableList<Secret> secrets = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -154,7 +152,7 @@ public class MainController {
 
                 var subItems = root.getChildren().stream()
                         .filter(t -> {
-                            if (!(t.getValue() instanceof SubscriptionItem s))
+                            if (!(t.getValue() instanceof Subscription s))
                                 return false;
 
                             return subs.contains(s.getId());
@@ -226,9 +224,9 @@ public class MainController {
     private void setupVaultFilter() {
         secretsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
 
-        FilteredList<SecretItem> filteredData = new FilteredList<>(secrets, p -> true);
+        FilteredList<Secret> filteredData = new FilteredList<>(secrets, p -> true);
 
-        SortedList<SecretItem> sortedData = new SortedList<>(filteredData);
+        SortedList<Secret> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(secretsTable.comparatorProperty());
 
         secretsTable.setItems(sortedData);
@@ -307,7 +305,7 @@ public class MainController {
 
     // Maybe remove root as it's equal to this.root. Might change later though when attached resources are added.
     private void addSubscriptionItem(Account account, Subscription subscription, TreeItem<Object> root) {
-        var subscriptionItem = new SubscriptionItem();
+        var subscriptionItem = new Subscription();
         subscriptionItem.setId(subscription.getId());
         subscriptionItem.setName(subscription.getName());
         subscriptionItem.setAccountName(account.getUsername());
@@ -341,15 +339,15 @@ public class MainController {
     }
 
     private void loadVaults(TreeItem<Object> treeItem) {
-        var subscriptionItem = (SubscriptionItem) treeItem.getValue();
+        var subscription = (Subscription) treeItem.getValue();
 
         CompletableFuture.supplyAsync(() -> {
                     try {
                         AtomicReference<CancelDialogController> dlg = new AtomicReference<>();
 
                         return accountService.addKeyVaults(
-                                subscriptionItem.getId(),
-                                subscriptionItem.getAccountName(),
+                                subscription.getId(),
+                                subscription.getAccountName(),
                                 () -> Platform.runLater(() -> {
                                     dlg.set(createCancelDialog());
                                     dlg.get().getStage().showAndWait();
@@ -362,12 +360,12 @@ public class MainController {
         }).thenAccept(vaults -> Platform.runLater(() -> {
             treeItem.getChildren().clear();
 
-            var vaultItems = new ArrayList<VaultItem>();
+            var vaultItems = new ArrayList<Vault>();
             for (var vault : vaults) {
-                var vaultItem = new VaultItem();
+                var vaultItem = new Vault();
                 vaultItem.setVaultUri(vault.getVaultUri());
                 vaultItem.setName(vault.getName());
-                vaultItem.setAccountName(subscriptionItem.getAccountName());
+                vaultItem.setAccountName(subscription.getAccountName());
 
                 var child = new TreeItem<>();
                 child.setValue(vaultItem);
@@ -377,7 +375,7 @@ public class MainController {
                 vaultItems.add(vaultItem);
             }
 
-            subscriptionItem.setVaults(vaultItems);
+            subscription.setVaults(vaultItems);
         })).exceptionally((e) -> {
             Platform.runLater(() -> treeItem.getChildren().clear());
             showError(e.getMessage());
@@ -402,7 +400,7 @@ public class MainController {
             accountName = null;
             sel = av;
             secretClient = secretClientService.getOrCreateClient(av);
-        } else if (obj instanceof VaultItem vaultItem) {
+        } else if (obj instanceof Vault vaultItem) {
             url = vaultItem.getVaultUri();
             accountName = vaultItem.getAccountName();
             sel = vaultItem;
@@ -434,7 +432,7 @@ public class MainController {
                 return;
 
             var secretItems = secretProperties.stream().map(s -> {
-                var secretItem = new SecretItem();
+                var secretItem = new Secret();
                 secretItem.setSecretName(s.getName());
                 secretItem.setAccountName(accountName);
                 secretItem.setVaultUri(url);
@@ -493,7 +491,7 @@ public class MainController {
         clipboard.setContent(content);
     }
 
-    private void lazyLoadSecret(SecretItem secret) {
+    private void lazyLoadSecret(Secret secret) {
         SecretClient client;
         try {
             client = secretClientService.getClient(secret.getVaultUri());
@@ -538,7 +536,7 @@ public class MainController {
     public void delete() {
         var y = treeView.getSelectionModel().getSelectedItem();
 
-        if (y.getValue() instanceof SubscriptionItem si) {
+        if (y.getValue() instanceof Subscription si) {
             store.getAccounts().remove(si.getAccountName());
         }
     }
