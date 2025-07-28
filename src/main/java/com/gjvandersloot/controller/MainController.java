@@ -5,7 +5,6 @@ import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.*;
-import com.gjvandersloot.mvvm.view.WizardView;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.service.SecretClientService;
@@ -72,9 +71,6 @@ public class MainController {
 
     @Autowired
     Store store;
-
-    @Autowired
-    WizardView wizardView;
 
     @Autowired
     SecretClientService secretClientService;

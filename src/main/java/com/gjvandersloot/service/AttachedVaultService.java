@@ -1,6 +1,5 @@
 package com.gjvandersloot.service;
 
-import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenRequestContext;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
@@ -24,7 +23,7 @@ public class AttachedVaultService {
                     .addScopes("https://vault.azure.net/.default");
 
             try {
-                AccessToken token = credential.getToken(request).block();
+                credential.getToken(request).block();
             } catch (RuntimeException ex) {
                 throw new Exception(ex);
             }

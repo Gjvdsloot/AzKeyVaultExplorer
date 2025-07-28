@@ -137,9 +137,7 @@ public class SettingsController {
                 sCheckBox.setOnAction((e) -> refreshSelectAll(checkAllItem));
                 checkAllItem.getChildren().add(si);
 
-                s.visibleProperty().addListener(obs -> {
-                    appDataService.saveStore();
-                });
+                s.visibleProperty().addListener(obs -> appDataService.saveStore());
 
                 si.setGraphic(sCheckBox);
             }
