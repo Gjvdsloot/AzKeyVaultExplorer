@@ -3,8 +3,7 @@ package com.gjvandersloot.data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
-public class AttachedVault extends Vault implements Loadable {
+public class AttachedVault extends Vault {
     public AttachedVault(String vaultUri, String clientId, String tenantId, AuthType authType) {
         this.vaultUri = vaultUri;
         this.clientId = clientId;
@@ -14,11 +13,11 @@ public class AttachedVault extends Vault implements Loadable {
 
     public AttachedVault() {}
 
-    AuthType authType;
-    String vaultUri;
-    String clientId;
-    String tenantId;
-    String secret;
+    @Getter @Setter AuthType authType;
+    @Getter @Setter String vaultUri;
+    @Getter @Setter String clientId;
+    @Getter @Setter String tenantId;
+    @Getter @Setter String secret;
 
     public String getName() {
         return vaultUri.replaceFirst(

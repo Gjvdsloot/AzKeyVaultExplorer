@@ -1,6 +1,6 @@
 package com.gjvandersloot.data;
 
-public interface Loadable {
+public interface ILoadable {
     boolean getLoadFailed();
     void setLoadFailed(boolean loadFailed);
 }

@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Vault implements Loadable {
+public class Vault implements ILoadable {
     private final StringProperty name = new SimpleStringProperty();
     public StringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }

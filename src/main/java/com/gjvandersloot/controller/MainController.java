@@ -91,6 +91,7 @@ public class MainController {
     AppDataService appDataService;
 
     private TreeItem<Object> root;
+    private TreeItem<Object> attachedRoot;
 
     private final ObservableList<Secret> secrets = FXCollections.observableArrayList();
 
@@ -99,6 +100,7 @@ public class MainController {
         this.root = new TreeItem<>();
         treeView.setRoot(root);
         treeView.setShowRoot(false);
+
         loadTreeListeners();
         loadTree();
 
@@ -122,9 +124,9 @@ public class MainController {
 
                 if (empty || item == null) {
                     setText(null);
-                } else if (item instanceof Loadable loadable) {
+                } else if (item instanceof ILoadable ILoadable) {
                     setText(item.toString());
-                    if (loadable.getLoadFailed()) {
+                    if (ILoadable.getLoadFailed()) {
                         setStyle("-fx-text-fill: gray; -fx-opacity: 0.6;");
                     } else {
                         setStyle("");
@@ -170,13 +172,6 @@ public class MainController {
     }
 
     private void addAttachedVaultItem(AttachedVault vault) {
-        var attachedRoot = root.getChildren().stream()
-                .filter(v -> v.getValue() instanceof String s && s.equals("Attached"))
-                .findFirst().orElse(null);
-        if (attachedRoot == null) {
-            attachedRoot = new TreeItem<>("Attached");
-            root.getChildren().add(attachedRoot);
-        }
 
         var ti = new TreeItem<Object>(vault);
         attachedRoot.getChildren().add(ti);
@@ -289,6 +284,8 @@ public class MainController {
     public void loadTree() {
         var root = this.root;
         root.getChildren().clear();
+        attachedRoot = new TreeItem<>("Attached");
+        root.getChildren().add(attachedRoot);
 
         var accounts = store.getAccounts();
 
@@ -394,7 +391,7 @@ public class MainController {
         String url;
 
         SecretClient secretClient;
-        Loadable sel;
+        ILoadable sel;
         if (obj instanceof AttachedVault av) {
             url = av.getVaultUri();
             accountName = null;
