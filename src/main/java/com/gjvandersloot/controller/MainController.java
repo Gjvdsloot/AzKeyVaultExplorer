@@ -116,17 +116,18 @@ public class MainController {
             protected void updateItem(Object item, boolean empty) {
                 super.updateItem(item, empty);
 
+                setText(null);
+                setGraphic(null);
+                setStyle("");
+
                 if (empty || item == null) {
-                    setText(null);
-                } else if (item instanceof ILoadable ILoadable) {
-                    setText(item.toString());
-                    if (ILoadable.getLoadFailed()) {
-                        setStyle("-fx-text-fill: gray; -fx-opacity: 0.6;");
-                    } else {
-                        setStyle("");
-                    }
-                } else {
-                    setText(item.toString());
+                    return;
+                }
+
+                setText(item.toString());
+
+                if (item instanceof ILoadable loadable && loadable.getLoadFailed()) {
+                    setStyle("-fx-text-fill: gray; -fx-opacity: 0.6;");
                 }
             }
         });
