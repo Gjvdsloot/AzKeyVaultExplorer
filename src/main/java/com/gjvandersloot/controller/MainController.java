@@ -4,10 +4,7 @@ import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.FxmlViewLoader;
-import com.gjvandersloot.data.Account;
-import com.gjvandersloot.data.AttachedVault;
-import com.gjvandersloot.data.Store;
-import com.gjvandersloot.data.Subscription;
+import com.gjvandersloot.data.*;
 import com.gjvandersloot.mvvm.view.WizardView;
 import com.gjvandersloot.service.AccountService;
 import com.gjvandersloot.service.MainStageProvider;
@@ -31,6 +28,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -118,6 +116,26 @@ public class MainController {
         var hidden = selectBoolean(selection, "hidden");
         show.textProperty().bind(when(selection.isNull().or(hidden))
                 .then("Show").otherwise("Hide"));
+
+        treeView.setCellFactory(tv -> new TreeCell<>() {
+            @Override
+            protected void updateItem(Object item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                } else if (item instanceof Loadable loadable) {
+                    setText(item.toString());
+                    if (loadable.getLoadFailed()) {
+                        setStyle("-fx-text-fill: gray; -fx-opacity: 0.6;");
+                    } else {
+                        setStyle("");
+                    }
+                } else {
+                    setText(item.toString());
+                }
+            }
+        });
     }
 
     private void loadTreeListeners() {
@@ -360,7 +378,7 @@ public class MainController {
             }
 
             subscriptionItem.setVaults(vaultItems);
-        })).exceptionally(e -> {
+        })).exceptionally((e) -> {
             Platform.runLater(() -> treeItem.getChildren().clear());
             showError(e.getMessage());
             return null;
@@ -374,23 +392,22 @@ public class MainController {
 
         var obj = clickedItem.getValue();
 
-//        if (!(obj instanceof VaultItem vaultItem)) return;
-
         String accountName;
         String url;
 
         SecretClient secretClient;
+        Loadable sel;
         if (obj instanceof AttachedVault av) {
             url = av.getVaultUri();
             accountName = null;
+            sel = av;
             secretClient = secretClientService.getOrCreateClient(av);
         } else if (obj instanceof VaultItem vaultItem) {
             url = vaultItem.getVaultUri();
             accountName = vaultItem.getAccountName();
+            sel = vaultItem;
             secretClient = secretClientService.getOrCreateClient(url, accountName);
         } else {
-            url = null;
-            accountName = null;
             return;
         }
 
@@ -403,6 +420,8 @@ public class MainController {
                         .stream()
                         .toList();
             } catch(Exception e) {
+                sel.setLoadFailed(true);
+                treeView.refresh();
                 showError(e.getMessage());
                 throw e;
             }

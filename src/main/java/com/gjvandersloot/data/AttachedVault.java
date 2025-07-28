@@ -3,9 +3,8 @@ package com.gjvandersloot.data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-public class AttachedVault extends Vault {
+@Getter @Setter
+public class AttachedVault extends Vault implements Loadable {
     public AttachedVault(String vaultUri, String clientId, String tenantId, AuthType authType) {
         this.vaultUri = vaultUri;
         this.clientId = clientId;
@@ -31,5 +30,16 @@ public class AttachedVault extends Vault {
     @Override
     public String toString() {
         return getName();
+    }
+
+    private boolean loadFailed = false;
+    @Override
+    public boolean getLoadFailed() {
+        return loadFailed;
+    }
+
+    @Override
+    public void setLoadFailed(boolean loadFailed) {
+        this.loadFailed = loadFailed;
     }
 }
