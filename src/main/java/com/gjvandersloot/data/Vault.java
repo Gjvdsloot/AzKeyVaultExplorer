@@ -11,7 +11,7 @@ public class Vault implements ILoadable {
     private final StringProperty name = new SimpleStringProperty();
     public StringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }
-    public void setName(String name) { this.name.setValue(name); };
+    public void setName(String name) { this.name.setValue(name); }
 
     @Getter @Setter
     private String accountName;

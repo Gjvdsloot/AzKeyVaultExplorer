@@ -27,10 +27,11 @@ javafx {
 }
 
 shadowJar {
-    archiveClassifier.set("") // remove "-all" from the name
+    archiveClassifier.set("all") // remove "-all" from the name
     version = project.version
     mergeServiceFiles()
 }
+
 
 var buildDirectory = getLayout().getBuildDirectory().get().asFile.path
 
@@ -54,7 +55,7 @@ tasks.register('packageApp', Exec) {
     dependsOn(shadowJar)
 
     def mainOptions = ['--input', "${buildDirectory}/libs",
-                       '--main-jar', "${application.applicationName}-${version}.jar",
+                       '--main-jar', "${application.applicationName}-${version}-all.jar",
                        '--runtime-image', Jvm.current().javaHome.absolutePath,
                        '--dest', "$buildDirectory/out",
                        '--name', application.applicationName,
