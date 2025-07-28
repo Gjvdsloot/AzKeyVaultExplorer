@@ -3,6 +3,7 @@ package com.gjvandersloot.data;
 import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.annotate.JsonIgnore;
 
+@JsonIgnoreProperties({"vaults", "accountName"})
 public class Subscription {
     @JsonIgnore
     private final BooleanProperty visible = new SimpleBooleanProperty(true);
@@ -36,6 +38,5 @@ public class Subscription {
     }
 
     @Getter @Setter
-    @JsonIgnore
     private ArrayList<Vault> vaults;
 }

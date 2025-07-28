@@ -17,7 +17,7 @@ public class Vault implements ILoadable {
     private String accountName;
 
     @Getter @Setter
-    private String vaultUrl;
+    private String vaultUri;
 
     @Override
     public String toString() {

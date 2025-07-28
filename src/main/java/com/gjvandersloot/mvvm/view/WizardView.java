@@ -23,7 +23,7 @@ import java.io.IOException;
 
 @Component
 public class WizardView {
-    public TextField vaultUrlField;
+    public TextField vaultUriField;
     @Autowired
     WizardViewModel viewModel;
 
@@ -58,14 +58,14 @@ public class WizardView {
 
         clientIdField.textProperty().bindBidirectional(viewModel.clientIdProperty());
         tenantIdField.textProperty().bindBidirectional(viewModel.tenantIdProperty());
-        vaultUrlField.textProperty().bindBidirectional(viewModel.vaultUrlProperty());
+        vaultUriField.textProperty().bindBidirectional(viewModel.vaultUriProperty());
         secretField.textProperty().bindBidirectional(viewModel.secretProperty());
 
         // 2) build a BooleanBinding that's true when *all* required fields are non‑empty:
         BooleanBinding basicsFilled =
                 clientIdField.textProperty().isNotEmpty()
                         .and(tenantIdField.textProperty().isNotEmpty())
-                        .and(vaultUrlField.textProperty().isNotEmpty());
+                        .and(vaultUriField.textProperty().isNotEmpty());
 
         // when Secret is selected, require secretField:
         BooleanBinding secretOk =

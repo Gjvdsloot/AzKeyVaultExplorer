@@ -22,26 +22,26 @@ public class SecretClientService {
     private PublicClientApplication pca;
 
 
-    public SecretClient getClient(String vaultUrl) {
-        return clients.get(vaultUrl);
+    public SecretClient getClient(String vaultUri) {
+        return clients.get(vaultUri);
     }
 
-    public SecretClient getOrCreateClient(String vaultUrl, String accountName) {
-        var secretClient = clients.getOrDefault(vaultUrl, null);
+    public SecretClient getOrCreateClient(String vaultUri, String accountName) {
+        var secretClient = clients.getOrDefault(vaultUri, null);
         if (secretClient != null) return secretClient;
 
         secretClient = new SecretClientBuilder()
-                .vaultUrl(vaultUrl)
+                .vaultUrl(vaultUri)
                 .credential(new MsalInteractiveCredential(pca, accountName))
                 .buildClient();
 
-        clients.put(vaultUrl, secretClient);
+        clients.put(vaultUri, secretClient);
 
         return secretClient;
     }
 
     public SecretClient getOrCreateClient(AttachedVault vault) throws Exception {
-        var secretClient = clients.getOrDefault(vault.getVaultUrl(), null);
+        var secretClient = clients.getOrDefault(vault.getVaultUri(), null);
         if (secretClient != null)
             return secretClient;
 
@@ -53,11 +53,11 @@ public class SecretClientService {
                     .build();
 
             secretClient = new SecretClientBuilder()
-                    .vaultUrl(vault.getVaultUrl())
+                    .vaultUrl(vault.getVaultUri())
                     .credential(clientSecretCredential)
                     .buildClient();
 
-            clients.put(vault.getVaultUrl(), secretClient);
+            clients.put(vault.getVaultUri(), secretClient);
             return secretClient;
         } else {
             throw new Exception("Not implemented");

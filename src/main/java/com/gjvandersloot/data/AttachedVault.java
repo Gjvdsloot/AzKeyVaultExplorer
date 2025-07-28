@@ -1,11 +1,12 @@
 package com.gjvandersloot.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-public class AttachedVault extends Vault {
-    public AttachedVault(String vaultUrl, String clientId, String tenantId, AuthType authType) {
-        this.vaultUrl = vaultUrl;
+public class AttachedVault implements ILoadable {
+    public AttachedVault(String vaultUri, String clientId, String tenantId, AuthType authType) {
+        this.vaultUri = vaultUri;
         this.clientId = clientId;
         this.tenantId = tenantId;
         this.authType = authType;
@@ -14,13 +15,14 @@ public class AttachedVault extends Vault {
     public AttachedVault() {}
 
     @Getter @Setter AuthType authType;
-    @Getter @Setter String vaultUrl;
+    @Getter @Setter String vaultUri;
     @Getter @Setter String clientId;
     @Getter @Setter String tenantId;
     @Getter @Setter String secret;
 
+    @JsonIgnore
     public String getName() {
-        return vaultUrl.replaceFirst(
+        return vaultUri.replaceFirst(
                 "^(?:.*://)?(.*?)\\.vault.*$",
                 "$1"
         );
@@ -31,7 +33,9 @@ public class AttachedVault extends Vault {
         return getName();
     }
 
+    @JsonIgnore
     private boolean loadFailed = false;
+
     @Override
     public boolean getLoadFailed() {
         return loadFailed;

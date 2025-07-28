@@ -28,9 +28,9 @@ public class WizardViewModel {
         return tenantId;
     }
 
-    private final StringProperty vaultUrl = new SimpleStringProperty();
-    public Property<String> vaultUrlProperty() {
-        return vaultUrl;
+    private final StringProperty vaultUri = new SimpleStringProperty();
+    public Property<String> vaultUriProperty() {
+        return vaultUri;
     }
 
     private final StringProperty secret = new SimpleStringProperty();
@@ -54,15 +54,15 @@ public class WizardViewModel {
     public void createAttachedVault() {
         var mode = selectedAuthMethod.get();
 
-        if (store.getAttachedVaults().getOrDefault(vaultUrl.get(), null) != null) {
+        if (store.getAttachedVaults().getOrDefault(vaultUri.get(), null) != null) {
             return;
         }
 
         if (mode.equals("Secret")) {
             try {
-                var vault = attachedVaultService.createVaultWithSecret(vaultUrl.get(), clientId.get(), tenantId.get(), secret.get());
+                var vault = attachedVaultService.createVaultWithSecret(vaultUri.get(), clientId.get(), tenantId.get(), secret.get());
 
-                store.getAttachedVaults().put(vault.getVaultUrl(), vault);
+                store.getAttachedVaults().put(vault.getVaultUri(), vault);
 
                 success.set(true);
             } catch (Exception e) {

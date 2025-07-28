@@ -3,12 +3,10 @@ package com.gjvandersloot.controller;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.AttachedVault;
-import com.gjvandersloot.data.ILoadable;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.ui.settings.Wrapper;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -70,12 +68,11 @@ public class SettingsController {
 
         removeLink.setOnAction(e -> {
             attachedRoot.getChildren().remove(ti);
-            store.getAttachedVaults().remove(vault.getVaultUrl());
+            store.getAttachedVaults().remove(vault.getVaultUri());
         });
 
         var box = new HBox(10, vaultName, removeLink);
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setPadding(new Insets(2));
 
         ti.setGraphic(box);
 
@@ -85,7 +82,7 @@ public class SettingsController {
     private void createAccountItem(Account a) {
         var ai = new TreeItem<>();
 
-        Label prefix = new Label("Account: ");
+        Label prefix = new Label("Account:");
         prefix.setStyle("-fx-font-weight: bold;");
 
         Label username = new Label(a.getUsername());
@@ -93,7 +90,6 @@ public class SettingsController {
 
         var box = new HBox(10, prefix, username, removeLink);
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setPadding(new Insets(2));
 
         ai.setGraphic(box);
         ai.setValue("");
@@ -106,8 +102,15 @@ public class SettingsController {
         });
 
         for (var t : a.getTenants().values()) {
-            var ti = new TreeItem<>();
-            ti.setValue(new Wrapper<>(t, "Tenant: " + t.getId()));
+            var ti = new TreeItem<Object>("");
+            Label tPrefix = new Label("Tenant:");
+            tPrefix.setStyle("-fx-font-weight: bold;");
+            Label tText = new Label(t.getId());
+
+            var tBox = new HBox(10, tPrefix, tText);
+            tBox.setAlignment(Pos.CENTER_LEFT);
+            ti.setGraphic(tBox);
+
             ai.getChildren().add(ti);
 
             TreeItem<Object> checkAllItem = new TreeItem<>("Select all subscriptions");

@@ -359,7 +359,7 @@ public class MainController {
             var vaultItems = new ArrayList<Vault>();
             for (var vault : vaults) {
                 var vaultItem = new Vault();
-                vaultItem.setVaultUrl(vault.getVaultUrl());
+                vaultItem.setVaultUri(vault.getVaultUri());
                 vaultItem.setName(vault.getName());
                 vaultItem.setAccountName(subscription.getAccountName());
 
@@ -392,12 +392,12 @@ public class MainController {
         SecretClient secretClient;
         ILoadable sel;
         if (obj instanceof AttachedVault av) {
-            url = av.getVaultUrl();
+            url = av.getVaultUri();
             accountName = null;
             sel = av;
             secretClient = secretClientService.getOrCreateClient(av);
         } else if (obj instanceof Vault vaultItem) {
-            url = vaultItem.getVaultUrl();
+            url = vaultItem.getVaultUri();
             accountName = vaultItem.getAccountName();
             sel = vaultItem;
             secretClient = secretClientService.getOrCreateClient(url, accountName);
@@ -431,7 +431,7 @@ public class MainController {
                 var secretItem = new Secret();
                 secretItem.setSecretName(s.getName());
                 secretItem.setAccountName(accountName);
-                secretItem.setVaultUrl(url);
+                secretItem.setVaultUri(url);
                 return secretItem;
             }).toList();
 
@@ -490,7 +490,7 @@ public class MainController {
     private void lazyLoadSecret(Secret secret) {
         SecretClient client;
         try {
-            client = secretClientService.getClient(secret.getVaultUrl());
+            client = secretClientService.getClient(secret.getVaultUri());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

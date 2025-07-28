@@ -13,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class AttachedVaultService {
-    public AttachedVault createVaultWithSecret(String vaultUrl, String clientId, String tenantId, String secret) throws Exception {
-            var vault = new AttachedVault(vaultUrl, clientId, tenantId, AuthType.SECRET);
+    public AttachedVault createVaultWithSecret(String vaultUri, String clientId, String tenantId, String secret) throws Exception {
+            var vault = new AttachedVault(vaultUri, clientId, tenantId, AuthType.SECRET);
             vault.setSecret(secret);
 
             ClientSecretCredential credential = new ClientSecretCredentialBuilder()

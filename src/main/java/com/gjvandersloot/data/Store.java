@@ -30,15 +30,16 @@ public class Store {
         this.accounts = FXCollections.observableMap(map);
     }
 
-    @JsonIgnore
     @Getter @Setter
+    @JsonIgnore
     private ObservableMap<String, AttachedVault> attachedVaults = FXCollections.observableHashMap();
     @JsonProperty("attachedVaults")
-    public Map<String,AttachedVault> setAttachedVaultsMap() {
+    public Map<String, AttachedVault> getAttachedVaultsMap() {
         return new HashMap<>(attachedVaults);
     }
+
     @JsonProperty("attachedVaults")
-    public void setAttachedVaultsMap(Map<String,AttachedVault> map) {
+    public void setAttachedVaultsMap(Map<String, AttachedVault> map) {
         this.attachedVaults = FXCollections.observableMap(map);
     }
 }
