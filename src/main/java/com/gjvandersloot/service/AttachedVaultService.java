@@ -10,14 +10,11 @@ import com.gjvandersloot.data.AttachedVault;
 import com.gjvandersloot.data.AuthType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.io.FileInputStream;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 @Service

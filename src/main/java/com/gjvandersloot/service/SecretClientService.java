@@ -1,14 +1,11 @@
 package com.gjvandersloot.service;
 
 import com.azure.core.credential.TokenCredential;
-import com.azure.identity.ClientCertificateCredential;
 import com.azure.identity.ClientCertificateCredentialBuilder;
-import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.gjvandersloot.data.AttachedVault;
-import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.service.token.MsalInteractiveCredential;
 import com.microsoft.aad.msal4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
