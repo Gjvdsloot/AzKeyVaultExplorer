@@ -48,7 +48,7 @@
                 <TextField HBox.hgrow="ALWAYS" fx:id="certPathField" promptText="Choose certificate..."/>
                 <Button fx:id="browseButton" text="Browse" onAction="#onBrowseCertificate"/>
             </HBox>
-            <PasswordField promptText="Enter certificate password (optional)"/>
+            <PasswordField fx:id="certPasswordField" promptText="Enter certificate password (optional)"/>
         </VBox>
     </StackPane>
 

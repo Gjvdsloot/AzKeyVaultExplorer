@@ -48,13 +48,18 @@ public class WizardViewModel {
         return error;
     }
 
+    private final StringProperty certPassword = new SimpleStringProperty();
+    public Property<String> certPasswordProperty() {
+        return certPassword;
+    }
+
     @Setter
     private String certificatePath;
 
     public void createAttachedVault() {
         var mode = selectedAuthMethod.get();
 
-        if (store.getAttachedVaults().getOrDefault(vaultUri.get(), null) != null) {
+        if (store.getAttachedVaults().getOrDefault(vaultUri.get(), null) == null) {
             return;
         }
 
@@ -68,10 +73,21 @@ public class WizardViewModel {
             } catch (Exception e) {
                 error.set(e.getMessage());
             }
+        } else if(mode.equals("Certificate")) {
+            try {
+                var vault = attachedVaultService.createVaultWithCertificate(vaultUri.get(), clientId.get(), tenantId.get(), certificatePath, certPassword.get());
+
+                store.getAttachedVaults().put(vault.getVaultUri(), vault);
+
+                success.set(true);
+            } catch (Exception e) {
+                error.set(e.getMessage());
+            }
         } else {
-            // Swallow
+            throw new RuntimeException("Not supported auth type");
         }
     }
+
 
 
 }

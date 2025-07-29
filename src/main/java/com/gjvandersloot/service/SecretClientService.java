@@ -1,5 +1,8 @@
 package com.gjvandersloot.service;
 
+import com.azure.core.credential.TokenCredential;
+import com.azure.identity.ClientCertificateCredential;
+import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.security.keyvault.secrets.SecretClient;
@@ -42,25 +45,33 @@ public class SecretClientService {
 
     public SecretClient getOrCreateClient(AttachedVault vault) throws Exception {
         var secretClient = clients.getOrDefault(vault.getVaultUri(), null);
+        TokenCredential tokenCredential;
+
         if (secretClient != null)
             return secretClient;
 
-        if (vault.getAuthType() == AuthType.SECRET) {
-            ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
+        tokenCredential = switch (vault.getAuthType()) {
+            case SECRET -> new ClientSecretCredentialBuilder()
                     .tenantId(vault.getTenantId())
                     .clientId(vault.getClientId())
                     .clientSecret(vault.getSecret())
                     .build();
+            case CERTIFICATE -> new ClientCertificateCredentialBuilder()
+                    .tenantId(vault.getTenantId())
+                    .clientId(vault.getClientId())
+                    .pfxCertificate(vault.getCertificatePath())
+                    .clientCertificatePassword(vault.getCertificatePassword())
+                    .build();
+            case null -> throw new Exception("Not implemented");
+        };
 
-            secretClient = new SecretClientBuilder()
-                    .vaultUrl(vault.getVaultUri())
-                    .credential(clientSecretCredential)
-                    .buildClient();
+        secretClient = new SecretClientBuilder()
+                .vaultUrl(vault.getVaultUri())
+                .credential(tokenCredential)
+                .buildClient();
 
-            clients.put(vault.getVaultUri(), secretClient);
-            return secretClient;
-        } else {
-            throw new Exception("Not implemented");
-        }
+        clients.put(vault.getVaultUri(), secretClient);
+
+        return secretClient;
     }
 }

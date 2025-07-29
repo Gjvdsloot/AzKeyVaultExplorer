@@ -20,6 +20,9 @@ public class AttachedVault implements ILoadable {
     @Getter @Setter String tenantId;
     @Getter @Setter String secret;
 
+    @Getter @Setter String certificatePath;
+    @Getter @Setter String certificatePassword;
+
     @JsonIgnore
     public String getName() {
         return vaultUri.replaceFirst(

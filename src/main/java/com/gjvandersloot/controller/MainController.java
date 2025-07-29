@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -135,31 +136,34 @@ public class MainController {
 
     private void loadTreeListeners() {
         store.getAccounts().addListener((MapChangeListener<String, Account>) change -> {
-            if (change.wasAdded() && !change.wasRemoved()) {
-                var account = change.getValueAdded();
-                var subs = change.getValueAdded().getTenants().values().stream().flatMap(t ->
-                        t.getSubscriptions().values().stream()).collect(Collectors.toSet());
+            Account account = change.wasAdded() ? change.getValueAdded() : change.getValueRemoved();
 
-                subs.forEach(s -> addSubscriptionItem(account, s, root));
-                return;
-            }
-            if (!change.wasAdded() && change.wasRemoved()) {
-                var subs = change.getValueRemoved().getTenants().values().stream().flatMap(t ->
-                        t.getSubscriptions().keySet().stream()).collect(Collectors.toSet());
+            Set<String> subsToHandle = account.getTenants().values().stream()
+                    .flatMap(t -> t.getSubscriptions().keySet().stream())
+                    .collect(Collectors.toSet());
 
-                var subItems = root.getChildren().stream()
-                        .filter(t -> {
-                            if (!(t.getValue() instanceof Subscription s))
-                                return false;
+            root.getChildren().removeIf(node -> {
+                Object value = node.getValue();
+                return value instanceof Subscription s && subsToHandle.contains(s.getId());
+            });
 
-                            return subs.contains(s.getId());
-                        }).toList();
+            if (change.wasAdded()) {
+                Set<Subscription> subsToAdd = change.getValueAdded().getTenants().values().stream()
+                        .flatMap(t -> t.getSubscriptions().values().stream())
+                        .collect(Collectors.toSet());
 
-                root.getChildren().removeAll(subItems);
+                subsToAdd.forEach(s -> addSubscriptionItem(account, s, root));
             }
         });
 
         store.getAttachedVaults().addListener((MapChangeListener<String, AttachedVault>) change -> {
+            if (change.wasRemoved()) {
+                var uriToRemove = change.getValueRemoved().getVaultUri();
+
+                attachedRoot.getChildren().removeIf(node ->
+                        ((AttachedVault) node.getValue()).getVaultUri().equals(uriToRemove)
+                );
+            }
             if (change.wasAdded()) {
                 addAttachedVaultItem(change.getValueAdded());
             }

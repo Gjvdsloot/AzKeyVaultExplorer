@@ -24,6 +24,7 @@ import java.io.IOException;
 @Component
 public class WizardView {
     public TextField vaultUriField;
+    public PasswordField certPasswordField;
     @Autowired
     WizardViewModel viewModel;
 
@@ -60,6 +61,7 @@ public class WizardView {
         tenantIdField.textProperty().bindBidirectional(viewModel.tenantIdProperty());
         vaultUriField.textProperty().bindBidirectional(viewModel.vaultUriProperty());
         secretField.textProperty().bindBidirectional(viewModel.secretProperty());
+        certPasswordField.textProperty().bindBidirectional(viewModel.certPasswordProperty());
 
         // 2) build a BooleanBinding that's true when *all* required fields are non‑empty:
         BooleanBinding basicsFilled =
@@ -98,6 +100,7 @@ public class WizardView {
         chooser.setTitle("Select certificate file");
         chooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("PKCS#12 / PFX files", "*.pfx", "*.p12"),
+//                new FileChooser.ExtensionFilter("PEM files", "*.pem"),
                 new FileChooser.ExtensionFilter("All files", "*.*")
         );
 
