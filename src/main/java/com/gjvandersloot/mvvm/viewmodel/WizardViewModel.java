@@ -1,7 +1,7 @@
 package com.gjvandersloot.mvvm.viewmodel;
 
 import com.gjvandersloot.data.Store;
-import com.gjvandersloot.service.AttachedVaultService;
+import com.gjvandersloot.service.VaultService;
 import javafx.beans.property.*;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WizardViewModel {
-    @Autowired private AttachedVaultService attachedVaultService;
+    @Autowired private VaultService attachedVaultService;
 
     @Autowired private Store store;
 
@@ -56,10 +56,10 @@ public class WizardViewModel {
     @Setter
     private String certificatePath;
 
-    public void createAttachedVault() {
+    public void createVault() {
         var mode = selectedAuthMethod.get();
 
-        if (store.getAttachedVaults().getOrDefault(vaultUri.get(), null) == null) {
+        if (store.getAttachedVaults().getOrDefault(vaultUri.get(), null) != null) {
             return;
         }
 

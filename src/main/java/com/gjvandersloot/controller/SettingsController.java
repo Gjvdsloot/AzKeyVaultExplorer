@@ -2,8 +2,8 @@ package com.gjvandersloot.controller;
 
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
-import com.gjvandersloot.data.AttachedVault;
 import com.gjvandersloot.data.Store;
+import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.ui.settings.Wrapper;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
@@ -44,9 +44,9 @@ public class SettingsController {
                 createAccountItem(change.getValueAdded());
         });
 
-        store.getAttachedVaults().addListener((MapChangeListener<String, AttachedVault>) change -> {
+        store.getAttachedVaults().addListener((MapChangeListener<String, Vault>) change -> {
             if (change.wasAdded() && !change.wasRemoved())
-                createAttachedVaultItem(change.getValueAdded());
+                createVaultItem(change.getValueAdded());
         });
 
         for (var a : store.getAccounts().values()) {
@@ -54,13 +54,13 @@ public class SettingsController {
         }
 
         for (var a : store.getAttachedVaults().values()) {
-            createAttachedVaultItem(a);
+            createVaultItem(a);
         }
 
         expandAll(root);
     }
 
-    private void createAttachedVaultItem(AttachedVault vault) {
+    private void createVaultItem(Vault vault) {
         var ti = new TreeItem<Object>("");
 
         Label vaultName = new Label(vault.getName());

@@ -6,8 +6,8 @@ import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.gjvandersloot.AppDataService;
-import com.gjvandersloot.data.AttachedVault;
 import com.gjvandersloot.data.AuthType;
+import com.gjvandersloot.data.Vault;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +18,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
-public class AttachedVaultService {
+public class VaultService {
     @Autowired AppDataService appDataService;
 
-    public AttachedVault createVaultWithSecret(String vaultUri, String clientId, String tenantId, String secret) throws Exception {
-            var vault = new AttachedVault(vaultUri, clientId, tenantId, AuthType.SECRET);
-            vault.setSecret(secret);
+    public Vault createVaultWithSecret(String vaultUri, String clientId, String tenantId, String secret) throws Exception {
+            var vault = new Vault(vaultUri, clientId, tenantId, AuthType.SECRET);
+            vault.getCredentials().setSecret(secret);
 
             ClientSecretCredential credential = new ClientSecretCredentialBuilder()
                     .tenantId(tenantId)
@@ -43,8 +43,8 @@ public class AttachedVaultService {
             return vault;
     }
 
-    public AttachedVault createVaultWithCertificate(String vaultUri, String clientId, String tenantId, String sourceCertificatePath, String certificatePassword) throws Exception {
-        var vault = new AttachedVault(vaultUri, clientId, tenantId, AuthType.CERTIFICATE);
+    public Vault createVaultWithCertificate(String vaultUri, String clientId, String tenantId, String sourceCertificatePath, String certificatePassword) throws Exception {
+        var vault = new Vault(vaultUri, clientId, tenantId, AuthType.CERTIFICATE);
 
         ClientCertificateCredential credential = new ClientCertificateCredentialBuilder()
                 .tenantId(tenantId)
@@ -69,8 +69,8 @@ public class AttachedVaultService {
         var targetPath = certFolder.resolve(guid + ".pfx");
         Files.copy(Paths.get(sourceCertificatePath), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-        vault.setCertificatePath(targetPath.toAbsolutePath().toString());
-        vault.setCertificatePassword(certificatePassword);
+        vault.getCredentials().setCertificatePath(targetPath.toAbsolutePath().toString());
+        vault.getCredentials().setCertificatePassword(certificatePassword);
 
         return vault;
     }

@@ -141,6 +141,6 @@ public class WizardView {
     }
 
     public void onAttach() {
-        viewModel.createAttachedVault();
+        viewModel.createVault();
     }
 }

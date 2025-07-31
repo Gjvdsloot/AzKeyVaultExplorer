@@ -156,21 +156,21 @@ public class MainController {
             }
         });
 
-        store.getAttachedVaults().addListener((MapChangeListener<String, AttachedVault>) change -> {
+        store.getAttachedVaults().addListener((MapChangeListener<String, Vault>) change -> {
             if (change.wasRemoved()) {
                 var uriToRemove = change.getValueRemoved().getVaultUri();
 
                 attachedRoot.getChildren().removeIf(node ->
-                        ((AttachedVault) node.getValue()).getVaultUri().equals(uriToRemove)
+                        ((Vault) node.getValue()).getVaultUri().equals(uriToRemove)
                 );
             }
             if (change.wasAdded()) {
-                addAttachedVaultItem(change.getValueAdded());
+                addVaultItem(change.getValueAdded());
             }
         });
     }
 
-    private void addAttachedVaultItem(AttachedVault vault) {
+    private void addVaultItem(Vault vault) {
 
         var ti = new TreeItem<Object>(vault);
         attachedRoot.getChildren().add(ti);
@@ -296,7 +296,7 @@ public class MainController {
             }
         }
 
-        store.getAttachedVaults().forEach((s, vault) -> addAttachedVaultItem(vault));
+        store.getAttachedVaults().forEach((s, vault) -> addVaultItem(vault));
     }
 
     // Maybe remove root as it's equal to this.root. Might change later though when attached resources are added.
@@ -358,14 +358,10 @@ public class MainController {
 
             var vaultItems = new ArrayList<Vault>();
             for (var vault : vaults) {
-                var vaultItem = new Vault();
-                vaultItem.setVaultUri(vault.getVaultUri());
-                vaultItem.setName(vault.getName());
-                vaultItem.setAccountName(subscription.getAccountName());
+                var vaultItem = new Vault(vault.getVaultUri(), subscription.getAccountName());
 
                 var child = new TreeItem<>();
                 child.setValue(vaultItem);
-
 
                 treeItem.getChildren().add(child);
                 vaultItems.add(vaultItem);
@@ -391,19 +387,12 @@ public class MainController {
 
         SecretClient secretClient;
         ILoadable sel;
-        if (obj instanceof AttachedVault av) {
-            url = av.getVaultUri();
-            accountName = null;
-            sel = av;
-            secretClient = secretClientService.getOrCreateClient(av);
-        } else if (obj instanceof Vault vaultItem) {
-            url = vaultItem.getVaultUri();
-            accountName = vaultItem.getAccountName();
-            sel = vaultItem;
-            secretClient = secretClientService.getOrCreateClient(url, accountName);
-        } else {
-            return;
-        }
+        if (!(obj instanceof Vault av)) return;
+
+        url = av.getVaultUri();
+        accountName = null;
+        sel = av;
+        secretClient = secretClientService.getOrCreateClient(av);
 
         if (listPropertySecretsFuture != null && !listPropertySecretsFuture.isDone() && !listPropertySecretsFuture.isCancelled())
             listPropertySecretsFuture.cancel(true);
@@ -413,7 +402,7 @@ public class MainController {
                 return secretClient.listPropertiesOfSecrets()
                         .stream()
                         .toList();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 sel.setLoadFailed(true);
                 treeView.refresh();
                 showError(e.getMessage());

@@ -1,29 +1,47 @@
 package com.gjvandersloot.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 public class Vault implements ILoadable {
-    private final StringProperty name = new SimpleStringProperty();
-    public StringProperty nameProperty() { return name; }
-    public String getName() { return name.get(); }
-    public void setName(String name) { this.name.setValue(name); }
+    public Vault(String vaultUri, String clientId, String tenantId, AuthType authType) {
+        this.vaultUri = vaultUri;
+        credentials = new Credentials();
+        credentials.setClientId(clientId);
+        credentials.setTenantId(tenantId);
+        credentials.setAuthType(authType);
+    }
 
-    @Getter @Setter
-    private String accountName;
+    public Vault(String vaultUri, String accountName) {
+        this.vaultUri = vaultUri;
+        credentials = new Credentials();
+        credentials.setAccountName(accountName);
+        credentials.setAuthType(AuthType.INTERACTIVE);
+    }
+
+    public Vault() {}
 
     @Getter @Setter
     private String vaultUri;
+
+    @Getter @Setter
+    Credentials credentials;
+
+    @JsonIgnore
+    public String getName() {
+        return vaultUri.replaceFirst(
+                "^(?:.*://)?(.*?)\\.vault.*$",
+                "$1"
+        );
+    }
 
     @Override
     public String toString() {
         return getName();
     }
-
 
     private boolean loadFailed = false;
     @Override
