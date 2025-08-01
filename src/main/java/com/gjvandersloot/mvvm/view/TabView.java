@@ -1,22 +1,16 @@
 package com.gjvandersloot.mvvm.view;
 
-import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
 import com.gjvandersloot.service.SecretClientService;
 import com.gjvandersloot.service.TabManagerService;
-import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

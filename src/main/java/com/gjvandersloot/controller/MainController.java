@@ -1,7 +1,5 @@
 package com.gjvandersloot.controller;
 
-import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.*;
@@ -28,7 +26,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -95,19 +92,8 @@ public class MainController {
 
         loadTreeListeners();
         loadTree();
-
-//        setupVaultFilter();
         setupTreeFilter();
 
-//        secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
-//
-//        var selection = secretsTable.getSelectionModel().selectedItemProperty();
-//
-//        copy.disableProperty().bind(selection.isNull());
-//        show.disableProperty().bind(selection.isNull());
-//        var hidden = selectBoolean(selection, "hidden");
-//        show.textProperty().bind(when(selection.isNull().or(hidden))
-//                .then("Show").otherwise("Hide"));
 
         treeView.setCellFactory(tv -> {
             var cell = new TreeCell<>() {
@@ -391,102 +377,6 @@ public class MainController {
         });
     }
 
-    @Autowired TabManagerService tabManagerService;
-
-    private CompletableFuture<List<SecretProperties>> listPropertySecretsFuture = null;
-    public void treeViewClicked() throws Exception {
-        TreeItem<Object> clickedItem = treeView.getSelectionModel().getSelectedItem();
-        if (clickedItem == null) return;
-
-        var obj = clickedItem.getValue();
-
-        String accountName;
-        String url;
-
-        SecretClient secretClient;
-        ILoadable sel;
-        if (!(obj instanceof Vault vault)) return;
-
-        url = vault.getVaultUri();
-        accountName = null;
-        sel = vault;
-        secretClient = secretClientService.getOrCreateClient(vault);
-
-        tabManagerService.openVault(vault);
-
-//        if (listPropertySecretsFuture != null && !listPropertySecretsFuture.isDone() && !listPropertySecretsFuture.isCancelled())
-//            listPropertySecretsFuture.cancel(true);
-//
-//        CompletableFuture<List<SecretProperties>> fetchFuture = CompletableFuture.supplyAsync(() -> {
-//            try {
-//                return secretClient.listPropertiesOfSecrets()
-//                        .stream()
-//                        .toList();
-//            } catch (Exception e) {
-//                sel.setLoadFailed(true);
-//                treeView.refresh();
-//                showError(e.getMessage());
-//                throw e;
-//            }
-//        });
-//
-//        listPropertySecretsFuture = fetchFuture;
-//
-//        fetchFuture.thenAccept(secretProperties -> Platform.runLater(() -> {
-//            if (fetchFuture.isCancelled())
-//                return;
-//
-//            var secretItems = secretProperties.stream().map(s -> {
-//                var secretItem = new Secret();
-//                secretItem.setSecretName(s.getName());
-//                secretItem.setAccountName(accountName);
-//                secretItem.setVaultUri(url);
-//                return secretItem;
-//            }).toList();
-//
-//            Platform.runLater(() -> {
-//                secrets.clear();
-//                secrets.addAll(secretItems);
-//            });
-//        })).exceptionally((e) -> {
-//            Platform.runLater(() -> {
-//                secrets.clear();
-//                treeView.getSelectionModel().clearSelection();
-//            });
-//            return null;
-//        });
-    }
-
-    public void showSecret() {
-        var secret = secretsTable.getSelectionModel().getSelectedItem();
-        if (secret == null)
-            return;
-
-        if (secret.getValue() == null)
-            CompletableFuture
-                    .runAsync(() -> lazyLoadSecret(secret))
-                    .thenAccept((v) -> Platform.runLater(() -> secret.setHidden(!secret.isHidden())));
-        else {
-            secret.setHidden(!secret.hiddenProperty().getValue());
-        }
-    }
-
-    public void copySecret() {
-        var secret = secretsTable.getSelectionModel().getSelectedItem();
-        if (secret == null)
-            return;
-
-        if (secret.getValue() == null)
-            CompletableFuture.runAsync(() -> lazyLoadSecret(secret))
-                    .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())))
-                    .exceptionally(e -> {
-                        showError(e.getMessage());
-                        return null;
-                    });
-        else
-            copyToClipBoard(secret.getValue());
-    }
-
     public static void copyToClipBoard(String value) {
         Clipboard clipboard = Clipboard.getSystemClipboard();
 
@@ -494,20 +384,6 @@ public class MainController {
         content.putString(value);
 
         clipboard.setContent(content);
-    }
-
-    private void lazyLoadSecret(Secret secret) {
-        SecretClient client;
-        try {
-            client = secretClientService.getClient(secret.getVaultUri());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        var val = client.getSecret(secret.getSecretName());
-        Platform.runLater(() -> {
-            secret.valueProperty().setValue((val.getValue()));
-            secret.hiddenProperty().set(true);
-        });
     }
 
     private void showError(String e) {
@@ -532,18 +408,6 @@ public class MainController {
             errorCtr.setMessage(e);
             dialog.showAndWait();
         });
-    }
-
-    public void addSecret() {
-        showError("OhOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo\nNo\nOh\nNo");
-    }
-
-    public void delete() {
-        var y = treeView.getSelectionModel().getSelectedItem();
-
-        if (y.getValue() instanceof Subscription si) {
-            store.getAccounts().remove(si.getAccountName());
-        }
     }
 
     // Button bar, with default account

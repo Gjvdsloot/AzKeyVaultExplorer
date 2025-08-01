@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.gjvandersloot.data.AuthType.CERTIFICATE;
-import static com.gjvandersloot.data.AuthType.SECRET;
-
 @Service
 public class SecretClientService {
     private final Map<String, SecretClient> clients = new HashMap<>();

@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import jdk.jfr.FlightRecorder;
 import lombok.Getter;
 
 import java.util.concurrent.CompletableFuture;
@@ -32,11 +31,9 @@ public class SecretViewModel {
     }
 
     public void refresh() {
-        CompletableFuture.supplyAsync(() -> {
-            return secretClient.listPropertiesOfSecrets()
-                    .stream()
-                    .toList();
-        }).thenAccept(secretProperties -> Platform.runLater(() -> {
+        CompletableFuture.supplyAsync(() -> secretClient.listPropertiesOfSecrets()
+                .stream()
+                .toList()).thenAccept(secretProperties -> Platform.runLater(() -> {
             var secretItems = secretProperties.stream().map(s -> {
                 var secretItem = new Secret();
                 secretItem.setSecretName(s.getName());
