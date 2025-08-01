@@ -59,23 +59,11 @@ public class TabView {
         tab.setOnClosed(e -> tabManagerService.tabsProperty().remove(vault));
 
         var vaultPane = new TabPane();
+        tab.setContent(vaultPane);
 
         var secretTab = new Tab("Secrets");
         var keysTab = new Tab("Keys");
         var certsTab = new Tab("Certificates");
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SecretView.fxml"));
-            loader.setControllerFactory(context::getBean);
-            Parent content = loader.load();
-
-            SecretView ctr = loader.getController();
-            ctr.init(vault);
-
-            secretTab.setContent(content);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         secretTab.setClosable(false);
         keysTab.setClosable(false);
         certsTab.setClosable(false);
@@ -83,7 +71,17 @@ public class TabView {
         vaultPane.getTabs().add(secretTab);
         vaultPane.getTabs().add(keysTab);
         vaultPane.getTabs().add(certsTab);
-        tab.setContent(vaultPane);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SecretView.fxml"));
+            loader.setControllerFactory(context::getBean);
+            Parent content = loader.load();
+            secretTab.setContent(content);
+
+            SecretView ctr = loader.getController();
+            ctr.init(vault);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return tab;
     }

@@ -36,7 +36,6 @@ public class SecretView implements Initializable {
     public TableView<Secret> secretsTable;
     public TableColumn<Secret, String> secretsColumn;
     public TableColumn<Secret, String> secretValueColumn;
-    private boolean isLoaded = false;
 
     @Autowired
     private SecretViewModel vm;
@@ -53,9 +52,9 @@ public class SecretView implements Initializable {
         show.textProperty().bind(when(selection.isNull().or(hidden))
                 .then("Show").otherwise("Hide"));
 
-        vm.errorProperty().addListener((obs, o, n) -> {
-            if (!n.isEmpty()) showError(n);
-        });
+//        vm.errorProperty().addListener((obs, o, n) -> {
+//            if (!n.isEmpty()) showError(n);
+//        });
 
         setupVaultFilter();
     }
@@ -84,10 +83,7 @@ public class SecretView implements Initializable {
 
         secretsTable.sceneProperty().addListener((obs, o, n) -> {
             if (n == null) return;
-            Platform.runLater(() -> {
-//                filteredData.setPredicate(filteredData.getPredicate());
-                secretsTable.refresh();
-            });
+            Platform.runLater(() -> secretsTable.refresh());
         });
     }
 
@@ -141,7 +137,6 @@ public class SecretView implements Initializable {
                 var secrets = vm.loadSecrets(); // sync or async, either is fine
 
                 Platform.runLater(() -> {
-                    System.out.println("secretsTable in scene? " + (secretsTable.getScene() != null));
                     vm.getSecrets().setAll(secrets);
                 });
             } catch (Exception e) {

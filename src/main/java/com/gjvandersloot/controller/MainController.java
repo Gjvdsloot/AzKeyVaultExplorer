@@ -144,9 +144,6 @@ public class MainController {
 
             return cell;
         });
-
-
-
     }
 
     private void loadTreeListeners() {
