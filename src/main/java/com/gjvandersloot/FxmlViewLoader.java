@@ -13,7 +13,7 @@ public class FxmlViewLoader {
     @Autowired
     private ApplicationContext context;
 
-    public Parent load(String path) throws IOException, IOException {
+    public Parent load(String path) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
         loader.setControllerFactory(context::getBean);
         return loader.load();

@@ -2,9 +2,8 @@ package com.gjvandersloot.mvvm.view;
 
 import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
-import com.gjvandersloot.service.SecretClientService;
 import com.gjvandersloot.service.TabManagerService;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,7 +21,8 @@ public class TabView {
     public TabPane tabPane;
     @Autowired TabManagerService tabManagerService;
 
-    @Autowired SecretClientService secretClientService;
+    @Autowired
+    private ApplicationContext context;
 
     @FXML
     public void initialize() {
@@ -42,7 +43,8 @@ public class TabView {
                     for (Vault vault : c.getAddedSubList()) {
                         var tab = createVaultTab(vault);
                         tabPane.getTabs().add(tab);
-                        tabPane.getSelectionModel().select(tab);
+
+                        Platform.runLater(() -> tabPane.getSelectionModel().select(tab)); // ✅ here
                     }
                 }
             }
@@ -50,10 +52,12 @@ public class TabView {
     }
 
     private Tab createVaultTab(Vault vault) {
-        var tab = new Tab(vault.getName() + ((vault.getCredentials().getAuthType() == AuthType.INTERACTIVE) ? "" : " (a)"));
+        var tab = new Tab(vault.getName() + (
+                (vault.getCredentials().getAuthType() == AuthType.INTERACTIVE) ? "" : " (a)"
+        ));
         String vaultId = vault.getName() + "@" + vault.getCredentials().getAuthType();
         tab.setId(vaultId);
-        tab.setOnClosed((e) -> tabManagerService.tabsProperty().remove(vault));
+        tab.setOnClosed(e -> tabManagerService.tabsProperty().remove(vault));
 
         var vaultPane = new TabPane();
 
@@ -62,13 +66,11 @@ public class TabView {
         var certsTab = new Tab("Certificates");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/SecretView.fxml"));
-            Initializable controller = new SecretView(vault, new SecretViewModel(vault, secretClientService));
-            loader.setControllerFactory(param -> controller);
+            loader.setControllerFactory(context::getBean);
             Parent content = loader.load();
 
-            secretTab.selectedProperty().addListener((obs, o, n) -> {
-                if (n) controller.init();
-            });
+            SecretView ctr = loader.getController();
+            ctr.init(vault);
 
             secretTab.setContent(content);
         } catch (IOException e) {

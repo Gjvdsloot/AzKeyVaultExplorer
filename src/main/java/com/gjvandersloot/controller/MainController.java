@@ -1,5 +1,7 @@
 package com.gjvandersloot.controller;
 
+import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.*;
@@ -26,6 +28,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -84,6 +87,9 @@ public class MainController {
 
     private final ObservableList<Secret> secrets = FXCollections.observableArrayList();
 
+    @Autowired
+    private TabManagerService tabManagerService;
+
     @FXML
     public void initialize() {
         this.root = new TreeItem<>();
@@ -124,7 +130,8 @@ public class MainController {
                     // Only toggle if the item has children (i.e., is not a leaf)
                     if (!treeItem.isLeaf()) {
                         treeItem.setExpanded(!treeItem.isExpanded());
-                        event.consume(); // Only consume if we handled the toggle
+                        event.consume();
+                        treeView.getSelectionModel().select(null);
                     }
                 }
             });
@@ -420,5 +427,15 @@ public class MainController {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(new Scene(root));
         stage.showAndWait();
+    }
+
+    public void treeViewClicked() {
+        TreeItem<Object> clickedItem = treeView.getSelectionModel().getSelectedItem();
+        if (clickedItem == null) return;
+
+        var obj = clickedItem.getValue();
+        if (!(obj instanceof Vault vault)) return;
+
+        tabManagerService.openVault(vault);
     }
 }

@@ -4,6 +4,7 @@ import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -16,16 +17,22 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.gjvandersloot.controller.MainController.copyToClipBoard;
 import static javafx.beans.binding.Bindings.selectBoolean;
 import static javafx.beans.binding.Bindings.when;
 
+@Component
+@Scope("prototype")
 public class SecretView implements Initializable {
-    private final Vault vault;
     public Button copy;
     public Button show;
     public TextField filterField;
@@ -34,17 +41,11 @@ public class SecretView implements Initializable {
     public TableColumn<Secret, String> secretValueColumn;
     private boolean isLoaded = false;
 
-    private final SecretViewModel vm;
-
-    public SecretView(Vault vault, SecretViewModel vm) {
-        this.vault = vault;
-        this.vm = vm;
-    }
+    @Autowired
+    private SecretViewModel vm;
 
     @FXML
     public void initialize() {
-        setupVaultFilter();
-
         secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
 
         var selection = secretsTable.getSelectionModel().selectedItemProperty();
@@ -58,6 +59,8 @@ public class SecretView implements Initializable {
         vm.errorProperty().addListener((obs, o, n) -> {
             if (!n.isEmpty()) showError(n);
         });
+
+        setupVaultFilter();
     }
 
     private void setupVaultFilter() {
@@ -120,11 +123,19 @@ public class SecretView implements Initializable {
     }
 
     @Override
-    public void init() {
-        if (isLoaded) return;
+    public void init(Vault vault) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                vm.setSecretClient(vault);
+                var secrets = vm.refresh(); // sync or async, either is fine
 
-        vm.refresh();
-        isLoaded = true;
+                Platform.runLater(() -> {
+                    vm.getSecrets().setAll(secrets);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> showError(e.getMessage()));
+            }
+        });
     }
 
     private void showError(String e) {
