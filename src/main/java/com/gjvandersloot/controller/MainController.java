@@ -5,9 +5,7 @@ import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.*;
-import com.gjvandersloot.service.AccountService;
-import com.gjvandersloot.service.MainStageProvider;
-import com.gjvandersloot.service.SecretClientService;
+import com.gjvandersloot.service.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -37,9 +35,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static javafx.beans.binding.Bindings.selectBoolean;
-import static javafx.beans.binding.Bindings.when;
-
 @Component
 public class MainController {
 
@@ -63,6 +58,7 @@ public class MainController {
     @FXML
     public TextField treeFilter;
     public Button copy;
+    public TabPane TabManager;
 
     @Autowired
     private ApplicationContext context;
@@ -99,18 +95,18 @@ public class MainController {
         loadTreeListeners();
         loadTree();
 
-        setupVaultFilter();
+//        setupVaultFilter();
         setupTreeFilter();
 
-        secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
-
-        var selection = secretsTable.getSelectionModel().selectedItemProperty();
-
-        copy.disableProperty().bind(selection.isNull());
-        show.disableProperty().bind(selection.isNull());
-        var hidden = selectBoolean(selection, "hidden");
-        show.textProperty().bind(when(selection.isNull().or(hidden))
-                .then("Show").otherwise("Hide"));
+//        secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
+//
+//        var selection = secretsTable.getSelectionModel().selectedItemProperty();
+//
+//        copy.disableProperty().bind(selection.isNull());
+//        show.disableProperty().bind(selection.isNull());
+//        var hidden = selectBoolean(selection, "hidden");
+//        show.textProperty().bind(when(selection.isNull().or(hidden))
+//                .then("Show").otherwise("Hide"));
 
         treeView.setCellFactory(tv -> new TreeCell<>() {
             @Override
@@ -375,6 +371,8 @@ public class MainController {
         });
     }
 
+    @Autowired TabManagerService tabManagerService;
+
     private CompletableFuture<List<SecretProperties>> listPropertySecretsFuture = null;
     public void treeViewClicked() throws Exception {
         TreeItem<Object> clickedItem = treeView.getSelectionModel().getSelectedItem();
@@ -387,54 +385,56 @@ public class MainController {
 
         SecretClient secretClient;
         ILoadable sel;
-        if (!(obj instanceof Vault av)) return;
+        if (!(obj instanceof Vault vault)) return;
 
-        url = av.getVaultUri();
+        url = vault.getVaultUri();
         accountName = null;
-        sel = av;
-        secretClient = secretClientService.getOrCreateClient(av);
+        sel = vault;
+        secretClient = secretClientService.getOrCreateClient(vault);
 
-        if (listPropertySecretsFuture != null && !listPropertySecretsFuture.isDone() && !listPropertySecretsFuture.isCancelled())
-            listPropertySecretsFuture.cancel(true);
+        tabManagerService.openVault(vault);
 
-        CompletableFuture<List<SecretProperties>> fetchFuture = CompletableFuture.supplyAsync(() -> {
-            try {
-                return secretClient.listPropertiesOfSecrets()
-                        .stream()
-                        .toList();
-            } catch (Exception e) {
-                sel.setLoadFailed(true);
-                treeView.refresh();
-                showError(e.getMessage());
-                throw e;
-            }
-        });
-
-        listPropertySecretsFuture = fetchFuture;
-
-        fetchFuture.thenAccept(secretProperties -> Platform.runLater(() -> {
-            if (fetchFuture.isCancelled())
-                return;
-
-            var secretItems = secretProperties.stream().map(s -> {
-                var secretItem = new Secret();
-                secretItem.setSecretName(s.getName());
-                secretItem.setAccountName(accountName);
-                secretItem.setVaultUri(url);
-                return secretItem;
-            }).toList();
-
-            Platform.runLater(() -> {
-                secrets.clear();
-                secrets.addAll(secretItems);
-            });
-        })).exceptionally((e) -> {
-            Platform.runLater(() -> {
-                secrets.clear();
-                treeView.getSelectionModel().clearSelection();
-            });
-            return null;
-        });
+//        if (listPropertySecretsFuture != null && !listPropertySecretsFuture.isDone() && !listPropertySecretsFuture.isCancelled())
+//            listPropertySecretsFuture.cancel(true);
+//
+//        CompletableFuture<List<SecretProperties>> fetchFuture = CompletableFuture.supplyAsync(() -> {
+//            try {
+//                return secretClient.listPropertiesOfSecrets()
+//                        .stream()
+//                        .toList();
+//            } catch (Exception e) {
+//                sel.setLoadFailed(true);
+//                treeView.refresh();
+//                showError(e.getMessage());
+//                throw e;
+//            }
+//        });
+//
+//        listPropertySecretsFuture = fetchFuture;
+//
+//        fetchFuture.thenAccept(secretProperties -> Platform.runLater(() -> {
+//            if (fetchFuture.isCancelled())
+//                return;
+//
+//            var secretItems = secretProperties.stream().map(s -> {
+//                var secretItem = new Secret();
+//                secretItem.setSecretName(s.getName());
+//                secretItem.setAccountName(accountName);
+//                secretItem.setVaultUri(url);
+//                return secretItem;
+//            }).toList();
+//
+//            Platform.runLater(() -> {
+//                secrets.clear();
+//                secrets.addAll(secretItems);
+//            });
+//        })).exceptionally((e) -> {
+//            Platform.runLater(() -> {
+//                secrets.clear();
+//                treeView.getSelectionModel().clearSelection();
+//            });
+//            return null;
+//        });
     }
 
     public void showSecret() {
