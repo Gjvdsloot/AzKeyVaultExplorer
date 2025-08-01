@@ -14,7 +14,7 @@
             <Hyperlink onAction="#loadTree" text="Refresh" />
         </ToolBar>
         <TextField fx:id="treeFilter" promptText="Search" />
-        <TreeView fx:id="treeView" onMouseClicked="#treeViewClicked" prefHeight="494.0" prefWidth="150.0" VBox.vgrow="ALWAYS">
+        <TreeView fx:id="treeView" prefHeight="494.0" prefWidth="150.0" VBox.vgrow="ALWAYS">
 
         </TreeView>
     </VBox>

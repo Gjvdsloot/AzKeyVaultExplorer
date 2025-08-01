@@ -136,6 +136,12 @@ public class MainController {
                 }
             });
 
+            cell.setOnMouseClicked(event -> {
+                if (!cell.isEmpty() && cell.getItem() instanceof Vault vault) {
+                    tabManagerService.openVault(vault);
+                }
+            });
+
             return cell;
         });
 
@@ -427,15 +433,5 @@ public class MainController {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(new Scene(root));
         stage.showAndWait();
-    }
-
-    public void treeViewClicked() {
-        TreeItem<Object> clickedItem = treeView.getSelectionModel().getSelectedItem();
-        if (clickedItem == null) return;
-
-        var obj = clickedItem.getValue();
-        if (!(obj instanceof Vault vault)) return;
-
-        tabManagerService.openVault(vault);
     }
 }
