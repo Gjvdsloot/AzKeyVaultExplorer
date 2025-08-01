@@ -3,7 +3,6 @@ package com.gjvandersloot.mvvm.view;
 import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.TabManagerService;
-import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

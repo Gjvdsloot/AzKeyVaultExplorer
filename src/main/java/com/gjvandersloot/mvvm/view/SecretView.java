@@ -1,10 +1,8 @@
 package com.gjvandersloot.mvvm.view;
 
-import com.gjvandersloot.controller.CancelDialogController;
 import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.viewmodel.CreateSecretViewModel;
 import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
 import com.gjvandersloot.service.MainStageProvider;
 import javafx.application.Platform;
