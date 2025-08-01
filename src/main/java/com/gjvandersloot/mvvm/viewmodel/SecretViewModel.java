@@ -51,4 +51,10 @@ public class SecretViewModel {
             error.set(e.getMessage());
         }
     }
+
+    public void addSecret(Secret newSecret) {
+        secrets.stream().filter(s -> newSecret.getSecretName().equals(s.getSecretName()))
+                .findAny()
+                .ifPresentOrElse(s -> s.setValue(newSecret.getValue()), () -> secrets.add(newSecret));
+    }
 }

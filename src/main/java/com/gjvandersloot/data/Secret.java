@@ -25,6 +25,7 @@ public class Secret {
     public String getValue() {
         return value.get();
     }
+    public void setValue(String val) { value.set(val); }
     public StringProperty valueProperty() { return value; }
 
     private final BooleanProperty hidden = new SimpleBooleanProperty();

@@ -1,9 +1,12 @@
 package com.gjvandersloot.mvvm.view;
 
+import com.gjvandersloot.controller.CancelDialogController;
 import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
+import com.gjvandersloot.mvvm.viewmodel.CreateSecretViewModel;
 import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
+import com.gjvandersloot.service.MainStageProvider;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -17,6 +20,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +43,10 @@ public class SecretView implements Initializable {
 
     @Autowired
     private SecretViewModel vm;
+
+    @Autowired
+    private MainStageProvider mainStageProvider;
+    private Vault vault;
 
     @FXML
     public void initialize() {
@@ -118,13 +126,25 @@ public class SecretView implements Initializable {
             copyToClipBoard(secret.getValue());
     }
 
-    public void addSecret(ActionEvent actionEvent) {
-        CompletableFuture.runAsync(() -> {
-            var s = new Secret();
-            s.setSecretName("Hello");
-            Platform.runLater(() -> vm.getSecrets().add(s));
+    @Autowired private ApplicationContext context;
 
-        });
+    public void addSecret(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/CreateSecretView.fxml"));
+        loader.setControllerFactory(context::getBean);
+        Parent root = loader.load();
+
+        CreateSecretView ctr = loader.getController();
+        ctr.setVault(vault);
+
+        var stage = new Stage(StageStyle.DECORATED);
+        stage.setTitle("Create new secret");
+        stage.initOwner(mainStageProvider.getPrimaryStage());
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene(root));
+        stage.showAndWait();
+
+        if (ctr.getResult() != null)
+            vm.addSecret(ctr.getResult());
     }
 
     public void delete(ActionEvent actionEvent) {
@@ -132,10 +152,12 @@ public class SecretView implements Initializable {
 
     @Override
     public void init(Vault vault) {
+        this.vault = vault;
+
         CompletableFuture.runAsync(() -> {
             try {
                 vm.setSecretClient(vault);
-                var secrets = vm.loadSecrets(); // sync or async, either is fine
+                var secrets = vm.loadSecrets();
 
                 Platform.runLater(() -> vm.getSecrets().setAll(secrets));
             } catch (Exception e) {
