@@ -145,7 +145,10 @@ public class SecretView implements Initializable {
                     vm.getSecrets().setAll(secrets);
                 });
             } catch (Exception e) {
-                Platform.runLater(() -> showError(e.getMessage()));
+                Platform.runLater(() -> {
+                    vault.setLoadFailed(true);
+                    showError(e.getMessage());
+                });
             }
         });
     }
