@@ -30,12 +30,12 @@ import static javafx.beans.binding.Bindings.when;
 @Component
 @Scope("prototype")
 public class SecretView implements Initializable {
-    public Button copy;
-    public Button show;
-    public TextField filterField;
-    public TableView<Secret> secretsTable;
-    public TableColumn<Secret, String> secretsColumn;
-    public TableColumn<Secret, String> secretValueColumn;
+    @FXML private Button copy;
+    @FXML private Button show;
+    @FXML private TextField filterField;
+    @FXML private TableView<Secret> secretsTable;
+    @FXML private TableColumn<Secret, String> secretsColumn;
+    @FXML private TableColumn<Secret, String> secretValueColumn;
 
     @Autowired
     private SecretViewModel vm;
@@ -52,6 +52,7 @@ public class SecretView implements Initializable {
         show.textProperty().bind(when(selection.isNull().or(hidden))
                 .then("Show").otherwise("Hide"));
 
+// DON'T REMOVE THIS. USE IT WHENEVER DATA DOES NOT LOAD PROPERLY.
 //        vm.errorProperty().addListener((obs, o, n) -> {
 //            if (!n.isEmpty()) showError(n);
 //        });
