@@ -12,7 +12,7 @@ public class Secret {
         hidden.set(true);
     }
 
-    private final StringProperty secretName = new SimpleStringProperty(this, "secretName");
+    private final StringProperty secretName = new SimpleStringProperty();
     public StringProperty secretNameProperty() { return secretName; }
     public String getSecretName() { return secretName.get(); }
     public void setSecretName(String secretName) { this.secretName.set(secretName); }
@@ -21,13 +21,13 @@ public class Secret {
     private String vaultUri;
     private String accountName = null;
 
-    private final StringProperty value = new SimpleStringProperty(this, "value");
+    private final StringProperty value = new SimpleStringProperty();
     public String getValue() {
         return value.get();
     }
     public StringProperty valueProperty() { return value; }
 
-    private final BooleanProperty hidden = new SimpleBooleanProperty(this, "hidden");
+    private final BooleanProperty hidden = new SimpleBooleanProperty();
     public boolean isHidden() {
         return hidden.get();
     }

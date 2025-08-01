@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Component
 @Scope("prototype")
@@ -28,7 +27,7 @@ public class SecretViewModel {
 
     private SecretClient secretClient;
 
-    public List<Secret> refresh() {
+    public List<Secret> loadSecrets() {
         return secretClient.listPropertiesOfSecrets().stream().map(s -> {
             var secretItem = new Secret();
             secretItem.setSecretName(s.getName());

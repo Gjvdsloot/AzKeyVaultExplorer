@@ -4,7 +4,6 @@ import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -17,13 +16,11 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.gjvandersloot.controller.MainController.copyToClipBoard;
@@ -84,6 +81,16 @@ public class SecretView implements Initializable {
                         && item.getSecretName().toLowerCase().contains(lower);
             });
         });
+
+        secretsTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(() -> {
+                    // Refresh predicate & rendering when scene is attached
+                    filteredData.setPredicate(filteredData.getPredicate());
+                    secretsTable.refresh();
+                });
+            }
+        });
     }
 
     public void showSecret() {
@@ -117,6 +124,12 @@ public class SecretView implements Initializable {
     }
 
     public void addSecret(ActionEvent actionEvent) {
+        CompletableFuture.runAsync(() -> {
+            var s = new Secret();
+            s.setSecretName("Hello");
+            Platform.runLater(() -> vm.getSecrets().add(s));
+
+        });
     }
 
     public void delete(ActionEvent actionEvent) {
@@ -127,9 +140,10 @@ public class SecretView implements Initializable {
         CompletableFuture.runAsync(() -> {
             try {
                 vm.setSecretClient(vault);
-                var secrets = vm.refresh(); // sync or async, either is fine
+                var secrets = vm.loadSecrets(); // sync or async, either is fine
 
                 Platform.runLater(() -> {
+                    System.out.println("secretsTable in scene? " + (secretsTable.getScene() != null));
                     vm.getSecrets().setAll(secrets);
                 });
             } catch (Exception e) {

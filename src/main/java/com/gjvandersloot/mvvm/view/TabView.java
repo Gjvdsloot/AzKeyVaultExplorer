@@ -43,8 +43,7 @@ public class TabView {
                     for (Vault vault : c.getAddedSubList()) {
                         var tab = createVaultTab(vault);
                         tabPane.getTabs().add(tab);
-
-                        Platform.runLater(() -> tabPane.getSelectionModel().select(tab)); // ✅ here
+                        tabPane.getSelectionModel().select(tab);
                     }
                 }
             }
