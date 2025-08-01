@@ -137,9 +137,7 @@ public class SecretView implements Initializable {
                 vm.setSecretClient(vault);
                 var secrets = vm.loadSecrets(); // sync or async, either is fine
 
-                Platform.runLater(() -> {
-                    vm.getSecrets().setAll(secrets);
-                });
+                Platform.runLater(() -> vm.getSecrets().setAll(secrets));
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     vault.setLoadFailed(true);
