@@ -82,14 +82,12 @@ public class SecretView implements Initializable {
             });
         });
 
-        secretsTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                Platform.runLater(() -> {
-                    // Refresh predicate & rendering when scene is attached
-                    filteredData.setPredicate(filteredData.getPredicate());
-                    secretsTable.refresh();
-                });
-            }
+        secretsTable.sceneProperty().addListener((obs, o, n) -> {
+            if (n == null) return;
+            Platform.runLater(() -> {
+//                filteredData.setPredicate(filteredData.getPredicate());
+                secretsTable.refresh();
+            });
         });
     }
 
