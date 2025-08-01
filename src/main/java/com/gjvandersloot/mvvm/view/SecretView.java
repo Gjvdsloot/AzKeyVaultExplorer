@@ -1,26 +1,116 @@
 package com.gjvandersloot.mvvm.view;
 
+import com.gjvandersloot.controller.ErrorDialogController;
+import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
+import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
+import javafx.application.Platform;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
+import static com.gjvandersloot.controller.MainController.copyToClipBoard;
+import static javafx.beans.binding.Bindings.selectBoolean;
+import static javafx.beans.binding.Bindings.when;
 
 public class SecretView implements Initializable {
     private final Vault vault;
+    public Button copy;
+    public Button show;
+    public TextField filterField;
+    public TableView<Secret> secretsTable;
+    public TableColumn<Secret, String> secretsColumn;
+    public TableColumn<Secret, String> secretValueColumn;
     private boolean isLoaded = false;
 
-    public SecretView(Vault vault) {
+    private final SecretViewModel vm;
+
+    public SecretView(Vault vault, SecretViewModel vm) {
         this.vault = vault;
+        this.vm = vm;
     }
 
     @FXML
     public void initialize() {
+        setupVaultFilter();
 
+        secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
+
+        var selection = secretsTable.getSelectionModel().selectedItemProperty();
+
+        copy.disableProperty().bind(selection.isNull());
+        show.disableProperty().bind(selection.isNull());
+        var hidden = selectBoolean(selection, "hidden");
+        show.textProperty().bind(when(selection.isNull().or(hidden))
+                .then("Show").otherwise("Hide"));
+
+        vm.errorProperty().addListener((obs, o, n) -> {
+            if (!n.isEmpty()) showError(n);
+        });
     }
 
-    public void copySecret(ActionEvent actionEvent) {
+    private void setupVaultFilter() {
+        secretsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
+
+        FilteredList<Secret> filteredData = new FilteredList<>(vm.getSecrets(), p -> true);
+
+        SortedList<Secret> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(secretsTable.comparatorProperty());
+
+        secretsTable.setItems(sortedData);
+
+        filterField.textProperty().addListener((obs, oldVal, newVal) -> {
+            String lower = (newVal == null ? "" : newVal.toLowerCase().trim());
+            filteredData.setPredicate(item -> {
+                if (lower.isEmpty()) {
+                    return true;
+                }
+
+                return item.getSecretName() != null
+                        && item.getSecretName().toLowerCase().contains(lower);
+            });
+        });
     }
 
-    public void showSecret(ActionEvent actionEvent) {
+    public void showSecret() {
+        var secret = secretsTable.getSelectionModel().getSelectedItem();
+        if (secret == null)
+            return;
+
+        if (secret.getValue() == null)
+            CompletableFuture
+                    .runAsync(() -> vm.loadSecret(secret))
+                    .thenAccept((v) -> Platform.runLater(() -> secret.setHidden(!secret.isHidden())));
+        else {
+            secret.setHidden(!secret.hiddenProperty().getValue());
+        }
+    }
+
+    public void copySecret() {
+        var secret = secretsTable.getSelectionModel().getSelectedItem();
+        if (secret == null)
+            return;
+
+        if (secret.getValue() == null)
+            CompletableFuture.runAsync(() -> vm.loadSecret(secret))
+                    .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())))
+                    .exceptionally(e -> {
+                        showError(e.getMessage());
+                        return null;
+                    });
+        else
+            copyToClipBoard(secret.getValue());
     }
 
     public void addSecret(ActionEvent actionEvent) {
@@ -33,7 +123,31 @@ public class SecretView implements Initializable {
     public void init() {
         if (isLoaded) return;
 
-        System.out.println("Loaded");
+        vm.refresh();
         isLoaded = true;
+    }
+
+    private void showError(String e) {
+        Platform.runLater(() -> {
+            var loader = new FXMLLoader(getClass().getResource("/ErrorDialog.fxml"));
+
+            Parent root;
+            try {
+                root = loader.load();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            ErrorDialogController errorCtr = loader.getController();
+
+            var dialog = new Stage(StageStyle.DECORATED);
+            dialog.initOwner(secretsTable.getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setScene(new Scene(root));
+
+            errorCtr.setDialogStage(dialog);
+            errorCtr.setMessage(e);
+            dialog.showAndWait();
+        });
     }
 }

@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -108,26 +109,45 @@ public class MainController {
 //        show.textProperty().bind(when(selection.isNull().or(hidden))
 //                .then("Show").otherwise("Hide"));
 
-        treeView.setCellFactory(tv -> new TreeCell<>() {
-            @Override
-            protected void updateItem(Object item, boolean empty) {
-                super.updateItem(item, empty);
+        treeView.setCellFactory(tv -> {
+            var cell = new TreeCell<>() {
+                @Override
+                protected void updateItem(Object item, boolean empty) {
+                    super.updateItem(item, empty);
 
-                setText(null);
-                setGraphic(null);
-                setStyle("");
+                    setText(null);
+                    setGraphic(null);
+                    setStyle("");
 
-                if (empty || item == null) {
-                    return;
+                    if (empty || item == null) {
+                        return;
+                    }
+
+                    setText(item.toString());
+
+                    if (item instanceof ILoadable loadable && loadable.getLoadFailed()) {
+                        setStyle("-fx-text-fill: gray; -fx-opacity: 0.6;");
+                    }
                 }
+            };
 
-                setText(item.toString());
+            cell.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+                if (!cell.isEmpty()) {
+                    TreeItem<Object> treeItem = cell.getTreeItem();
 
-                if (item instanceof ILoadable loadable && loadable.getLoadFailed()) {
-                    setStyle("-fx-text-fill: gray; -fx-opacity: 0.6;");
+                    // Only toggle if the item has children (i.e., is not a leaf)
+                    if (!treeItem.isLeaf()) {
+                        treeItem.setExpanded(!treeItem.isExpanded());
+                        event.consume(); // Only consume if we handled the toggle
+                    }
                 }
-            }
+            });
+
+            return cell;
         });
+
+
+
     }
 
     private void loadTreeListeners() {
