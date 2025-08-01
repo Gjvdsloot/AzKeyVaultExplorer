@@ -1,8 +1,6 @@
 package com.gjvandersloot.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import lombok.Getter;
 import lombok.Setter;
 
