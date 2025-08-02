@@ -3,7 +3,7 @@ package com.gjvandersloot.mvvm.viewmodel;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.service.SecretClientService;
+import com.gjvandersloot.service.KeyVaultClientProviderService;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
@@ -24,7 +24,7 @@ public class SecretViewModel {
     @Getter
     private final ObservableList<Secret> secrets = FXCollections.observableArrayList();
 
-    @Autowired SecretClientService secretClientService;
+    @Autowired KeyVaultClientProviderService keyVaultClientProviderService;
 
     private SecretClient secretClient;
 
@@ -47,7 +47,7 @@ public class SecretViewModel {
 
     public void setSecretClient(Vault vault) {
         try {
-            secretClient = secretClientService.getOrCreateClient(vault);
+            secretClient = keyVaultClientProviderService.getOrCreateSecretClient(vault);
         } catch (Exception e) {
             error.set(e.getMessage());
         }

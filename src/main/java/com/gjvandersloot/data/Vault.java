@@ -1,6 +1,7 @@
 package com.gjvandersloot.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gjvandersloot.service.VaultKey;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,5 +51,9 @@ public class Vault implements ILoadable {
     @Override
     public void setLoadFailed(boolean loadFailed) {
         this.loadFailed = loadFailed;
+    }
+
+    public VaultKey getVaultKey() {
+        return new VaultKey(this.vaultUri, this.credentials.getAuthType());
     }
 }

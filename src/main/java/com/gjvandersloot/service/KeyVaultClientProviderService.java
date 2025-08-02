@@ -3,8 +3,11 @@ package com.gjvandersloot.service;
 import com.azure.core.credential.TokenCredential;
 import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredentialBuilder;
+import com.azure.resourcemanager.appservice.fluent.CertificatesClient;
+import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.token.MsalInteractiveCredential;
 import com.microsoft.aad.msal4j.*;
@@ -15,21 +18,43 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class SecretClientService {
-    private final Map<String, SecretClient> clients = new HashMap<>();
+public class KeyVaultClientProviderService {
+    private final Map<VaultKey, SecretClient> secretClients = new HashMap<>();
+    private final Map<VaultKey, CertificatesClient> certClients = new HashMap<>();
+    private final Map<VaultKey, KeyClient> keyClients = new HashMap<>();
+
+    private final Map<VaultKey, TokenCredential> tokenCredentials = new HashMap<>();
+
 
     @Autowired private PublicClientApplication pca;
 
-    public SecretClient getClient(String vaultUri) {
-        return clients.get(vaultUri);
-    }
 
-    public SecretClient getOrCreateClient(Vault vault) throws Exception {
-        var secretClient = clients.getOrDefault(vault.getVaultUri(), null);
+    public SecretClient getOrCreateSecretClient(Vault vault) throws Exception {
+        var key = vault.getVaultKey();
+
+        var secretClient = secretClients.getOrDefault(key, null);
         TokenCredential tokenCredential;
 
         if (secretClient != null)
             return secretClient;
+
+        tokenCredential = getCredential(vault);
+
+        secretClient = new SecretClientBuilder()
+                .vaultUrl(vault.getVaultUri())
+                .credential(tokenCredential)
+                .buildClient();
+
+        secretClients.put(key, secretClient);
+
+        return secretClient;
+    }
+
+    private TokenCredential getCredential(Vault vault) throws Exception {
+        TokenCredential tokenCredential = tokenCredentials.getOrDefault(vault.getVaultKey(), null);
+
+        if (tokenCredential != null)
+            return tokenCredential;
 
         tokenCredential = switch (vault.getCredentials().getAuthType()) {
             case SECRET -> new ClientSecretCredentialBuilder()
@@ -47,13 +72,8 @@ public class SecretClientService {
             case null -> throw new Exception("Not implemented");
         };
 
-        secretClient = new SecretClientBuilder()
-                .vaultUrl(vault.getVaultUri())
-                .credential(tokenCredential)
-                .buildClient();
+        tokenCredentials.put(vault.getVaultKey(), tokenCredential);
 
-        clients.put(vault.getVaultUri(), secretClient);
-
-        return secretClient;
+        return tokenCredential;
     }
 }
