@@ -1,9 +1,11 @@
 package com.gjvandersloot.mvvm.viewmodel;
 
 import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.models.DeletedSecret;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.SecretClientService;
+import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -56,5 +58,20 @@ public class SecretViewModel {
         secrets.stream().filter(s -> newSecret.getSecretName().equals(s.getSecretName()))
                 .findAny()
                 .ifPresentOrElse(s -> s.setValue(newSecret.getValue()), () -> secrets.add(newSecret));
+    }
+
+    public void deleteSecret(Secret selectedSecret) {
+        String secretName = selectedSecret.getSecretName();
+
+        var poller = secretClient.beginDeleteSecret(secretName);
+        poller.waitForCompletion();
+
+        try {
+            secretClient.purgeDeletedSecret(secretName);
+        } catch (Exception e) {
+            // Swallow
+        }
+
+        Platform.runLater(() -> secrets.remove(selectedSecret));
     }
 }

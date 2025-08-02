@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.gjvandersloot.controller.MainController.copyToClipBoard;
@@ -32,6 +33,7 @@ import static javafx.beans.binding.Bindings.when;
 @Component
 @Scope("prototype")
 public class SecretView implements Initializable {
+    @FXML private Button delete;
     @FXML private Button copy;
     @FXML private Button show;
     @FXML private TextField filterField;
@@ -54,6 +56,7 @@ public class SecretView implements Initializable {
 
         copy.disableProperty().bind(selection.isNull());
         show.disableProperty().bind(selection.isNull());
+        delete.disableProperty().bind(selection.isNull());
         var hidden = selectBoolean(selection, "hidden");
         show.textProperty().bind(when(selection.isNull().or(hidden))
                 .then("Show").otherwise("Hide"));
@@ -145,7 +148,19 @@ public class SecretView implements Initializable {
             vm.addSecret(ctr.getResult());
     }
 
-    public void delete(ActionEvent actionEvent) {
+    public void deleteSecret() {
+        var selectedSecret = secretsTable.getSelectionModel().getSelectedItem();
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete secret");
+        alert.setHeaderText("Are you sure you want to delete secret " + selectedSecret.getSecretName() + "?");
+        alert.setContentText("This action cannot be undone.");
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() != ButtonType.OK) return;
+
+        CompletableFuture.runAsync(() -> vm.deleteSecret(selectedSecret));
     }
 
     @Override

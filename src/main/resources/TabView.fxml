@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.TabPane?>
 <TabPane fx:controller="com.gjvandersloot.mvvm.view.TabView" xmlns="http://javafx.com/javafx"
          fx:id="tabPane"
          xmlns:fx="http://javafx.com/fxml"
