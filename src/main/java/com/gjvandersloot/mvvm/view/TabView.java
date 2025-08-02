@@ -20,8 +20,7 @@ public class TabView {
     public TabPane tabPane;
     @Autowired TabManagerService tabManagerService;
 
-    @Autowired
-    private ApplicationContext context;
+    @Autowired private ApplicationContext context;
 
     @FXML
     public void initialize() {

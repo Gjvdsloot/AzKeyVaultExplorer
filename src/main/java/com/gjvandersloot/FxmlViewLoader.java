@@ -10,8 +10,7 @@ import java.io.IOException;
 
 @Service
 public class FxmlViewLoader {
-    @Autowired
-    private ApplicationContext context;
+    @Autowired private ApplicationContext context;
 
     public Parent load(String path) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(path));

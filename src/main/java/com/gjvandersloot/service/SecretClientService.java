@@ -18,8 +18,7 @@ import java.util.Map;
 public class SecretClientService {
     private final Map<String, SecretClient> clients = new HashMap<>();
 
-    @Autowired
-    private PublicClientApplication pca;
+    @Autowired private PublicClientApplication pca;
 
     public SecretClient getClient(String vaultUri) {
         return clients.get(vaultUri);

@@ -1,7 +1,6 @@
 package com.gjvandersloot.mvvm.viewmodel;
 
 import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.models.DeletedSecret;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.SecretClientService;

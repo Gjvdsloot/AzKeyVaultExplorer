@@ -41,11 +41,9 @@ public class SecretView implements Initializable {
     @FXML private TableColumn<Secret, String> secretsColumn;
     @FXML private TableColumn<Secret, String> secretValueColumn;
 
-    @Autowired
-    private SecretViewModel vm;
+    @Autowired private SecretViewModel vm;
 
-    @Autowired
-    private MainStageProvider mainStageProvider;
+    @Autowired private MainStageProvider mainStageProvider;
     private Vault vault;
 
     @FXML

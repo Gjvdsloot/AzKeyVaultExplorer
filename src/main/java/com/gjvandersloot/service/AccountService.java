@@ -21,8 +21,7 @@ import java.util.Set;
 public class AccountService {
     private static final Set<String> ARM_SCOPE = Set.of("https://management.azure.com/.default");
 
-    @Autowired
-    private PublicClientApplication pca;
+    @Autowired private PublicClientApplication pca;
 
     public Account addAccount() throws Exception {
         InteractiveRequestParameters params = InteractiveRequestParameters.builder(URI.create("http://localhost"))

@@ -1,6 +1,6 @@
 package com.gjvandersloot.controller;
 
-import com.gjvandersloot.AppDataService;
+import com.gjvandersloot.DialogUtils;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.*;
 import com.gjvandersloot.service.*;
@@ -58,34 +58,17 @@ public class MainController {
     public Button copy;
     public TabPane TabManager;
 
-    @Autowired
-    private ApplicationContext context;
-
-    @Autowired
-    AccountService accountService;
-
-    @Autowired
-    Store store;
-
-    @Autowired
-    SecretClientService secretClientService;
-
-    @Autowired
-    MainStageProvider mainStageProvider;
-
-    @Autowired
-    FxmlViewLoader loader;
-
-    @Autowired
-    AppDataService appDataService;
+    @Autowired private ApplicationContext context;
+    @Autowired AccountService accountService;
+    @Autowired Store store;
+    @Autowired MainStageProvider mainStageProvider;
+    @Autowired FxmlViewLoader loader;
+    @Autowired private DialogUtils dialogUtils;
+    @Autowired private TabManagerService tabManagerService;
 
     private TreeItem<Object> root;
     private TreeItem<Object> attachedRoot;
-
     private final ObservableList<Secret> secrets = FXCollections.observableArrayList();
-
-    @Autowired
-    private TabManagerService tabManagerService;
 
     @FXML
     public void initialize() {
@@ -248,6 +231,7 @@ public class MainController {
     }
 
     public void addSubscription() {
+        dialogUtils.showError("Hodor");
 
         var dialog = createCancelDialog();
 
@@ -257,7 +241,7 @@ public class MainController {
                         account = accountService.addAccount();
                         store.getAccounts().put(account.getUsername(), account);
                     } catch (Exception e) {
-                        showError(e.getMessage());
+                        dialogUtils.showError(e.getMessage());
                     }
                 })
                 .whenComplete((r, e) -> Platform.runLater((dialog.getStage())::close));
@@ -379,7 +363,7 @@ public class MainController {
             subscription.setVaults(vaultItems);
         })).exceptionally((e) -> {
             Platform.runLater(() -> treeItem.getChildren().clear());
-            showError(e.getMessage());
+            dialogUtils.showError(e.getMessage());
             return null;
         });
     }
@@ -393,53 +377,29 @@ public class MainController {
         clipboard.setContent(content);
     }
 
-    private void showError(String e) {
-        Platform.runLater(() -> {
-            var loader = new FXMLLoader(getClass().getResource("/ErrorDialog.fxml"));
-
-            Parent root;
-            try {
-                root = loader.load();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            ErrorDialogController errorCtr = loader.getController();
-
-            var dialog = new Stage(StageStyle.DECORATED);
-            dialog.initOwner(mainStageProvider.getPrimaryStage());
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setScene(new Scene(root));
-
-            errorCtr.setDialogStage(dialog);
-            errorCtr.setMessage(e);
-            dialog.showAndWait();
-        });
-    }
-
-    public static void showError(String e, Stage s) {
-        Platform.runLater(() -> {
-            var loader = new FXMLLoader(MainController.class.getResource("/ErrorDialog.fxml"));
-
-            Parent root;
-            try {
-                root = loader.load();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            ErrorDialogController errorCtr = loader.getController();
-
-            var dialog = new Stage(StageStyle.DECORATED);
-            dialog.initOwner(s);
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setScene(new Scene(root));
-
-            errorCtr.setDialogStage(dialog);
-            errorCtr.setMessage(e);
-            dialog.showAndWait();
-        });
-    }
+//    public static void showError(String e, Stage s) {
+//        Platform.runLater(() -> {
+//            var loader = new FXMLLoader(MainController.class.getResource("/ErrorDialog.fxml"));
+//
+//            Parent root;
+//            try {
+//                root = loader.load();
+//            } catch (IOException ex) {
+//                throw new RuntimeException(ex);
+//            }
+//
+//            ErrorDialogController errorCtr = loader.getController();
+//
+//            var dialog = new Stage(StageStyle.DECORATED);
+//            dialog.initOwner(s);
+//            dialog.initModality(Modality.APPLICATION_MODAL);
+//            dialog.setScene(new Scene(root));
+//
+//            errorCtr.setDialogStage(dialog);
+//            errorCtr.setMessage(e);
+//            dialog.showAndWait();
+//        });
+//    }
 
     // Button bar, with default account
     public void addAttached() throws IOException {

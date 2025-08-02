@@ -22,11 +22,9 @@ public class SettingsController {
 
     private final TreeItem<Object> attachedRoot = new TreeItem<>("");
 
-    @Autowired
-    AppDataService appDataService;
+    @Autowired AppDataService appDataService;
 
-    @Autowired
-    Store store;
+    @Autowired Store store;
 
     @FXML
     public void initialize() {

@@ -1,14 +1,10 @@
 package com.gjvandersloot.mvvm.view;
 
-import com.gjvandersloot.controller.ErrorDialogController;
+import com.gjvandersloot.DialogUtils;
 import com.gjvandersloot.mvvm.viewmodel.WizardViewModel;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
@@ -19,14 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
 
 @Component
 public class WizardView {
-    public TextField vaultUriField;
-    public PasswordField certPasswordField;
-    @Autowired
-    WizardViewModel viewModel;
+    @Autowired WizardViewModel viewModel;
+    @Autowired DialogUtils dialogUtils;
 
     @FXML private RadioButton secretRadio;
     @FXML private RadioButton certRadio;
@@ -38,6 +31,8 @@ public class WizardView {
     @FXML private TextField tenantIdField;
     @FXML private Button attachButton;
     @FXML private PasswordField secretField;
+    @FXML private TextField vaultUriField;
+    @FXML private PasswordField certPasswordField;
 
     @FXML
     public void initialize() {
@@ -91,7 +86,7 @@ public class WizardView {
         });
 
         viewModel.errorProperty().addListener((obs, o, n) -> {
-            if (!n.isEmpty()) showError(n);
+            if (!n.isEmpty()) dialogUtils.showError(n);
         });
     }
 
@@ -114,30 +109,6 @@ public class WizardView {
             // if you want to push it into your VM:
             viewModel.setCertificatePath(path);
         }
-    }
-
-    private void showError(String e) {
-        Platform.runLater(() -> {
-            var loader = new FXMLLoader(getClass().getResource("/ErrorDialog.fxml"));
-
-            Parent root;
-            try {
-                root = loader.load();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            ErrorDialogController errorCtr = loader.getController();
-
-            var dialog = new Stage(StageStyle.DECORATED);
-            dialog.initOwner(attachButton.getScene().getWindow());
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setScene(new Scene(root));
-
-            errorCtr.setDialogStage(dialog);
-            errorCtr.setMessage(e);
-            dialog.showAndWait();
-        });
     }
 
     public void onAttach() {

@@ -2,6 +2,7 @@ package com.gjvandersloot;
 
 import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.controller.MainController;
+import com.gjvandersloot.service.MainStageProvider;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,12 +11,15 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
 public class DialogUtils {
+    @Autowired MainStageProvider mainStageProvider;
+
     public void showError(String message) {
         Window owner = getActiveWindow();
         showError(message, owner);
@@ -24,7 +28,7 @@ public class DialogUtils {
     private Window getActiveWindow() {
         return Window.getWindows().stream()
                 .filter(Window::isFocused)
-                .findFirst().get();
+                .findFirst().orElseGet(mainStageProvider::getPrimaryStage);
     }
 
     public void showError(String message, Window window) {

@@ -1,6 +1,6 @@
 package com.gjvandersloot.mvvm.view;
 
-import com.gjvandersloot.controller.MainController;
+import com.gjvandersloot.DialogUtils;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.viewmodel.CreateSecretViewModel;
@@ -20,6 +20,7 @@ public class CreateSecretView {
     @FXML private Button createBtn;
 
     @Autowired CreateSecretViewModel vm;
+    @Autowired DialogUtils dialogUtils;
 
     @Getter
     private Secret result;
@@ -47,7 +48,7 @@ public class CreateSecretView {
             stage.close();
         } catch (Exception e) {
 
-            MainController.showError(e.getMessage(), stage);
+            dialogUtils.showError(e.getMessage(), stage);
         }
     }
 }

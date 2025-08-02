@@ -6,6 +6,7 @@ import com.gjvandersloot.data.Store;
 import com.microsoft.aad.msal4jextensions.PersistenceSettings;
 import com.microsoft.aad.msal4jextensions.PersistenceTokenCacheAccessAspect;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -13,12 +14,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Slf4j
 public class AppDataService {
     @Getter
     private Path mainPath;
 
-    @Autowired
-    Store store;
+    @Autowired Store store;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -63,7 +64,7 @@ public class AppDataService {
             // Write JSON with pretty printing (optional)
             mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), store);
         } catch (IOException e) {
-            e.printStackTrace(); // Replace with logger in production
+            log.error("Something went wrong serializing store", e);
         }
     }
 
@@ -80,7 +81,7 @@ public class AppDataService {
             store.getAccounts().putAll(loadedStore.getAccounts());
             store.getAttachedVaults().putAll(loadedStore.getAttachedVaults());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Something went wrong deserializing store", e);
         }
     }
 }
