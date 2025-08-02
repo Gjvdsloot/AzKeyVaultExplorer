@@ -1,7 +1,7 @@
 package com.gjvandersloot.mvvm.viewmodel.vault;
 
-import com.azure.security.keyvault.secrets.SecretClient;
-import com.gjvandersloot.data.Secret;
+import com.azure.resourcemanager.appservice.fluent.CertificatesClient;
+import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.KeyVaultClientProviderService;
 import javafx.application.Platform;
@@ -22,22 +22,24 @@ import java.util.List;
 public class CertificateViewModel {
 
     @Getter
-    private final ObservableList<Secret> secrets = FXCollections.observableArrayList();
+    private final ObservableList<Certificate> certificates = FXCollections.observableArrayList();
 
     @Autowired KeyVaultClientProviderService keyVaultClientProviderService;
 
-    private SecretClient secretClient;
+    private CertificatesClient certificateClient;
 
-    public List<Secret> loadSecrets() {
-        return secretClient.listPropertiesOfSecrets().stream().map(s -> {
-            var secretItem = new Secret();
-            secretItem.setSecretName(s.getName());
-            return secretItem;
+    public List<Certificate> loadCertificates() {
+        return certificateClient.list().stream().map(c -> {
+            var certificateItem = new Certificate();
+            certificateItem.setName(c.name());
+            certificateItem.setThumbPrint(c.thumbprint());
+            certificateItem.setStatus(c.);
+            return certificateItem;
         }).toList();
     }
 
-    public void loadSecret(Secret secret) {
-        secret.valueProperty().set(secretClient.getSecret(secret.getSecretName()).getValue());
+    public void loadCertificate(Certificate certificate) {
+        certificate.valueProperty().set(certificateClient.getCertificate(certificate.getCertificateName()).getValue());
     }
 
     private final StringProperty error = new SimpleStringProperty();
@@ -45,32 +47,32 @@ public class CertificateViewModel {
         return error;
     }
 
-    public void setSecretClient(Vault vault) {
+    public void setCertificateClient(Vault vault) {
         try {
-            secretClient = keyVaultClientProviderService.getOrCreateSecretClient(vault);
+            certificateClient = keyVaultClientProviderService.getOrCreateCertificateClient(vault);
         } catch (Exception e) {
             error.set(e.getMessage());
         }
     }
 
-    public void addSecret(Secret newSecret) {
-        secrets.stream().filter(s -> newSecret.getSecretName().equals(s.getSecretName()))
+    public void addCertificate(Certificate newCertificate) {
+        certificates.stream().filter(s -> newCertificate.getCertificateName().equals(s.getCertificateName()))
                 .findAny()
-                .ifPresentOrElse(s -> s.setValue(newSecret.getValue()), () -> secrets.add(newSecret));
+                .ifPresentOrElse(s -> s.setValue(newCertificate.getValue()), () -> certificates.add(newCertificate));
     }
 
-    public void deleteSecret(Secret selectedSecret) {
-        String secretName = selectedSecret.getSecretName();
+    public void deleteCertificate(Certificate selectedCertificate) {
+        String certificateName = selectedCertificate.getCertificateName();
 
-        var poller = secretClient.beginDeleteSecret(secretName);
+        var poller = certificateClient.beginDeleteCertificate(certificateName);
         poller.waitForCompletion();
 
         try {
-            secretClient.purgeDeletedSecret(secretName);
+            certificateClient.purgeDeletedCertificate(certificateName);
         } catch (Exception e) {
             // Swallow
         }
 
-        Platform.runLater(() -> secrets.remove(selectedSecret));
+        Platform.runLater(() -> certificates.remove(selectedCertificate));
     }
 }

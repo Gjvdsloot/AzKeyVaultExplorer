@@ -1,12 +1,11 @@
 package com.gjvandersloot.mvvm.view.vault;
 
 import com.gjvandersloot.controller.ErrorDialogController;
-import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.view.CreateSecretView;
 import com.gjvandersloot.mvvm.view.Initializable;
-import com.gjvandersloot.mvvm.viewmodel.vault.CertificateViewModel;
+import com.gjvandersloot.mvvm.viewmodel.vault.SecretViewModel;
 import com.gjvandersloot.service.MainStageProvider;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
@@ -36,20 +35,15 @@ import static javafx.beans.binding.Bindings.when;
 @Component
 @Scope("prototype")
 public class SecretView implements Initializable {
-    @FXML private TableView<Certificate> certsTable;
-    @FXML private TableColumn<Certificate, String> nameColumn;
-    @FXML private TableColumn<Certificate, String> thumbPrintColumn;
-    @FXML private TableColumn<Certificate, String> statusColumn;
-    @FXML private TableColumn<Certificate, String> expirationColumn;
-
-
     @FXML private Button delete;
     @FXML private Button copy;
     @FXML private Button show;
     @FXML private TextField filterField;
     @FXML private TableView<Secret> secretsTable;
+    @FXML private TableColumn<Secret, String> secretsColumn;
+    @FXML private TableColumn<Secret, String> secretValueColumn;
 
-    @Autowired private CertificateViewModel vm;
+    @Autowired private SecretViewModel vm;
 
     @Autowired private MainStageProvider mainStageProvider;
     private Vault vault;
@@ -66,6 +60,11 @@ public class SecretView implements Initializable {
         var hidden = selectBoolean(selection, "hidden");
         show.textProperty().bind(when(selection.isNull().or(hidden))
                 .then("Show").otherwise("Hide"));
+
+// DON'T REMOVE THIS. USE IT WHENEVER DATA DOES NOT LOAD PROPERLY.
+//        vm.errorProperty().addListener((obs, o, n) -> {
+//            if (!n.isEmpty()) showError(n);
+//        });
 
         setupVaultFilter();
     }

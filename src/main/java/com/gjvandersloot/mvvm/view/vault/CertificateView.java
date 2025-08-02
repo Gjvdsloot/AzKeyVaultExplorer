@@ -1,7 +1,7 @@
 package com.gjvandersloot.mvvm.view.vault;
 
 import com.gjvandersloot.controller.ErrorDialogController;
-import com.gjvandersloot.data.Secret;
+import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.view.CreateSecretView;
 import com.gjvandersloot.mvvm.view.Initializable;
@@ -35,12 +35,16 @@ import static javafx.beans.binding.Bindings.when;
 @Component
 @Scope("prototype")
 public class CertificateView implements Initializable {
+    @FXML private TableView<Certificate> certsTable;
+    @FXML private TableColumn<Certificate, String> nameColumn;
+    @FXML private TableColumn<Certificate, String> thumbPrintColumn;
+    @FXML private TableColumn<Certificate, String> statusColumn;
+    @FXML private TableColumn<Certificate, String> expirationColumn;
+
     @FXML private Button delete;
     @FXML private Button copy;
     @FXML private Button show;
     @FXML private TextField filterField;
-    @FXML private TableView<Secret> certsTable;
-    @FXML private TableColumn<Secret, String> certsColumn;
 
     @Autowired private CertificateViewModel vm;
 
@@ -59,20 +63,15 @@ public class CertificateView implements Initializable {
         show.textProperty().bind(when(selection.isNull().or(hidden))
                 .then("Show").otherwise("Hide"));
 
-// DON'T REMOVE THIS. USE IT WHENEVER DATA DOES NOT LOAD PROPERLY.
-//        vm.errorProperty().addListener((obs, o, n) -> {
-//            if (!n.isEmpty()) showError(n);
-//        });
-
         setupVaultFilter();
     }
 
     private void setupVaultFilter() {
-        certsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
+        nameColumn.setCellValueFactory(cell -> cell.getValue().nameProperty());
 
-        FilteredList<Secret> filteredData = new FilteredList<>(vm.getSecrets(), p -> true);
+        FilteredList<Certificate> filteredData = new FilteredList<>(vm.getCertificates(), p -> true);
 
-        SortedList<Secret> sortedData = new SortedList<>(filteredData);
+        SortedList<Certificate> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(certsTable.comparatorProperty());
 
         certsTable.setItems(sortedData);
@@ -167,10 +166,10 @@ public class CertificateView implements Initializable {
 
         CompletableFuture.runAsync(() -> {
             try {
-                vm.setSecretClient(vault);
+                vm.setCertificateClient(vault);
                 var secrets = vm.loadSecrets();
 
-                Platform.runLater(() -> vm.getSecrets().setAll(secrets));
+                Platform.runLater(() -> vm.getCertificates().setAll(secrets));
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     vault.setLoadFailed(true);

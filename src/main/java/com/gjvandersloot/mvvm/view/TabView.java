@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class TabView {
@@ -70,14 +71,19 @@ public class TabView {
         vaultPane.getTabs().add(secretTab);
         vaultPane.getTabs().add(keysTab);
         vaultPane.getTabs().add(certsTab);
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/SecretView.fxml"));
-            loader.setControllerFactory(context::getBean);
-            Parent content = loader.load();
-            secretTab.setContent(content);
 
-            SecretView ctr = loader.getController();
-            ctr.init(vault);
+        var names = List.of("SecretView", "CertificateView"/*, "KeyView"*/);
+
+        try {
+            for (var name : names) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + name + ".fxml"));
+                loader.setControllerFactory(context::getBean);
+                Parent content = loader.load();
+                secretTab.setContent(content);
+
+                SecretView ctr = loader.getController();
+                ctr.init(vault);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
