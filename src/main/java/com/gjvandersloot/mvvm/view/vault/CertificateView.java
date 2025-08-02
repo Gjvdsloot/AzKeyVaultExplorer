@@ -1,9 +1,11 @@
-package com.gjvandersloot.mvvm.view;
+package com.gjvandersloot.mvvm.view.vault;
 
 import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.viewmodel.SecretViewModel;
+import com.gjvandersloot.mvvm.view.CreateSecretView;
+import com.gjvandersloot.mvvm.view.Initializable;
+import com.gjvandersloot.mvvm.viewmodel.vault.CertificateViewModel;
 import com.gjvandersloot.service.MainStageProvider;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
@@ -32,25 +34,23 @@ import static javafx.beans.binding.Bindings.when;
 
 @Component
 @Scope("prototype")
-public class SecretView implements Initializable {
+public class CertificateView implements Initializable {
     @FXML private Button delete;
     @FXML private Button copy;
     @FXML private Button show;
     @FXML private TextField filterField;
-    @FXML private TableView<Secret> secretsTable;
-    @FXML private TableColumn<Secret, String> secretsColumn;
-    @FXML private TableColumn<Secret, String> secretValueColumn;
+    @FXML private TableView<Secret> certsTable;
+    @FXML private TableColumn<Secret, String> certsColumn;
 
-    @Autowired private SecretViewModel vm;
+    @Autowired private CertificateViewModel vm;
 
     @Autowired private MainStageProvider mainStageProvider;
     private Vault vault;
 
     @FXML
     public void initialize() {
-        secretValueColumn.setCellValueFactory(cell -> cell.getValue().displayProperty());
 
-        var selection = secretsTable.getSelectionModel().selectedItemProperty();
+        var selection = certsTable.getSelectionModel().selectedItemProperty();
 
         copy.disableProperty().bind(selection.isNull());
         show.disableProperty().bind(selection.isNull());
@@ -68,14 +68,14 @@ public class SecretView implements Initializable {
     }
 
     private void setupVaultFilter() {
-        secretsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
+        certsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
 
         FilteredList<Secret> filteredData = new FilteredList<>(vm.getSecrets(), p -> true);
 
         SortedList<Secret> sortedData = new SortedList<>(filteredData);
-        sortedData.comparatorProperty().bind(secretsTable.comparatorProperty());
+        sortedData.comparatorProperty().bind(certsTable.comparatorProperty());
 
-        secretsTable.setItems(sortedData);
+        certsTable.setItems(sortedData);
 
         filterField.textProperty().addListener((obs, oldVal, newVal) -> {
             String lower = (newVal == null ? "" : newVal.toLowerCase().trim());
@@ -89,14 +89,14 @@ public class SecretView implements Initializable {
             });
         });
 
-        secretsTable.sceneProperty().addListener((obs, o, n) -> {
+        certsTable.sceneProperty().addListener((obs, o, n) -> {
             if (n == null) return;
-            Platform.runLater(() -> secretsTable.refresh());
+            Platform.runLater(() -> certsTable.refresh());
         });
     }
 
     public void showSecret() {
-        var secret = secretsTable.getSelectionModel().getSelectedItem();
+        var secret = certsTable.getSelectionModel().getSelectedItem();
         if (secret == null)
             return;
 
@@ -110,7 +110,7 @@ public class SecretView implements Initializable {
     }
 
     public void copySecret() {
-        var secret = secretsTable.getSelectionModel().getSelectedItem();
+        var secret = certsTable.getSelectionModel().getSelectedItem();
         if (secret == null)
             return;
 
@@ -147,7 +147,7 @@ public class SecretView implements Initializable {
     }
 
     public void deleteSecret() {
-        var selectedSecret = secretsTable.getSelectionModel().getSelectedItem();
+        var selectedSecret = certsTable.getSelectionModel().getSelectedItem();
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete secret");
@@ -194,7 +194,7 @@ public class SecretView implements Initializable {
             ErrorDialogController errorCtr = loader.getController();
 
             var dialog = new Stage(StageStyle.DECORATED);
-            dialog.initOwner(secretsTable.getScene().getWindow());
+            dialog.initOwner(certsTable.getScene().getWindow());
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.setScene(new Scene(root));
 

@@ -2,6 +2,7 @@ package com.gjvandersloot.mvvm.view;
 
 import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.data.Vault;
+import com.gjvandersloot.mvvm.view.vault.SecretView;
 import com.gjvandersloot.service.TabManagerService;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
@@ -70,7 +71,7 @@ public class TabView {
         vaultPane.getTabs().add(keysTab);
         vaultPane.getTabs().add(certsTab);
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SecretView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/SecretView.fxml"));
             loader.setControllerFactory(context::getBean);
             Parent content = loader.load();
             secretTab.setContent(content);

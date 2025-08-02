@@ -1,4 +1,4 @@
-package com.gjvandersloot.mvvm.viewmodel;
+package com.gjvandersloot.mvvm.viewmodel.vault;
 
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.gjvandersloot.data.Secret;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @Component
 @Scope("prototype")
-public class SecretViewModel {
+public class CertificateViewModel {
 
     @Getter
     private final ObservableList<Secret> secrets = FXCollections.observableArrayList();

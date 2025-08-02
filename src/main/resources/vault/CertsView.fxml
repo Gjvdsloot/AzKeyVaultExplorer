@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.gjvandersloot.mvvm.view.vault.SecretView"
+      prefHeight="400.0" prefWidth="600.0">
+    <ToolBar style="-fx-background-color: #f0f0f0">
+        <Button fx:id="copy" onAction="#copySecret" text="Copy" />
+        <Button fx:id="show" onAction="#showSecret" text="Show" />
+        <Separator orientation="VERTICAL" />
+        <Button onAction="#addSecret" text="New" />
+        <Button fx:id="delete" mnemonicParsing="false" onAction="#deleteSecret" text="Delete" />
+        <Separator orientation="VERTICAL" />
+        <TextField fx:id="filterField" promptText="Search secret" />
+    </ToolBar>
+    <TableView fx:id="secretsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="nameColumn" prefWidth="150" text="Secret name"/>
+            <TableColumn fx:id="thumbPrintColumn" prefWidth="200" text="Value"/>
+            <TableColumn fx:id="statusColumn" prefWidth="200" text="Value"/>
+            <TableColumn fx:id="expirationColumn" prefWidth="200" text="Value"/>
+        </columns>
+    </TableView>
+</VBox>
