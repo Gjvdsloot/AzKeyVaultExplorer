@@ -6,6 +6,8 @@ import javafx.beans.value.ObservableStringValue;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.OffsetDateTime;
+
 @Getter @Setter
 public class Secret {
     public Secret() {
@@ -56,4 +58,32 @@ public class Secret {
     public ObservableStringValue displayProperty() {
         return display;
     }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled.set(enabled);
+    }
+
+    public boolean isEnabled() {
+        return enabled.get();
+    }
+
+    public BooleanProperty enabledProperty() {
+        return enabled;
+    }
+
+    private final BooleanProperty enabled = new SimpleBooleanProperty(false);
+
+    public void setExpirationDate(OffsetDateTime expiresOn) {
+        this.expirationDate.set(expiresOn);
+    }
+
+    public OffsetDateTime getExpirationDate() {
+        return expirationDate.get();
+    }
+
+    public ObjectProperty<OffsetDateTime> expirationDateProperty() {
+        return expirationDate;
+    }
+
+    private final ObjectProperty<OffsetDateTime> expirationDate = new SimpleObjectProperty<>();
 }

@@ -1,4 +1,4 @@
-package com.gjvandersloot;
+package com.gjvandersloot.utils;
 
 import com.gjvandersloot.controller.ErrorDialogController;
 import com.gjvandersloot.controller.MainController;

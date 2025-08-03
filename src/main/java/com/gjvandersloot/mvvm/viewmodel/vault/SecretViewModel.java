@@ -11,6 +11,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Component
 @Scope("prototype")
+@Slf4j
 public class SecretViewModel {
 
     @Getter
@@ -29,11 +31,15 @@ public class SecretViewModel {
     private SecretClient secretClient;
 
     public List<Secret> loadSecrets() {
-        return secretClient.listPropertiesOfSecrets().stream().map(s -> {
-            var secretItem = new Secret();
-            secretItem.setSecretName(s.getName());
-            return secretItem;
-        }).toList();
+        return secretClient.listPropertiesOfSecrets().stream()
+                .filter(s -> s.isManaged() == null || !s.isManaged())
+                .map(s -> {
+                    var secretItem = new Secret();
+                    secretItem.setSecretName(s.getName());
+                    secretItem.setEnabled(s.isEnabled());
+                    secretItem.setExpirationDate(s.getExpiresOn());
+                    return secretItem;
+                }).toList();
     }
 
     public void loadSecret(Secret secret) {
@@ -68,7 +74,11 @@ public class SecretViewModel {
         try {
             secretClient.purgeDeletedSecret(secretName);
         } catch (Exception e) {
-            // Swallow
+            if (e.getMessage().toLowerCase().contains("soft delete")) {
+                log.info("Cannot purge secret when soft-delete is disabled, skipping");
+            } else {
+                error.set(e.getMessage());
+            }
         }
 
         Platform.runLater(() -> secrets.remove(selectedSecret));

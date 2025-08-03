@@ -1,6 +1,6 @@
 package com.gjvandersloot.mvvm.view;
 
-import com.gjvandersloot.DialogUtils;
+import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.viewmodel.CreateSecretViewModel;

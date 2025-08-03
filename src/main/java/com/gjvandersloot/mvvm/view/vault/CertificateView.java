@@ -1,10 +1,11 @@
 package com.gjvandersloot.mvvm.view.vault;
 
-import com.gjvandersloot.DialogUtils;
+import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.view.Initializable;
 import com.gjvandersloot.mvvm.viewmodel.vault.CertificateViewModel;
+import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -12,7 +13,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +22,6 @@ import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
-
-import static javafx.beans.binding.Bindings.selectBoolean;
 
 @Component
 @Scope("prototype")
@@ -42,10 +40,6 @@ public class CertificateView implements Initializable {
 
     @Autowired private CertificateViewModel vm;
 
-    @Autowired private ApplicationContext context;
-
-    private Vault vault;
-
     @Autowired
     private DialogUtils dialogUtils;
 
@@ -54,17 +48,13 @@ public class CertificateView implements Initializable {
 
         var selection = certsTable.getSelectionModel().selectedItemProperty();
 
-//        copy.disableProperty().bind(selection.isNull());
-//        show.disableProperty().bind(selection.isNull());
-//        delete.disableProperty().bind(selection.isNull());
-//        var hidden = selectBoolean(selection, "hidden");
-//        show.textProperty().bind(when(selection.isNull().or(hidden))
-//                .then("Show").otherwise("Hide"));
+        downloadBtn.disableProperty().bind(selection.isNull());
 
         setupVaultFilter();
     }
 
     private void setupVaultFilter() {
+        FxExtensions.clearOnEscape(filterField);
         nameColumn.setCellValueFactory(cell -> cell.getValue().nameProperty());
         thumbPrintColumn.setCellValueFactory(cell -> cell.getValue().thumbPrintProperty());
         statusColumn.setCellValueFactory(cellData -> cellData.getValue().enabledProperty());
@@ -95,12 +85,6 @@ public class CertificateView implements Initializable {
             }
         });
 
-
-
-
-
-//        statusColumn.setCellValueFactory(cell -> cell.getValue().enabledProperty());
-
         FilteredList<Certificate> filteredData = new FilteredList<>(vm.getCertificates(), p -> true);
 
         SortedList<Certificate> sortedData = new SortedList<>(filteredData);
@@ -128,7 +112,6 @@ public class CertificateView implements Initializable {
 
     @Override
     public void init(Vault vault) {
-        this.vault = vault;
 
         CompletableFuture.runAsync(() -> {
             try {

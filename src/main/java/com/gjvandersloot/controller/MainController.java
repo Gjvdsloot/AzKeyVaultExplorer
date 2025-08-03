@@ -1,15 +1,12 @@
 package com.gjvandersloot.controller;
 
-import com.gjvandersloot.DialogUtils;
+import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.*;
 import com.gjvandersloot.service.*;
+import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,7 +19,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,25 +36,12 @@ public class MainController {
     public TreeView<Object> treeView;
 
     @FXML
-    public TableView<Secret> secretsTable;
-
-    @FXML
-    public TableColumn<Secret, String> secretsColumn;
-    @FXML
-    public TableColumn<Secret, String> secretValueColumn;
-
-    @FXML
     public Button show;
 
     @FXML
-    public TextField filterField;
-
-    @FXML
     public TextField treeFilter;
-    public Button copy;
     public TabPane TabManager;
 
-    @Autowired private ApplicationContext context;
     @Autowired AccountService accountService;
     @Autowired Store store;
     @Autowired MainStageProvider mainStageProvider;
@@ -68,7 +51,6 @@ public class MainController {
 
     private TreeItem<Object> root;
     private TreeItem<Object> attachedRoot;
-    private final ObservableList<Secret> secrets = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -170,6 +152,7 @@ public class MainController {
 
     private void setupTreeFilter() {
         treeView.setRoot(this.root);
+        FxExtensions.clearOnEscape(treeFilter);
 
         treeFilter.textProperty().addListener((obs, old, nw) -> {
             if (nw == null || nw.isBlank()) {
@@ -207,32 +190,7 @@ public class MainController {
                 : null;
     }
 
-    private void setupVaultFilter() {
-        secretsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
-
-        FilteredList<Secret> filteredData = new FilteredList<>(secrets, p -> true);
-
-        SortedList<Secret> sortedData = new SortedList<>(filteredData);
-        sortedData.comparatorProperty().bind(secretsTable.comparatorProperty());
-
-        secretsTable.setItems(sortedData);
-
-        filterField.textProperty().addListener((obs, oldVal, newVal) -> {
-            String lower = (newVal == null ? "" : newVal.toLowerCase().trim());
-            filteredData.setPredicate(item -> {
-                if (lower.isEmpty()) {
-                    return true;
-                }
-
-                return item.getSecretName() != null
-                        && item.getSecretName().toLowerCase().contains(lower);
-            });
-        });
-    }
-
     public void addSubscription() {
-        dialogUtils.showError("Hodor");
-
         var dialog = createCancelDialog();
 
         var future = CompletableFuture.runAsync(() -> {

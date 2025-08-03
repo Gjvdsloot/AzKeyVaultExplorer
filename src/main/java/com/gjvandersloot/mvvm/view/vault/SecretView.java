@@ -1,12 +1,13 @@
 package com.gjvandersloot.mvvm.view.vault;
 
-import com.gjvandersloot.controller.ErrorDialogController;
+import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.view.CreateSecretView;
 import com.gjvandersloot.mvvm.view.Initializable;
 import com.gjvandersloot.mvvm.viewmodel.vault.SecretViewModel;
 import com.gjvandersloot.service.MainStageProvider;
+import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -25,6 +26,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,11 +45,16 @@ public class SecretView implements Initializable {
     @FXML private TableView<Secret> secretsTable;
     @FXML private TableColumn<Secret, String> secretsColumn;
     @FXML private TableColumn<Secret, String> secretValueColumn;
+    @FXML private TableColumn<Secret, Boolean> statusColumn;
+    @FXML private TableColumn<Secret, OffsetDateTime> expirationColumn;
 
     @Autowired private SecretViewModel vm;
 
     @Autowired private MainStageProvider mainStageProvider;
     private Vault vault;
+
+    @Autowired
+    private DialogUtils diagUtils;
 
     @FXML
     public void initialize() {
@@ -70,7 +78,35 @@ public class SecretView implements Initializable {
     }
 
     private void setupVaultFilter() {
+        FxExtensions.clearOnEscape(filterField);
         secretsColumn.setCellValueFactory(cell -> cell.getValue().secretNameProperty());
+        statusColumn.setCellValueFactory(cellData -> cellData.getValue().enabledProperty());
+        expirationColumn.setCellValueFactory(cellData -> cellData.getValue().expirationDateProperty());
+
+        statusColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item ? "enabled" : "disabled");
+                }
+            }
+        });
+        expirationColumn.setCellFactory(col -> new TableCell<>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            @Override
+            protected void updateItem(OffsetDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.format(formatter));
+                }
+            }
+        });
 
         FilteredList<Secret> filteredData = new FilteredList<>(vm.getSecrets(), p -> true);
 
@@ -120,7 +156,7 @@ public class SecretView implements Initializable {
             CompletableFuture.runAsync(() -> vm.loadSecret(secret))
                     .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())))
                     .exceptionally(e -> {
-                        showError(e.getMessage());
+                        diagUtils.showError(e.getMessage());
                         return null;
                     });
         else
@@ -176,33 +212,9 @@ public class SecretView implements Initializable {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     vault.setLoadFailed(true);
-                    showError(e.getMessage());
+                    diagUtils.showError(e.getMessage());
                 });
             }
-        });
-    }
-
-    private void showError(String e) {
-        Platform.runLater(() -> {
-            var loader = new FXMLLoader(getClass().getResource("/ErrorDialog.fxml"));
-
-            Parent root;
-            try {
-                root = loader.load();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            ErrorDialogController errorCtr = loader.getController();
-
-            var dialog = new Stage(StageStyle.DECORATED);
-            dialog.initOwner(secretsTable.getScene().getWindow());
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setScene(new Scene(root));
-
-            errorCtr.setDialogStage(dialog);
-            errorCtr.setMessage(e);
-            dialog.showAndWait();
         });
     }
 }
