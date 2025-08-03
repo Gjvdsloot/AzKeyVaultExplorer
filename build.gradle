@@ -79,6 +79,7 @@ dependencies {
     // Azure SDK
     implementation 'com.azure:azure-identity:1.16.2'
     implementation 'com.azure:azure-security-keyvault-secrets:4.10.0'
+    implementation 'com.azure:azure-security-keyvault-certificates:4.6.2'
     implementation 'com.azure.resourcemanager:azure-resourcemanager:2.52.0'
     implementation 'com.azure.resourcemanager:azure-resourcemanager-resources:2.32.0'
     implementation 'com.azure.resourcemanager:azure-resourcemanager-keyvault:2.32.0'

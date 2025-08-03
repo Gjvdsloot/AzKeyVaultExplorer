@@ -1,5 +1,7 @@
 package com.gjvandersloot.data;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -31,4 +33,18 @@ public class Certificate {
     }
 
     private final StringProperty thumbPrint = new SimpleStringProperty();
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled.set(enabled);
+    }
+
+    public boolean isEnabled() {
+        return enabled.get();
+    }
+
+    public BooleanProperty enabledProperty() {
+        return enabled;
+    }
+
+    private final BooleanProperty enabled = new SimpleBooleanProperty(false);
 }

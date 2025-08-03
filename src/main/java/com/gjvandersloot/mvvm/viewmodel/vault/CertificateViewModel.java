@@ -1,10 +1,9 @@
 package com.gjvandersloot.mvvm.viewmodel.vault;
 
-import com.azure.resourcemanager.appservice.fluent.CertificatesClient;
+import com.azure.security.keyvault.certificates.CertificateClient;
 import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.KeyVaultClientProviderService;
-import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -26,21 +25,21 @@ public class CertificateViewModel {
 
     @Autowired KeyVaultClientProviderService keyVaultClientProviderService;
 
-    private CertificatesClient certificateClient;
+    private CertificateClient certificateClient;
 
     public List<Certificate> loadCertificates() {
-        return certificateClient.list().stream().map(c -> {
+        return certificateClient.listPropertiesOfCertificates().stream().map(c -> {
             var certificateItem = new Certificate();
-            certificateItem.setName(c.name());
-            certificateItem.setThumbPrint(c.thumbprint());
-            certificateItem.setStatus(c.);
+            certificateItem.setName(c.getName());
+            certificateItem.setThumbPrint(c.getX509ThumbprintAsString());
+            certificateItem.setEnabled(c.isEnabled());
             return certificateItem;
         }).toList();
     }
-
-    public void loadCertificate(Certificate certificate) {
-        certificate.valueProperty().set(certificateClient.getCertificate(certificate.getCertificateName()).getValue());
-    }
+//
+//    public void loadCertificate(Certificate certificate) {
+//        certificate.valueProperty().set(certificateClient.getCertificate(certificate.getCertificateName()).getValue());
+//    }
 
     private final StringProperty error = new SimpleStringProperty();
     public Property<String> errorProperty() {
@@ -55,24 +54,24 @@ public class CertificateViewModel {
         }
     }
 
-    public void addCertificate(Certificate newCertificate) {
-        certificates.stream().filter(s -> newCertificate.getCertificateName().equals(s.getCertificateName()))
-                .findAny()
-                .ifPresentOrElse(s -> s.setValue(newCertificate.getValue()), () -> certificates.add(newCertificate));
-    }
-
-    public void deleteCertificate(Certificate selectedCertificate) {
-        String certificateName = selectedCertificate.getCertificateName();
-
-        var poller = certificateClient.beginDeleteCertificate(certificateName);
-        poller.waitForCompletion();
-
-        try {
-            certificateClient.purgeDeletedCertificate(certificateName);
-        } catch (Exception e) {
-            // Swallow
-        }
-
-        Platform.runLater(() -> certificates.remove(selectedCertificate));
-    }
+//    public void addCertificate(Certificate newCertificate) {
+//        certificates.stream().filter(s -> newCertificate.getCertificateName().equals(s.getCertificateName()))
+//                .findAny()
+//                .ifPresentOrElse(s -> s.setValue(newCertificate.getValue()), () -> certificates.add(newCertificate));
+//    }
+//
+//    public void deleteCertificate(Certificate selectedCertificate) {
+//        String certificateName = selectedCertificate.getCertificateName();
+//
+//        var poller = certificateClient.beginDeleteCertificate(certificateName);
+//        poller.waitForCompletion();
+//
+//        try {
+//            certificateClient.purgeDeletedCertificate(certificateName);
+//        } catch (Exception e) {
+//            // Swallow
+//        }
+//
+//        Platform.runLater(() -> certificates.remove(selectedCertificate));
+//    }
 }

@@ -3,11 +3,11 @@ package com.gjvandersloot.service;
 import com.azure.core.credential.TokenCredential;
 import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredentialBuilder;
-import com.azure.resourcemanager.appservice.fluent.CertificatesClient;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
 import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.token.MsalInteractiveCredential;
 import com.microsoft.aad.msal4j.*;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 public class KeyVaultClientProviderService {
     private final Map<VaultKey, SecretClient> secretClients = new HashMap<>();
-    private final Map<VaultKey, CertificatesClient> certClients = new HashMap<>();
+    private final Map<VaultKey, CertificateClient> certClients = new HashMap<>();
     private final Map<VaultKey, KeyClient> keyClients = new HashMap<>();
 
     private final Map<VaultKey, TokenCredential> tokenCredentials = new HashMap<>();
@@ -48,6 +48,27 @@ public class KeyVaultClientProviderService {
         secretClients.put(key, secretClient);
 
         return secretClient;
+    }
+
+    public CertificateClient getOrCreateCertificateClient(Vault vault) throws Exception {
+        var key = vault.getVaultKey();
+
+        var certClient = certClients.getOrDefault(key, null);
+        TokenCredential tokenCredential;
+
+        if (certClient != null)
+            return certClient;
+
+        tokenCredential = getCredential(vault);
+
+        certClient = new CertificateClientBuilder()
+                .vaultUrl(vault.getVaultUri())
+                .credential(tokenCredential)
+                .buildClient();
+
+        certClients.put(key, certClient);
+
+        return certClient;
     }
 
     private TokenCredential getCredential(Vault vault) throws Exception {

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class TabView {
@@ -72,16 +73,20 @@ public class TabView {
         vaultPane.getTabs().add(keysTab);
         vaultPane.getTabs().add(certsTab);
 
-        var names = List.of("SecretView", "CertificateView"/*, "KeyView"*/);
+        var map = Map.of(
+                "SecretView", secretTab,
+                "CertificateView", certsTab
+                /*, "KeyView"*/);
 
         try {
-            for (var name : names) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + name + ".fxml"));
+            for (Map.Entry<String, Tab> entry : map.entrySet()) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + entry.getKey() + ".fxml"));
+//                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + name + ".fxml"));
                 loader.setControllerFactory(context::getBean);
                 Parent content = loader.load();
-                secretTab.setContent(content);
+                entry.getValue().setContent(content);
 
-                SecretView ctr = loader.getController();
+                Initializable ctr = loader.getController();
                 ctr.init(vault);
             }
         } catch (IOException e) {

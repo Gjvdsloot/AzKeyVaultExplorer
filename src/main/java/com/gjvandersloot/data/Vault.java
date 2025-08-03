@@ -53,6 +53,7 @@ public class Vault implements ILoadable {
         this.loadFailed = loadFailed;
     }
 
+    @JsonIgnore
     public VaultKey getVaultKey() {
         return new VaultKey(this.vaultUri, this.credentials.getAuthType());
     }
