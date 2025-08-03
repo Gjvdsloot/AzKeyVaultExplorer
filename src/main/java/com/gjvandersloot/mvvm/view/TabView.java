@@ -2,13 +2,11 @@ package com.gjvandersloot.mvvm.view;
 
 import com.gjvandersloot.data.AuthType;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.view.vault.SecretView;
 import com.gjvandersloot.service.TabManagerService;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -78,12 +75,12 @@ public class TabView {
                 "SecretView", secretTab,
                 "CertificateView", certsTab
                 /*, "KeyView"*/);
-        initTab(vault, map);
+        initTabs(vault, map);
 
         return tab;
     }
 
-    private void initTab(Vault vault, Map<String, Tab> map) {
+    private void initTabs(Vault vault, Map<String, Tab> map) {
         for (Map.Entry<String, Tab> entry : map.entrySet()) {
             Tab tabToLoad = entry.getValue();
             tabToLoad.setUserData(false);
@@ -105,6 +102,10 @@ public class TabView {
             });
         }
 
+        TriggerDefaultPanel(map);
+    }
+
+    private static void TriggerDefaultPanel(Map<String, Tab> map) {
         Tab selected = map.values().stream()
                 .filter(Tab::isSelected)
                 .findFirst()
