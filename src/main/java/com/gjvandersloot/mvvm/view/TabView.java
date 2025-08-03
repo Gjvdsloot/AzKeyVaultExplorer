@@ -8,6 +8,7 @@ import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,21 +78,40 @@ public class TabView {
                 "SecretView", secretTab,
                 "CertificateView", certsTab
                 /*, "KeyView"*/);
-
-        try {
-            for (Map.Entry<String, Tab> entry : map.entrySet()) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + entry.getKey() + ".fxml"));
-                loader.setControllerFactory(context::getBean);
-                Parent content = loader.load();
-                entry.getValue().setContent(content);
-
-                Initializable ctr = loader.getController();
-                ctr.init(vault);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        initTab(vault, map);
 
         return tab;
+    }
+
+    private void initTab(Vault vault, Map<String, Tab> map) {
+        for (Map.Entry<String, Tab> entry : map.entrySet()) {
+            Tab tabToLoad = entry.getValue();
+            tabToLoad.setUserData(false);
+
+            tabToLoad.setOnSelectionChanged(ev -> {
+                if (tabToLoad.isSelected() && !(Boolean) tabToLoad.getUserData()) {
+                    try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + entry.getKey() + ".fxml"));
+                        loader.setControllerFactory(context::getBean);
+                        Parent content = loader.load();
+                        entry.getValue().setContent(content);
+
+                        Initializable ctr = loader.getController();
+                        ctr.init(vault);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
+
+        Tab selected = map.values().stream()
+                .filter(Tab::isSelected)
+                .findFirst()
+                .orElse(null);
+
+        if (selected != null && !(Boolean) selected.getUserData()) {
+            selected.getOnSelectionChanged().handle(null); // manually trigger the handler
+        }
     }
 }
