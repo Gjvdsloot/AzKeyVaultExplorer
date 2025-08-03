@@ -81,7 +81,6 @@ public class TabView {
         try {
             for (Map.Entry<String, Tab> entry : map.entrySet()) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + entry.getKey() + ".fxml"));
-//                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vault/" + name + ".fxml"));
                 loader.setControllerFactory(context::getBean);
                 Parent content = loader.load();
                 entry.getValue().setContent(content);

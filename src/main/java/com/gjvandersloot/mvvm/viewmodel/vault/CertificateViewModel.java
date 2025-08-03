@@ -1,6 +1,9 @@
 package com.gjvandersloot.mvvm.viewmodel.vault;
 
 import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.models.KeyVaultCertificateWithPolicy;
+import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.service.KeyVaultClientProviderService;
@@ -14,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @Scope("prototype")
@@ -26,12 +31,14 @@ public class CertificateViewModel {
     @Autowired KeyVaultClientProviderService keyVaultClientProviderService;
 
     private CertificateClient certificateClient;
+    private SecretClient secretClient;
 
     public List<Certificate> loadCertificates() {
         return certificateClient.listPropertiesOfCertificates().stream().map(c -> {
             var certificateItem = new Certificate();
             certificateItem.setName(c.getName());
             certificateItem.setThumbPrint(c.getX509ThumbprintAsString());
+            certificateItem.setExpirationDate(c.getExpiresOn());
             certificateItem.setEnabled(c.isEnabled());
             return certificateItem;
         }).toList();
@@ -49,6 +56,30 @@ public class CertificateViewModel {
     public void setCertificateClient(Vault vault) {
         try {
             certificateClient = keyVaultClientProviderService.getOrCreateCertificateClient(vault);
+        } catch (Exception e) {
+            error.set(e.getMessage());
+        }
+    }
+
+    public CompletableFuture<byte[]> downloadCertificateAsync(String name, boolean isPfx) {
+        return CompletableFuture.supplyAsync(() -> {
+            byte[] data;
+            if (isPfx) {
+                // Use SecretClient
+                KeyVaultSecret secret = secretClient.getSecret(name);
+                data = Base64.getDecoder().decode(secret.getValue());
+            } else {
+                // Use CertificateClient
+                KeyVaultCertificateWithPolicy cert = certificateClient.getCertificate(name);
+                data = cert.getCer();
+            }
+            return data;
+        });
+    }
+
+    public void setSecretClient(Vault vault) {
+        try {
+            secretClient = keyVaultClientProviderService.getOrCreateSecretClient(vault);
         } catch (Exception e) {
             error.set(e.getMessage());
         }

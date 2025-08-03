@@ -1,9 +1,11 @@
 package com.gjvandersloot.data;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
+import java.time.OffsetDateTime;
 
 public class Certificate {
     public String getName() {
@@ -47,4 +49,20 @@ public class Certificate {
     }
 
     private final BooleanProperty enabled = new SimpleBooleanProperty(false);
+
+    public void setExpirationDate(OffsetDateTime expiresOn) {
+        this.expirationDate.set(expiresOn);
+    }
+
+    public OffsetDateTime getExpirationDate() {
+        return expirationDate.get();
+    }
+
+    public ObjectProperty<OffsetDateTime> expirationDateProperty() {
+        return expirationDate;
+    }
+
+    private final ObjectProperty<OffsetDateTime> expirationDate = new SimpleObjectProperty<>();
+
+
 }

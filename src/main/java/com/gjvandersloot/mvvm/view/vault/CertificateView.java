@@ -10,24 +10,30 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
 
 import static javafx.beans.binding.Bindings.selectBoolean;
-import static javafx.beans.binding.Bindings.when;
 
 @Component
 @Scope("prototype")
 public class CertificateView implements Initializable {
+    public Button downloadBtn;
     @FXML private TableView<Certificate> certsTable;
     @FXML private TableColumn<Certificate, String> nameColumn;
     @FXML private TableColumn<Certificate, String> thumbPrintColumn;
-    @FXML private TableColumn<Certificate, String> statusColumn;
-    @FXML private TableColumn<Certificate, String> expirationColumn;
+    @FXML private TableColumn<Certificate, Boolean> statusColumn;
+    @FXML private TableColumn<Certificate, OffsetDateTime> expirationColumn;
 
     @FXML private Button delete;
     @FXML private Button copy;
@@ -60,6 +66,40 @@ public class CertificateView implements Initializable {
 
     private void setupVaultFilter() {
         nameColumn.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        thumbPrintColumn.setCellValueFactory(cell -> cell.getValue().thumbPrintProperty());
+        statusColumn.setCellValueFactory(cellData -> cellData.getValue().enabledProperty());
+        expirationColumn.setCellValueFactory(cellData -> cellData.getValue().expirationDateProperty());
+
+        statusColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item ? "enabled" : "disabled");
+                }
+            }
+        });
+        expirationColumn.setCellFactory(col -> new TableCell<>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            @Override
+            protected void updateItem(OffsetDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.format(formatter));
+                }
+            }
+        });
+
+
+
+
+
+//        statusColumn.setCellValueFactory(cell -> cell.getValue().enabledProperty());
 
         FilteredList<Certificate> filteredData = new FilteredList<>(vm.getCertificates(), p -> true);
 
@@ -86,70 +126,6 @@ public class CertificateView implements Initializable {
         });
     }
 
-//    public void showCertificate() {
-//        var secret = certsTable.getSelectionModel().getSelectedItem();
-//        if (secret == null)
-//            return;
-//
-//        if (secret.() == null)
-//            CompletableFuture
-//                    .runAsync(() -> vm.loadCertificate(secret))
-//                    .thenAccept((v) -> Platform.runLater(() -> secret.setHidden(!secret.isHidden())));
-//        else {
-//            secret.setHidden(!secret.hiddenProperty().getValue());
-//        }
-//    }
-
-//    public void copyCertificate() {
-//        var secret = certsTable.getSelectionModel().getSelectedItem();
-//        if (secret == null)
-//            return;
-//
-//        if (secret.getValue() == null)
-//            CompletableFuture.runAsync(() -> vm.loadCertificate(secret))
-//                    .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())))
-//                    .exceptionally(e -> {
-//                        showError(e.getMessage());
-//                        return null;
-//                    });
-//        else
-//            copyToClipBoard(secret.getValue());
-//    }
-
-//    public void addCertificate(ActionEvent actionEvent) throws IOException {
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/CreateCertificateView.fxml"));
-//        loader.setControllerFactory(context::getBean);
-//        Parent root = loader.load();
-//
-//        CreateCertificateView ctr = loader.getController();
-//        ctr.setVault(vault);
-//
-//        var stage = new Stage(StageStyle.DECORATED);
-//        stage.setTitle("Create new secret");
-//        stage.initOwner(mainStageProvider.getPrimaryStage());
-//        stage.initModality(Modality.APPLICATION_MODAL);
-//        stage.setScene(new Scene(root));
-//        stage.showAndWait();
-//
-//        if (ctr.getResult() != null)
-//            vm.addCertificate(ctr.getResult());
-//    }
-
-//    public void deleteCertificate() {
-//        var selectedCertificate = certsTable.getSelectionModel().getSelectedItem();
-//
-//        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//        alert.setTitle("Delete secret");
-//        alert.setHeaderText("Are you sure you want to delete secret " + selectedCertificate.getCertificateName() + "?");
-//        alert.setContentText("This action cannot be undone.");
-//
-//        Optional<ButtonType> result = alert.showAndWait();
-//
-//        if (result.isPresent() && result.get() != ButtonType.OK) return;
-//
-//        CompletableFuture.runAsync(() -> vm.deleteCertificate(selectedCertificate));
-//    }
-
     @Override
     public void init(Vault vault) {
         this.vault = vault;
@@ -157,6 +133,7 @@ public class CertificateView implements Initializable {
         CompletableFuture.runAsync(() -> {
             try {
                 vm.setCertificateClient(vault);
+                vm.setSecretClient(vault);
                 var certificates = vm.loadCertificates();
 
                 Platform.runLater(() -> vm.getCertificates().setAll(certificates));
@@ -167,5 +144,41 @@ public class CertificateView implements Initializable {
                 });
             }
         });
+    }
+
+    public void download() {
+        var cert = certsTable.getSelectionModel().getSelectedItem();
+        if (cert == null)
+            return;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Certificate");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PFX Files", "*.pfx"),
+                new FileChooser.ExtensionFilter("CER Files", "*.cer")
+        );
+
+        File file = fileChooser.showSaveDialog(downloadBtn.getScene().getWindow());
+
+        if (file != null) {
+            boolean isPfx = file.getName().toLowerCase().endsWith(".pfx");
+
+            vm.downloadCertificateAsync(cert.getName(), isPfx).thenAccept(bytes -> {
+                try {
+                    Files.write(file.toPath(), bytes);
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Certificate downloaded to:\n" + file.getAbsolutePath());
+                        alert.setHeaderText(null);
+                        alert.setTitle("Download complete");
+                        alert.show();
+                    });
+                } catch (IOException e) {
+                    dialogUtils.showError(e.getMessage());
+                }
+            }).exceptionally(e -> {
+                dialogUtils.showError(e.getMessage());
+                return null;
+            });
+        }
     }
 }
