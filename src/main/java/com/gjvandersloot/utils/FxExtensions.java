@@ -1,6 +1,8 @@
 package com.gjvandersloot.utils;
 
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
@@ -12,5 +14,14 @@ public final class FxExtensions {
                 event.consume();
             }
         });
+    }
+
+    public static void copyToClipBoard(String value) {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        ClipboardContent content = new ClipboardContent();
+        content.putString(value);
+
+        clipboard.setContent(content);
     }
 }

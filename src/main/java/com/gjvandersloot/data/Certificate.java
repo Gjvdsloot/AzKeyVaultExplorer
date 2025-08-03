@@ -1,9 +1,6 @@
 package com.gjvandersloot.data;
 
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import java.time.OffsetDateTime;
 

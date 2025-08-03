@@ -4,7 +4,7 @@ import com.gjvandersloot.AppDataService;
 import com.gjvandersloot.data.Account;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.ui.settings.Wrapper;
+import com.gjvandersloot.ui.Wrapper;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;

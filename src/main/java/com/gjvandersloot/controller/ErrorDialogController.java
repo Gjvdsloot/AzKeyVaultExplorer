@@ -6,6 +6,8 @@ import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import lombok.Setter;
 
+import static com.gjvandersloot.utils.FxExtensions.copyToClipBoard;
+
 public class ErrorDialogController {
     @FXML
     public TextArea errorField;
@@ -21,6 +23,6 @@ public class ErrorDialogController {
     }
 
     public void copy(ActionEvent actionEvent) {
-        MainController.copyToClipBoard(errorField.getText());
+        copyToClipBoard(errorField.getText());
     }
 }

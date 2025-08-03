@@ -1,5 +1,6 @@
 package com.gjvandersloot.mvvm.view.vault;
 
+import com.gjvandersloot.controller.MainController;
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
@@ -17,6 +18,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -31,13 +33,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.gjvandersloot.controller.MainController.copyToClipBoard;
+import static com.gjvandersloot.utils.FxExtensions.copyToClipBoard;
 import static javafx.beans.binding.Bindings.selectBoolean;
 import static javafx.beans.binding.Bindings.when;
 
 @Component
 @Scope("prototype")
 public class SecretView implements Initializable {
+    @FXML private Button copyBannerMessage;
+    @FXML private HBox warningBanner;
+    @FXML private Label warningMessage;
     @FXML private Button delete;
     @FXML private Button copy;
     @FXML private Button show;
@@ -212,9 +217,16 @@ public class SecretView implements Initializable {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     vault.setLoadFailed(true);
-                    diagUtils.showError(e.getMessage());
+                    notifyLoadFailed(e.getMessage());
                 });
             }
         });
+    }
+
+    private void notifyLoadFailed(String message) {
+        warningMessage.setText(message);
+        warningBanner.setManaged(true);
+        warningBanner.setVisible(true);
+        copyBannerMessage.setOnAction(event -> copyToClipBoard(message));
     }
 }

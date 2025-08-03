@@ -12,8 +12,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -326,40 +324,6 @@ public class MainController {
         });
     }
 
-    public static void copyToClipBoard(String value) {
-        Clipboard clipboard = Clipboard.getSystemClipboard();
-
-        ClipboardContent content = new ClipboardContent();
-        content.putString(value);
-
-        clipboard.setContent(content);
-    }
-
-//    public static void showError(String e, Stage s) {
-//        Platform.runLater(() -> {
-//            var loader = new FXMLLoader(MainController.class.getResource("/ErrorDialog.fxml"));
-//
-//            Parent root;
-//            try {
-//                root = loader.load();
-//            } catch (IOException ex) {
-//                throw new RuntimeException(ex);
-//            }
-//
-//            ErrorDialogController errorCtr = loader.getController();
-//
-//            var dialog = new Stage(StageStyle.DECORATED);
-//            dialog.initOwner(s);
-//            dialog.initModality(Modality.APPLICATION_MODAL);
-//            dialog.setScene(new Scene(root));
-//
-//            errorCtr.setDialogStage(dialog);
-//            errorCtr.setMessage(e);
-//            dialog.showAndWait();
-//        });
-//    }
-
-    // Button bar, with default account
     public void addAttached() throws IOException {
         Parent root = loader.load("/WizardView.fxml");
 

@@ -1,4 +1,4 @@
-package com.gjvandersloot.ui.settings;
+package com.gjvandersloot.ui;
 
 import lombok.Getter;
 import lombok.Setter;
