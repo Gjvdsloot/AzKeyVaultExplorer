@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="496.0" prefWidth="762.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.WireframeController">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.WireframeController">
     <stylesheets>
         <String fx:value="/styles/sidebar.css" />
     </stylesheets>
@@ -20,7 +20,7 @@
         </VBox>
     </top>
     <left>
-        <VBox fx:id="sidebar" prefHeight="496.0" prefWidth="34.0" styleClass="sidebar" BorderPane.alignment="CENTER_LEFT">
+        <VBox fx:id="sidebar" prefWidth="34.0" styleClass="sidebar" BorderPane.alignment="CENTER_LEFT">
             <!-- Settings icon button -->
             <ToggleButton fx:id="homeBtn" onAction="#onHome" styleClass="sidebar-button">
                 <graphic>

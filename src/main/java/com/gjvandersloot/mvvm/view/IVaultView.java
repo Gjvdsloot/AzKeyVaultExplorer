@@ -2,6 +2,6 @@ package com.gjvandersloot.mvvm.view;
 
 import com.gjvandersloot.data.Vault;
 
-public interface Initializable {
+public interface IVaultView {
     void init(Vault vault);
 }

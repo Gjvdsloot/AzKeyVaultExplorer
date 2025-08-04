@@ -6,6 +6,7 @@ import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.security.keyvault.certificates.CertificateClient;
 import com.azure.security.keyvault.certificates.CertificateClientBuilder;
 import com.azure.security.keyvault.keys.KeyClient;
+import com.azure.security.keyvault.keys.KeyClientBuilder;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.gjvandersloot.data.Vault;
@@ -69,6 +70,27 @@ public class KeyVaultClientProviderService {
         certClients.put(key, certClient);
 
         return certClient;
+    }
+
+    public KeyClient getOrCreateKeyClient(Vault vault) throws Exception {
+        var key = vault.getVaultKey();
+
+        var keyClient = keyClients.getOrDefault(key, null);
+        TokenCredential tokenCredential;
+
+        if (keyClient != null)
+            return keyClient;
+
+        tokenCredential = getCredential(vault);
+
+        keyClient = new KeyClientBuilder()
+                .vaultUrl(vault.getVaultUri())
+                .credential(tokenCredential)
+                .buildClient();
+
+        keyClients.put(key, keyClient);
+
+        return keyClient;
     }
 
     private TokenCredential getCredential(Vault vault) throws Exception {

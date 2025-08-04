@@ -3,7 +3,7 @@ package com.gjvandersloot.mvvm.view.vault;
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.view.Initializable;
+import com.gjvandersloot.mvvm.view.IVaultView;
 import com.gjvandersloot.mvvm.viewmodel.vault.CertificateViewModel;
 import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;
@@ -28,7 +28,7 @@ import static com.gjvandersloot.utils.FxExtensions.copyToClipBoard;
 
 @Component
 @Scope("prototype")
-public class CertificateView implements Initializable {
+public class CertificateView implements IVaultView {
     @FXML private Button copyBannerMessage;
     @FXML private HBox warningBanner;
     @FXML private Label warningMessage;

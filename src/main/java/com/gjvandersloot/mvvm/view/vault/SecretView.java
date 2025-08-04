@@ -1,11 +1,10 @@
 package com.gjvandersloot.mvvm.view.vault;
 
-import com.gjvandersloot.controller.MainController;
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
 import com.gjvandersloot.mvvm.view.CreateSecretView;
-import com.gjvandersloot.mvvm.view.Initializable;
+import com.gjvandersloot.mvvm.view.IVaultView;
 import com.gjvandersloot.mvvm.viewmodel.vault.SecretViewModel;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.utils.FxExtensions;
@@ -39,7 +38,7 @@ import static javafx.beans.binding.Bindings.when;
 
 @Component
 @Scope("prototype")
-public class SecretView implements Initializable {
+public class SecretView implements IVaultView {
     @FXML private Button copyBannerMessage;
     @FXML private HBox warningBanner;
     @FXML private Label warningMessage;

@@ -73,8 +73,8 @@ public class TabView {
 
         var map = Map.of(
                 "SecretView", secretTab,
-                "CertificateView", certsTab
-                /*, "KeyView"*/);
+                "CertificateView", certsTab,
+                "KeyView", keysTab);
         initTabs(vault, map);
 
         return tab;
@@ -93,7 +93,7 @@ public class TabView {
                         Parent content = loader.load();
                         entry.getValue().setContent(content);
 
-                        Initializable ctr = loader.getController();
+                        IVaultView ctr = loader.getController();
                         ctr.init(vault);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
