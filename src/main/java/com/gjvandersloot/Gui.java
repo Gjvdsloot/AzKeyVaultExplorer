@@ -29,7 +29,7 @@ public class Gui extends Application {
         loader.setControllerFactory(springContext::getBean);
 
         Parent root = loader.load();
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1200, 900);
 
         stage.setTitle("FXML Welcome");
         stage.setScene(scene);

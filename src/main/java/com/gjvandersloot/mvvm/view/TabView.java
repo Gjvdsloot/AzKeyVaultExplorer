@@ -95,6 +95,8 @@ public class TabView {
 
                         IVaultView ctr = loader.getController();
                         ctr.init(vault);
+
+                        tabToLoad.setUserData(true);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

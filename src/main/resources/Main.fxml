@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.VBox?>
-<SplitPane dividerPositions="0.2" prefHeight="400" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.MainController">
+<?import javafx.scene.layout.*?>
+
+<SplitPane dividerPositions="0.2" prefHeight="600" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.controller.MainController">
     <VBox alignment="TOP_CENTER" GridPane.columnIndex="0">
         <ToolBar style="-fx-background-color: #f0f0f0;">
-         <SplitMenuButton prefWidth="120" onAction="#addSubscription" style="-fx-font-weight: bold;" text="Add account" >
+         <SplitMenuButton onAction="#addSubscription" prefWidth="120" style="-fx-font-weight: bold;" text="Add account">
            <items>
              <MenuItem onAction="#addAttached" text="Add attached" />
            </items>
@@ -14,7 +14,7 @@
             <Hyperlink onAction="#loadTree" text="Refresh" />
         </ToolBar>
         <TextField fx:id="treeFilter" promptText="Search" />
-        <TreeView fx:id="treeView" prefHeight="494.0" prefWidth="150.0" VBox.vgrow="ALWAYS">
+        <TreeView fx:id="treeView" minWidth="200" VBox.vgrow="ALWAYS">
 
         </TreeView>
     </VBox>
