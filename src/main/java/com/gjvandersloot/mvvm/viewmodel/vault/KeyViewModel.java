@@ -61,8 +61,8 @@ public class KeyViewModel {
             BigInteger exponent = new BigInteger(1, jwk.getE());
 
             RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(modulus, exponent);
-            KeyFactory keyFactory = null;
-            PublicKey publicKey = null;
+            KeyFactory keyFactory;
+            PublicKey publicKey;
             try {
                 keyFactory = KeyFactory.getInstance("RSA");
                 publicKey = keyFactory.generatePublic(publicKeySpec);
@@ -71,9 +71,8 @@ public class KeyViewModel {
             }
 
             byte[] encoded = publicKey.getEncoded();
-            String pem = convertToPem(encoded);
 
-            return pem;
+            return convertToPem(encoded);
         });
     }
 

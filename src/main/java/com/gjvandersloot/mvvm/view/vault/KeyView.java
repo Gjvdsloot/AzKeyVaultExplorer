@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -48,9 +47,6 @@ public class KeyView implements IVaultView {
     private Vault vault;
 
     @Autowired private DialogUtils dialogUtils;
-
-    public void download() {
-    }
 
     @FXML
     public void initialize() {
