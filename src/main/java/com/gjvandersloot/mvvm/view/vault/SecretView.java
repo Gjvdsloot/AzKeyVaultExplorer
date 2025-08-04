@@ -43,6 +43,7 @@ public class SecretView implements Initializable {
     @FXML private Button copyBannerMessage;
     @FXML private HBox warningBanner;
     @FXML private Label warningMessage;
+
     @FXML private Button delete;
     @FXML private Button copy;
     @FXML private Button show;
@@ -207,6 +208,8 @@ public class SecretView implements Initializable {
     @Override
     public void init(Vault vault) {
         this.vault = vault;
+        warningBanner.setManaged(false);
+        warningBanner.setVisible(false);
 
         CompletableFuture.runAsync(() -> {
             try {

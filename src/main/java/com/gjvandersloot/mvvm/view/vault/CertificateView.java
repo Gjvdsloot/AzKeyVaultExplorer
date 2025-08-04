@@ -11,6 +11,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -23,10 +24,16 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
 
+import static com.gjvandersloot.utils.FxExtensions.copyToClipBoard;
+
 @Component
 @Scope("prototype")
 public class CertificateView implements Initializable {
-    public Button downloadBtn;
+    @FXML private Button copyBannerMessage;
+    @FXML private HBox warningBanner;
+    @FXML private Label warningMessage;
+
+    @FXML private Button downloadBtn;
     @FXML private TableView<Certificate> certsTable;
     @FXML private TableColumn<Certificate, String> nameColumn;
     @FXML private TableColumn<Certificate, String> thumbPrintColumn;
@@ -112,6 +119,8 @@ public class CertificateView implements Initializable {
 
     @Override
     public void init(Vault vault) {
+        warningBanner.setManaged(false);
+        warningBanner.setVisible(false);
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -123,7 +132,7 @@ public class CertificateView implements Initializable {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     vault.setLoadFailed(true);
-                    dialogUtils.showError(e.getMessage());
+                    notifyLoadFailed(e.getMessage());
                 });
             }
         });
@@ -163,5 +172,12 @@ public class CertificateView implements Initializable {
                 return null;
             });
         }
+    }
+
+    private void notifyLoadFailed(String message) {
+        warningMessage.setText(message);
+        warningBanner.setManaged(true);
+        warningBanner.setVisible(true);
+        copyBannerMessage.setOnAction(event -> copyToClipBoard(message));
     }
 }
