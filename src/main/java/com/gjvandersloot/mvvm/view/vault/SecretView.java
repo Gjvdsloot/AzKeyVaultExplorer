@@ -39,6 +39,8 @@ import static javafx.beans.binding.Bindings.when;
 @Component
 @Scope("prototype")
 public class SecretView implements IVaultView {
+    @FXML private ProgressIndicator progressIndicator;
+
     @FXML private Button copyBannerMessage;
     @FXML private HBox warningBanner;
     @FXML private Label warningMessage;
@@ -59,7 +61,7 @@ public class SecretView implements IVaultView {
     private Vault vault;
 
     @Autowired
-    private DialogUtils diagUtils;
+    private DialogUtils dialogUtils;
 
     @FXML
     public void initialize() {
@@ -161,7 +163,7 @@ public class SecretView implements IVaultView {
             CompletableFuture.runAsync(() -> vm.loadSecret(secret))
                     .thenAccept(v -> Platform.runLater(() -> copyToClipBoard(secret.getValue())))
                     .exceptionally(e -> {
-                        diagUtils.showError(e.getMessage());
+                        dialogUtils.showError(e.getMessage());
                         return null;
                     });
         else
@@ -207,8 +209,12 @@ public class SecretView implements IVaultView {
     @Override
     public void init(Vault vault) {
         this.vault = vault;
+
         warningBanner.setManaged(false);
         warningBanner.setVisible(false);
+        progressIndicator.setVisible(true);
+        secretsTable.setVisible(false);
+        vm.getSecrets().clear();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -221,6 +227,11 @@ public class SecretView implements IVaultView {
                     vault.setLoadFailed(true);
                     notifyLoadFailed(e.getMessage());
                 });
+            } finally {
+                Platform.runLater(() -> {
+                    progressIndicator.setVisible(false);
+                    secretsTable.setVisible(true);
+                });
             }
         });
     }
@@ -230,5 +241,9 @@ public class SecretView implements IVaultView {
         warningBanner.setManaged(true);
         warningBanner.setVisible(true);
         copyBannerMessage.setOnAction(event -> copyToClipBoard(message));
+    }
+
+    public void reload() {
+        init(vault);
     }
 }

@@ -1,5 +1,6 @@
 package com.gjvandersloot.controller;
 
+import com.gjvandersloot.ui.Wrapper;
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.FxmlViewLoader;
 import com.gjvandersloot.data.*;
@@ -181,11 +182,19 @@ public class MainController {
             }
         }
 
-        // Include this node if (a) it matches the filter itself, or (b) any child matched:
+        boolean hasChildren = !copy.getChildren().isEmpty();
+        boolean isLeaf = root.getChildren().isEmpty();
         boolean matchesSelf = text.contains(filter.toLowerCase());
-        return (matchesSelf || !copy.getChildren().isEmpty())
-                ? copy
-                : null;
+
+        // Rule:
+        // - If it's a leaf, include if it matches.
+        // - If it has children, include only if children matched (ignore self-match).
+        if (isLeaf) {
+            return matchesSelf ? copy : null;
+        } else {
+            return hasChildren ? copy : null;
+        }
+
     }
 
     public void addSubscription() {
@@ -232,7 +241,7 @@ public class MainController {
     public void loadTree() {
         var root = this.root;
         root.getChildren().clear();
-        attachedRoot = new TreeItem<>("Attached");
+        attachedRoot = new TreeItem<>(new Wrapper<>(null, "Attached"));
         root.getChildren().add(attachedRoot);
 
         var accounts = store.getAccounts();

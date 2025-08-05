@@ -29,6 +29,8 @@ import static com.gjvandersloot.utils.FxExtensions.copyToClipBoard;
 @Component
 @Scope("prototype")
 public class KeyView implements IVaultView {
+    @FXML private ProgressIndicator progressIndicator;
+
     @FXML private Button copyBannerMessage;
     @FXML private HBox warningBanner;
     @FXML private Label warningMessage;
@@ -117,8 +119,12 @@ public class KeyView implements IVaultView {
     @Override
     public void init(Vault vault) {
         this.vault = vault;
+
         warningBanner.setManaged(false);
         warningBanner.setVisible(false);
+        progressIndicator.setVisible(true);
+        keysTable.setVisible(false);
+        vm.getKeys().clear();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -130,6 +136,11 @@ public class KeyView implements IVaultView {
                 Platform.runLater(() -> {
                     vault.setLoadFailed(true);
                     notifyLoadFailed(e.getMessage());
+                });
+            } finally {
+                Platform.runLater(() -> {
+                    progressIndicator.setVisible(false);
+                    keysTable.setVisible(true);
                 });
             }
         });
@@ -186,5 +197,9 @@ public class KeyView implements IVaultView {
                 return null;
             });
         }
+    }
+
+    public void reload() {
+        init(vault);
     }
 }

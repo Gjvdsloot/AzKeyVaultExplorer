@@ -9,6 +9,7 @@ import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -29,6 +30,8 @@ import static com.gjvandersloot.utils.FxExtensions.copyToClipBoard;
 @Component
 @Scope("prototype")
 public class CertificateView implements IVaultView {
+    @FXML private ProgressIndicator progressIndicator;
+
     @FXML private Button copyBannerMessage;
     @FXML private HBox warningBanner;
     @FXML private Label warningMessage;
@@ -49,6 +52,7 @@ public class CertificateView implements IVaultView {
 
     @Autowired
     private DialogUtils dialogUtils;
+    private Vault vault;
 
     @FXML
     public void initialize() {
@@ -119,8 +123,15 @@ public class CertificateView implements IVaultView {
 
     @Override
     public void init(Vault vault) {
+        this.vault = vault;
         warningBanner.setManaged(false);
         warningBanner.setVisible(false);
+
+        warningBanner.setManaged(false);
+        warningBanner.setVisible(false);
+        progressIndicator.setVisible(true);
+        certsTable.setVisible(false);
+        vm.getCertificates().clear();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -133,6 +144,11 @@ public class CertificateView implements IVaultView {
                 Platform.runLater(() -> {
                     vault.setLoadFailed(true);
                     notifyLoadFailed(e.getMessage());
+                });
+            } finally {
+                Platform.runLater(() -> {
+                    progressIndicator.setVisible(false);
+                    certsTable.setVisible(true);
                 });
             }
         });
@@ -179,5 +195,9 @@ public class CertificateView implements IVaultView {
         warningBanner.setManaged(true);
         warningBanner.setVisible(true);
         copyBannerMessage.setOnAction(event -> copyToClipBoard(message));
+    }
+
+    public void reload(ActionEvent actionEvent) {
+        init(vault);
     }
 }

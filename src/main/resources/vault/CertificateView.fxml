@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.StackPane?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.gjvandersloot.mvvm.view.vault.CertificateView"
@@ -13,10 +14,17 @@
     <ToolBar style="-fx-background-color: #f0f0f0">
         <Button fx:id="downloadBtn" onAction="#download" text="Download" />
 <!--        <Button fx:id="show" onAction="#showSecret" text="Show" />-->
-        <Separator orientation="VERTICAL" />
+<!--        <Separator orientation="VERTICAL" />-->
 <!--        <Button onAction="#addSecret" text="New" />-->
 <!--        <Button fx:id="delete" mnemonicParsing="false" onAction="#deleteSecret" text="Delete" />-->
         <Separator orientation="VERTICAL" />
+        <Button onAction="#reload">
+            <graphic>
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/img/refresh.png" />
+                </ImageView>
+            </graphic>
+        </Button>
         <TextField fx:id="filterField" promptText="Search secret" />
     </ToolBar>
     <HBox fx:id="warningBanner" visible="false" maxWidth="Infinity" managed="false" spacing="10"
@@ -32,12 +40,15 @@
             </graphic>
         </Button>
     </HBox>
-    <TableView fx:id="certsTable" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="nameColumn" prefWidth="150" text="Secret name"/>
-            <TableColumn fx:id="thumbPrintColumn" prefWidth="200" text="Thumbprint"/>
-            <TableColumn fx:id="statusColumn" prefWidth="200" text="Status"/>
-            <TableColumn fx:id="expirationColumn" prefWidth="200" text="Expiration date"/>
-        </columns>
-    </TableView>
+    <StackPane>
+        <TableView fx:id="certsTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="nameColumn" prefWidth="150" text="Secret name"/>
+                <TableColumn fx:id="thumbPrintColumn" prefWidth="200" text="Thumbprint"/>
+                <TableColumn fx:id="statusColumn" prefWidth="200" text="Status"/>
+                <TableColumn fx:id="expirationColumn" prefWidth="200" text="Expiration date"/>
+            </columns>
+        </TableView>
+        <ProgressIndicator fx:id="progressIndicator"/>
+    </StackPane>
 </VBox>
