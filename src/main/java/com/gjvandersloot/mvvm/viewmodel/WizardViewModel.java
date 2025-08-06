@@ -3,11 +3,14 @@ package com.gjvandersloot.mvvm.viewmodel;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.service.VaultService;
 import javafx.beans.property.*;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
+//@Scope("prototype")
 public class WizardViewModel {
     @Autowired private VaultService attachedVaultService;
 
@@ -38,11 +41,6 @@ public class WizardViewModel {
         return secret;
     }
 
-    private final BooleanProperty success = new SimpleBooleanProperty(false);
-    public Property<Boolean> successProperty() {
-        return success;
-    }
-
     private final StringProperty error = new SimpleStringProperty();
     public Property<String> errorProperty() {
         return error;
@@ -53,14 +51,23 @@ public class WizardViewModel {
         return certPassword;
     }
 
-    @Setter
-    private String certificatePath;
+    public String getCertificatePath() {
+        return certificatePath.get();
+    }
+    public StringProperty certificatePathProperty() {
+        return certificatePath;
+    }
+    public void setCertificatePath(String certificatePath) {
+        this.certificatePath.set(certificatePath);
+    }
+    private final StringProperty certificatePath = new SimpleStringProperty();
 
-    public void createVault() {
+    public boolean createVault() {
         var mode = selectedAuthMethod.get();
 
         if (store.getAttachedVaults().getOrDefault(vaultUri.get(), null) != null) {
-            return;
+            error.set("Attached vault already exists for given URI");
+            return false;
         }
 
         if (mode.equals("Secret")) {
@@ -68,24 +75,24 @@ public class WizardViewModel {
                 var vault = attachedVaultService.createVaultWithSecret(vaultUri.get(), clientId.get(), tenantId.get(), secret.get());
 
                 store.getAttachedVaults().put(vault.getVaultUri(), vault);
-
-                success.set(true);
             } catch (Exception e) {
                 error.set(e.getMessage());
+                return false;
             }
         } else if(mode.equals("Certificate")) {
             try {
-                var vault = attachedVaultService.createVaultWithCertificate(vaultUri.get(), clientId.get(), tenantId.get(), certificatePath, certPassword.get());
+                var vault = attachedVaultService.createVaultWithCertificate(vaultUri.get(), clientId.get(), tenantId.get(), certificatePath.get(), certPassword.get());
 
                 store.getAttachedVaults().put(vault.getVaultUri(), vault);
-
-                success.set(true);
             } catch (Exception e) {
                 error.set(e.getMessage());
+                return false;
             }
         } else {
             throw new RuntimeException("Not supported auth type");
         }
+
+        return true;
     }
 
 

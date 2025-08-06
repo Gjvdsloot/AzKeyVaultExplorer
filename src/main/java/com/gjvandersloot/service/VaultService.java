@@ -46,12 +46,22 @@ public class VaultService {
     public Vault createVaultWithCertificate(String vaultUri, String clientId, String tenantId, String sourceCertificatePath, String certificatePassword) throws Exception {
         var vault = new Vault(vaultUri, clientId, tenantId, AuthType.CERTIFICATE);
 
-        ClientCertificateCredential credential = new ClientCertificateCredentialBuilder()
+        var isPkcs12 = sourceCertificatePath.endsWith(".pfx") || sourceCertificatePath.endsWith(".p12");
+
+        var builder = new ClientCertificateCredentialBuilder()
                 .tenantId(tenantId)
-                .clientId(clientId)
-                .pfxCertificate(sourceCertificatePath)
-                .clientCertificatePassword(certificatePassword)
-                .build();
+                .clientId(clientId);
+        if (isPkcs12) {
+            builder = builder.pfxCertificate(sourceCertificatePath);
+
+            if (certificatePassword != null && !certificatePassword.isBlank()) {
+                builder = builder.clientCertificatePassword(certificatePassword);
+            }
+        } else {
+            builder = builder.pemCertificate(sourceCertificatePath);
+        }
+
+        ClientCertificateCredential credential = builder.build();
 
         TokenRequestContext request = new TokenRequestContext()
                 .addScopes("https://vault.azure.net/.default");

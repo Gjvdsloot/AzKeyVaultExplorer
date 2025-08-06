@@ -2,6 +2,7 @@ package com.gjvandersloot.mvvm.view;
 
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.mvvm.viewmodel.WizardViewModel;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
@@ -12,11 +13,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 
 @Component
+@Scope("prototype")
 public class WizardView {
     @Autowired WizardViewModel viewModel;
     @Autowired DialogUtils dialogUtils;
@@ -36,8 +39,6 @@ public class WizardView {
 
     @FXML
     public void initialize() {
-
-        // Bind selected toggle to viewModel string property
         viewModel.selectedAuthMethodProperty().bind(
                 Bindings.createStringBinding(() -> {
                     if (secretRadio.isSelected()) return "Secret";
@@ -56,46 +57,46 @@ public class WizardView {
         tenantIdField.textProperty().bindBidirectional(viewModel.tenantIdProperty());
         vaultUriField.textProperty().bindBidirectional(viewModel.vaultUriProperty());
         secretField.textProperty().bindBidirectional(viewModel.secretProperty());
+        certPathField.textProperty().bindBidirectional(viewModel.certificatePathProperty());
         certPasswordField.textProperty().bindBidirectional(viewModel.certPasswordProperty());
 
-        // 2) build a BooleanBinding that's true when *all* required fields are non‑empty:
+        certPasswordField.disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> {
+                            String path = certPathField.textProperty().get();
+                            return path != null && path.toLowerCase().endsWith(".pem");
+                        },
+                        viewModel.certificatePathProperty()
+                )
+        );
+
         BooleanBinding basicsFilled =
                 clientIdField.textProperty().isNotEmpty()
                         .and(tenantIdField.textProperty().isNotEmpty())
                         .and(vaultUriField.textProperty().isNotEmpty());
 
-        // when Secret is selected, require secretField:
         BooleanBinding secretOk =
                 secretRadio.selectedProperty()
                         .and(secretField.textProperty().isNotEmpty());
 
-        // when Cert is selected, require certPathField:
         BooleanBinding certOk =
                 certRadio.selectedProperty()
                         .and(certPathField.textProperty().isNotEmpty());
 
-        // 3) final binding: basics AND (secretOk OR certOk)
         BooleanBinding allValid =
                 basicsFilled.and(secretOk.or(certOk));
 
-        // 4) bind the button’s disabled‑property to the inverse of that:
         attachButton.disableProperty().bind(allValid.not());
-
-        viewModel.successProperty().addListener((obs, o, n) -> {
-            if (n) ((Stage) attachButton.getScene().getWindow()).close();
-        });
-
-        viewModel.errorProperty().addListener((obs, o, n) -> {
-            if (!n.isEmpty()) dialogUtils.showError(n);
-        });
     }
 
     public void onBrowseCertificate() {
+        File initialDir = new File(System.getProperty("user.home"));
         FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(initialDir);
         chooser.setTitle("Select certificate file");
         chooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("PKCS#12 / PFX files", "*.pfx", "*.p12"),
-//                new FileChooser.ExtensionFilter("PEM files", "*.pem"),
+                new FileChooser.ExtensionFilter("PEM files", "*.pem"),
                 new FileChooser.ExtensionFilter("All files", "*.*")
         );
 
@@ -105,13 +106,13 @@ public class WizardView {
         if (file != null) {
             String path = file.getAbsolutePath();
             certPathField.setText(path);
-
-            // if you want to push it into your VM:
-            viewModel.setCertificatePath(path);
         }
     }
 
     public void onAttach() {
-        viewModel.createVault();
+        if (viewModel.createVault())
+            Platform.runLater(() -> ((Stage) attachButton.getScene().getWindow()).close());
+        else
+            Platform.runLater(() -> dialogUtils.showError(viewModel.errorProperty().getValue()));
     }
 }
