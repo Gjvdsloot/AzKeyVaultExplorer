@@ -52,7 +52,6 @@ jobs:
 
   build-dmg:
     runs-on: macos-latest
-    needs: build-msi
     outputs:
       dmg_path: ${{ steps.find-dmg.outputs.dmg_path }}
 
@@ -83,7 +82,6 @@ jobs:
 
   build-deb:
     runs-on: ubuntu-latest
-    needs: build-msi
     outputs:
       deb_path: ${{ steps.find-deb.outputs.deb_path }}
 
