@@ -50,6 +50,18 @@ jobs:
           }
           echo "jar_path=$($jar.FullName -replace '\\', '/')" >> $env:GITHUB_OUTPUT
 
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi
+          path: build/out/*.msi
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar
+          path: build/libs/*-all.jar
+
   build-dmg:
     runs-on: macos-latest
     outputs:
@@ -79,6 +91,12 @@ jobs:
         run: |
           DMG_PATH=$(find build/out -name "*.dmg" | head -n 1)
           echo "dmg_path=$DMG_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi
+          path: build/out/*.dmg
 
   build-deb:
     runs-on: ubuntu-latest
@@ -112,6 +130,12 @@ jobs:
         run: |
           DEB_PATH=$(find build/out -name "*.deb" | head -n 1)
           echo "deb_path=$DEB_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload DEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb
+          path: build/out/*.deb
 
   release:
     runs-on: ubuntu-latest
