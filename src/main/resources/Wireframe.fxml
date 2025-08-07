@@ -13,8 +13,7 @@
         <VBox>
             <MenuBar>
                 <Menu text="File">
-                    <MenuItem text="New" />
-                    <MenuItem text="Open" />
+                    <MenuItem text="Close" onAction="#closeApp" />
                 </Menu>
             </MenuBar>
         </VBox>

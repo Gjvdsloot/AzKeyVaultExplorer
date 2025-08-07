@@ -21,5 +21,7 @@ convert $SVG -define icon:auto-resize=256,128,64,48,32,16 icon.ico
 # Generate high-res PNG (Linux)
 convert -background none -resize 256x256 $SVG icon.png
 
+cp icon.png ../src/main/resources/icon
+
 # Clean up
 rm -r $ICONSET_DIR

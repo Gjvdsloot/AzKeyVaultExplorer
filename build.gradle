@@ -44,9 +44,9 @@ tasks.register('packageApp', Exec) {
     def isMac = os.isMacOsX()
     def isLinux = os.isLinux()
 
-    def iconPath = isWindows ? "src/main/resources/icon/icon.ico" :
-            isMac     ? "src/main/resources/icon/icon.icns" :
-                    "src/main/resources/icon/icon.png"
+    def iconPath = isWindows ? "icons/icon.ico" :
+            isMac     ? "icons/icon.icns" :
+                    "icons/icon.png"
 
     def mainOptions = ['--input', "${buildDirectory}/libs",
                        '--main-jar', "${application.applicationName}-${version}-all.jar",

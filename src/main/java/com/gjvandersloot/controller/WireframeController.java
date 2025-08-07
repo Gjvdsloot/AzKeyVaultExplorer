@@ -1,5 +1,6 @@
 package com.gjvandersloot.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import org.springframework.stereotype.Component;
@@ -30,5 +31,9 @@ public class WireframeController{
         settingsView.toFront();
         mainView.setVisible(false);
         settingsView.setVisible(true);
+    }
+
+    public void closeApp() {
+        Platform.exit();
     }
 }
