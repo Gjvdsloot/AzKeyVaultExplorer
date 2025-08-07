@@ -95,7 +95,7 @@ jobs:
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
-          name: msi
+          name: dmg
           path: build/out/*.dmg
 
   build-deb:
