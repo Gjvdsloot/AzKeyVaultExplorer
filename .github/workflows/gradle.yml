@@ -145,14 +145,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Download MSI
+        uses: actions/download-artifact@v4
+        with:
+          name: msi
+
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jar
+
+      - name: Download DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: dmg
+
+      - name: Download DEB
+        uses: actions/download-artifact@v4
+        with:
+          name: deb
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
           files: |
-            ${{ needs.build-msi.outputs.msi_path }}
-            ${{ needs.build-msi.outputs.jar_path }}
-            ${{ needs.build-dmg.outputs.dmg_path }}
-            ${{ needs.build-deb.outputs.deb_path }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+            *.msi
+            *.jar
+            *.deb
+            *.dmg
