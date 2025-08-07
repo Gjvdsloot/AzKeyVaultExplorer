@@ -1,4 +1,5 @@
 import org.gradle.internal.jvm.Jvm
+import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'application'
@@ -6,11 +7,9 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.3'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.runtime' version '1.13.1'
 }
 
 group = 'com.gjvandersloot'
-version = '1.0.0'
 
 application {
     mainClass = 'com.gjvandersloot.Main'
@@ -32,36 +31,48 @@ shadowJar {
     mergeServiceFiles()
 }
 
+def tag = 'git describe --tags --abbrev=0'.execute().text.trim()
+version = tag ?: '0.1.0-SNAPSHOT'
 
 var buildDirectory = getLayout().getBuildDirectory().get().asFile.path
-
-//tasks.register('createRuntime', Exec) {
-//    dependsOn("shadowJar")
-//    group = 'distribution'
-//    description = 'Creates a custom runtime image using jlink'
-//
-//    def modules = 'java.base,java.compiler,java.desktop,java.instrument,java.management,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.security.jgss,java.sql,jdk.httpserver,jdk.jfr,jdk.unsupported'
-//
-//    commandLine 'jlink',
-//            '--add-modules', modules,
-//            '--output', "${buildDirectory}/custom-runtime",
-//            '--strip-debug',
-//            '--no-header-files',
-//            '--no-man-pages',
-//            '--compress=2'
-//}
 
 tasks.register('packageApp', Exec) {
     dependsOn(shadowJar)
 
+    def os = OperatingSystem.current()
+    def isWindows = os.isWindows()
+    def isMac = os.isMacOsX()
+    def isLinux = os.isLinux()
+
+    def iconPath = isWindows ? "src/main/resources/icon/icon.ico" :
+            isMac     ? "src/main/resources/icon/icon.icns" :
+                    "src/main/resources/icon/icon.png"
+
     def mainOptions = ['--input', "${buildDirectory}/libs",
-                       '--main-jar', "${application.applicationName}-${version}-all.jar",
+                       '--main-jar', "${application.applicationName}-all.jar",
                        '--runtime-image', Jvm.current().javaHome.absolutePath,
                        '--dest', "$buildDirectory/out",
                        '--name', application.applicationName,
+                       '--icon', iconPath,
                        '--app-version', version]
-    def winOptions = ['--win-console', '--win-menu', '--win-dir-chooser', '--type', 'msi']
-    def args = ['jpackage'] + mainOptions + winOptions
+    if (isWindows) {
+        platformOptions += [
+                '--win-console',
+                '--win-menu',
+                '--win-dir-chooser',
+                '--type', 'msi'
+        ]
+    } else if (isMac) {
+        platformOptions += [
+                '--type', 'dmg'
+        ]
+    } else if (isLinux) {
+        platformOptions += [
+                '--type', 'deb',
+                '--linux-shortcut' // optionally add
+        ]
+    }
+    def args = ['jpackage'] + mainOptions
     commandLine args as List<String>
 }
 

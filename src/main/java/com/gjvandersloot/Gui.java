@@ -5,11 +5,13 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class Gui extends Application {
     private ConfigurableApplicationContext springContext;
@@ -30,6 +32,10 @@ public class Gui extends Application {
 
         Parent root = loader.load();
         Scene scene = new Scene(root, 1200, 900);
+
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon/icon.png"))));
+        stage.setTitle("My App");
+        stage.show();
 
         stage.setTitle("FXML Welcome");
         stage.setScene(scene);
