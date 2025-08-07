@@ -11,6 +11,9 @@ on:
     tags:
       - 'v*'     # e.g., v1.2.3
 
+permissions:
+  contents: write
+
 jobs:
   build-msi:
     runs-on: windows-latest
