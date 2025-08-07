@@ -25,14 +25,13 @@ javafx {
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
+def tag = 'git describe --tags --abbrev=0'.execute().text.trim()
+version = tag.replaceFirst("^v", "") ?: '0.1.0'
+
 shadowJar {
-    archiveClassifier.set("all") // remove "-all" from the name
-    version = project.version
+    archiveClassifier.set("all")
     mergeServiceFiles()
 }
-
-def tag = 'git describe --tags --abbrev=0'.execute().text.trim()
-version = tag ?: '0.1.0-SNAPSHOT'
 
 var buildDirectory = getLayout().getBuildDirectory().get().asFile.path
 
@@ -49,15 +48,17 @@ tasks.register('packageApp', Exec) {
                     "src/main/resources/icon/icon.png"
 
     def mainOptions = ['--input', "${buildDirectory}/libs",
-                       '--main-jar', "${application.applicationName}-all.jar",
+                       '--main-jar', "${application.applicationName}-${version}-all.jar",
                        '--runtime-image', Jvm.current().javaHome.absolutePath,
                        '--dest', "$buildDirectory/out",
                        '--name', application.applicationName,
                        '--icon', iconPath,
                        '--app-version', version]
+
+    def platformOptions = []
     if (isWindows) {
         platformOptions += [
-                '--win-console',
+//                '--win-console',
                 '--win-menu',
                 '--win-dir-chooser',
                 '--type', 'msi'
@@ -72,7 +73,7 @@ tasks.register('packageApp', Exec) {
                 '--linux-shortcut' // optionally add
         ]
     }
-    def args = ['jpackage'] + mainOptions
+    def args = ['jpackage'] + mainOptions + platformOptions
     commandLine args as List<String>
 }
 
