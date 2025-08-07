@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -61,16 +62,17 @@ public class CertificateViewModel {
         }
     }
 
-    public CompletableFuture<byte[]> downloadCertificateAsync(String name, boolean isPfx) {
+    public CompletableFuture<byte[]> downloadCertificateAsync(String certName, String filename) {
         return CompletableFuture.supplyAsync(() -> {
             byte[] data;
-            if (isPfx) {
-                // Use SecretClient
-                KeyVaultSecret secret = secretClient.getSecret(name);
+            if (filename.endsWith(".pfx")) {
+                KeyVaultSecret secret = secretClient.getSecret(certName);
                 data = Base64.getDecoder().decode(secret.getValue());
+            } else if (filename.endsWith(".pem")) {
+                KeyVaultSecret secret = secretClient.getSecret(certName);
+                data = secret.getValue().getBytes(StandardCharsets.UTF_8);
             } else {
-                // Use CertificateClient
-                KeyVaultCertificateWithPolicy cert = certificateClient.getCertificate(name);
+                KeyVaultCertificateWithPolicy cert = certificateClient.getCertificate(certName);
                 data = cert.getCer();
             }
             return data;
@@ -83,6 +85,11 @@ public class CertificateViewModel {
         } catch (Exception e) {
             error.set(e.getMessage());
         }
+    }
+
+    public String getContentType(String certName) {
+        var secret = secretClient.getSecret(certName);
+        return secret.getProperties().getContentType();
     }
 
 //    public void addCertificate(Certificate newCertificate) {

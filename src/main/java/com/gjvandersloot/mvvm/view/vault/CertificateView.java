@@ -159,19 +159,23 @@ public class CertificateView implements IVaultView {
         if (cert == null)
             return;
 
+        var contentType = vm.getContentType(cert.getName());
+        var extension = switch (contentType) {
+            case "application/x-pkcs12" -> new FileChooser.ExtensionFilter("PFX Files", "*.pfx");
+            case "application/x-pem-file" -> new FileChooser.ExtensionFilter("PEM Files", "*.pem");
+            default -> throw new IllegalStateException("Unexpected value: " + contentType);
+        };
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Certificate");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PFX Files", "*.pfx"),
-                new FileChooser.ExtensionFilter("CER Files", "*.cer")
+                extension, new FileChooser.ExtensionFilter("CER Files", "*.cer")
         );
 
         File file = fileChooser.showSaveDialog(downloadBtn.getScene().getWindow());
 
         if (file != null) {
-            boolean isPfx = file.getName().toLowerCase().endsWith(".pfx");
-
-            vm.downloadCertificateAsync(cert.getName(), isPfx).thenAccept(bytes -> {
+            vm.downloadCertificateAsync(cert.getName(), file.getName().toLowerCase()).thenAccept(bytes -> {
                 try {
                     Files.write(file.toPath(), bytes);
                     Platform.runLater(() -> {

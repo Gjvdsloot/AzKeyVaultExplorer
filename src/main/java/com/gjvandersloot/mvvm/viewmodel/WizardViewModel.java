@@ -3,14 +3,10 @@ package com.gjvandersloot.mvvm.viewmodel;
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.service.VaultService;
 import javafx.beans.property.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
-//@Scope("prototype")
 public class WizardViewModel {
     @Autowired private VaultService attachedVaultService;
 
