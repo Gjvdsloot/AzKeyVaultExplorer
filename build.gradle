@@ -27,6 +27,7 @@ javafx {
 
 def tag = 'git describe --tags --abbrev=0'.execute().text.trim()
 version = tag ? tag.replaceFirst("^v", "") : '1.0.0'
+println "Building version: ${version}"
 
 shadowJar {
     archiveClassifier.set("all")

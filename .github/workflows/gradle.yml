@@ -7,6 +7,9 @@ on:
         description: 'Release tag (e.g., v1.0.1)'
         required: false
         type: string
+  push:
+    tags:
+      - 'v*'     # e.g., v1.2.3
 
 jobs:
   build-msi:
@@ -50,11 +53,13 @@ jobs:
   build-dmg:
     runs-on: macos-latest
     needs: build-msi
+    outputs:
+      dmg_path: ${{ steps.find-dmg.outputs.dmg_path }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
@@ -74,12 +79,13 @@ jobs:
         id: find-dmg
         run: |
           DMG_PATH=$(find build/out -name "*.dmg" | head -n 1)
-          echo "DMG_PATH=$DMG_PATH" >> $GITHUB_ENV
           echo "dmg_path=$DMG_PATH" >> $GITHUB_OUTPUT
 
   build-deb:
     runs-on: ubuntu-latest
     needs: build-msi
+    outputs:
+      deb_path: ${{ steps.find-deb.outputs.deb_path }}
 
     steps:
       - name: Checkout code
@@ -107,7 +113,6 @@ jobs:
         id: find-deb
         run: |
           DEB_PATH=$(find build/out -name "*.deb" | head -n 1)
-          echo "DEB_PATH=$DEB_PATH" >> $GITHUB_ENV
           echo "deb_path=$DEB_PATH" >> $GITHUB_OUTPUT
 
   release:
