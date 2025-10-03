@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.*;
 import com.gjvandersloot.data.Store;
 import com.microsoft.aad.msal4j.ITokenCacheAccessAspect;
 import com.microsoft.aad.msal4j.ITokenCacheAccessContext;
-import com.microsoft.aad.msal4jextensions.PersistenceSettings;
-import com.microsoft.aad.msal4jextensions.PersistenceTokenCacheAccessAspect;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
