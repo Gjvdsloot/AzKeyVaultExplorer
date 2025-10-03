@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.gjvandersloot.mvvm.view.vault.CertificateView"
+      fx:controller="com.gjvandersloot.view.vault.CertificateView"
       prefHeight="400.0" prefWidth="600.0">
     <ToolBar style="-fx-background-color: #f0f0f0">
         <Button fx:id="downloadBtn" onAction="#download" text="Download" />

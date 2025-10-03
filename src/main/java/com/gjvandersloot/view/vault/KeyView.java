@@ -1,9 +1,9 @@
-package com.gjvandersloot.mvvm.view.vault;
+package com.gjvandersloot.view.vault;
 
 import com.gjvandersloot.data.KeySecret;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.view.IVaultView;
-import com.gjvandersloot.mvvm.viewmodel.vault.KeyViewModel;
+import com.gjvandersloot.view.IVaultView;
+import com.gjvandersloot.viewmodel.vault.KeyViewModel;
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;

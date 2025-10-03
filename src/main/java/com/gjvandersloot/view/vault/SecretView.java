@@ -1,11 +1,11 @@
-package com.gjvandersloot.mvvm.view.vault;
+package com.gjvandersloot.view.vault;
 
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.view.CreateSecretView;
-import com.gjvandersloot.mvvm.view.IVaultView;
-import com.gjvandersloot.mvvm.viewmodel.vault.SecretViewModel;
+import com.gjvandersloot.view.CreateSecretView;
+import com.gjvandersloot.view.IVaultView;
+import com.gjvandersloot.viewmodel.vault.SecretViewModel;
 import com.gjvandersloot.service.MainStageProvider;
 import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;

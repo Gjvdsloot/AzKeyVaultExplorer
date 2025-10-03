@@ -1,10 +1,10 @@
-package com.gjvandersloot.mvvm.view.vault;
+package com.gjvandersloot.view.vault;
 
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Certificate;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.view.IVaultView;
-import com.gjvandersloot.mvvm.viewmodel.vault.CertificateViewModel;
+import com.gjvandersloot.view.IVaultView;
+import com.gjvandersloot.viewmodel.vault.CertificateViewModel;
 import com.gjvandersloot.utils.FxExtensions;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;

@@ -1,4 +1,4 @@
-package com.gjvandersloot.mvvm.viewmodel.vault;
+package com.gjvandersloot.viewmodel.vault;
 
 import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.models.JsonWebKey;

@@ -1,9 +1,9 @@
-package com.gjvandersloot.mvvm.view;
+package com.gjvandersloot.view;
 
 import com.gjvandersloot.utils.DialogUtils;
 import com.gjvandersloot.data.Secret;
 import com.gjvandersloot.data.Vault;
-import com.gjvandersloot.mvvm.viewmodel.CreateSecretViewModel;
+import com.gjvandersloot.viewmodel.CreateSecretViewModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;

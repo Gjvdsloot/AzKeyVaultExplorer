@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane hgap="10" prefHeight="244.0" prefWidth="400.0" vgap="10" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.mvvm.view.WizardView">
+<GridPane hgap="10" prefHeight="244.0" prefWidth="400.0" vgap="10" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gjvandersloot.view.WizardView">
     <columnConstraints>
         <ColumnConstraints halignment="RIGHT" />
         <ColumnConstraints hgrow="ALWAYS" />
@@ -39,7 +39,7 @@
     </HBox>
 
     <!-- Dynamic auth pane -->
-    <StackPane fx:id="authStack" GridPane.columnSpan="2" GridPane.rowIndex="4">
+    <StackPane GridPane.columnSpan="2" GridPane.rowIndex="4">
         <VBox fx:id="secretPane" spacing="10">
             <PasswordField fx:id="secretField" promptText="Enter your client secret"/>
         </VBox>

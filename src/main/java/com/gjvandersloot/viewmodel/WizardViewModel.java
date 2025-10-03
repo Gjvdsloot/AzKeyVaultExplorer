@@ -1,4 +1,4 @@
-package com.gjvandersloot.mvvm.viewmodel;
+package com.gjvandersloot.viewmodel;
 
 import com.gjvandersloot.data.Store;
 import com.gjvandersloot.service.VaultService;

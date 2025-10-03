@@ -1,4 +1,4 @@
-package com.gjvandersloot.mvvm.view;
+package com.gjvandersloot.view;
 
 import com.gjvandersloot.data.Vault;
 

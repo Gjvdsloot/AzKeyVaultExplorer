@@ -1,4 +1,4 @@
-package com.gjvandersloot.mvvm.viewmodel;
+package com.gjvandersloot.viewmodel;
 
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.gjvandersloot.data.Vault;

@@ -1,7 +1,7 @@
-package com.gjvandersloot.mvvm.view;
+package com.gjvandersloot.view;
 
 import com.gjvandersloot.utils.DialogUtils;
-import com.gjvandersloot.mvvm.viewmodel.WizardViewModel;
+import com.gjvandersloot.viewmodel.WizardViewModel;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
