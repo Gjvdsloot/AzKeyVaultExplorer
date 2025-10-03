@@ -35,9 +35,8 @@ public class KeyView implements IVaultView {
     @FXML private HBox warningBanner;
     @FXML private Label warningMessage;
 
-    @FXML private Button delete;
     @FXML private Button copy;
-    @FXML private Button show;
+    @FXML private Button download;
     @FXML private TextField filterField;
     @FXML private TableView<KeySecret> keysTable;
     @FXML private TableColumn<KeySecret, String> nameColumn;
@@ -55,7 +54,8 @@ public class KeyView implements IVaultView {
 
         var selection = keysTable.getSelectionModel().selectedItemProperty();
 
-//        downloadBtn.disableProperty().bind(selection.isNull());
+        copy.disableProperty().bind(selection.isNull());
+        download.disableProperty().bind(selection.isNull());
 
         setupVaultFilter();
     }

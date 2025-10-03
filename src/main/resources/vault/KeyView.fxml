@@ -12,8 +12,8 @@
       fx:controller="com.gjvandersloot.mvvm.view.vault.KeyView"
       prefHeight="400.0" prefWidth="600.0">
     <ToolBar style="-fx-background-color: #f0f0f0">
-        <Button text="Copy public key" onAction="#copyPublicKey" />
-        <Button text="Download public key" onAction="#downloadPublicKey" />
+        <Button fx:id="copy" text="Copy public key" onAction="#copyPublicKey" />
+        <Button fx:id="download" text="Download public key" onAction="#downloadPublicKey" />
         <Separator orientation="VERTICAL" />
         <Button onAction="#reload">
             <graphic>
