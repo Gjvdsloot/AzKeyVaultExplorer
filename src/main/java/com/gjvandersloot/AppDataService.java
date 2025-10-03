@@ -3,6 +3,8 @@ package com.gjvandersloot;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.gjvandersloot.data.Store;
+import com.microsoft.aad.msal4j.ITokenCacheAccessAspect;
+import com.microsoft.aad.msal4j.ITokenCacheAccessContext;
 import com.microsoft.aad.msal4jextensions.PersistenceSettings;
 import com.microsoft.aad.msal4jextensions.PersistenceTokenCacheAccessAspect;
 import lombok.Getter;
@@ -45,13 +47,33 @@ public class AppDataService {
         mainPath = appDataPath;
     }
 
-    public PersistenceTokenCacheAccessAspect getTokenCache() throws IOException {
-        PersistenceSettings settings = PersistenceSettings
-                .builder("msal.cache", getMainPath())
-                .setLockRetry(500, 10)
-                .build();
+    public ITokenCacheAccessAspect getTokenCache() {
+        Path cacheFile = getMainPath().resolve("msal.cache.json");
 
-        return new PersistenceTokenCacheAccessAspect(settings);
+        return new ITokenCacheAccessAspect() {
+            @Override
+            public void beforeCacheAccess(ITokenCacheAccessContext iTokenCacheAccessContext) {
+                if (Files.exists(cacheFile)) {
+                    try {
+                        String data = Files.readString(cacheFile);
+                        iTokenCacheAccessContext.tokenCache().deserialize(data);
+                    } catch (IOException e) {
+                        log.error("Failed to read token cache", e);
+                    }
+                }
+            }
+
+            @Override
+            public void afterCacheAccess(ITokenCacheAccessContext context) {
+                if (context.hasCacheChanged()) {
+                    try {
+                        Files.writeString(cacheFile, context.tokenCache().serialize());
+                    } catch (IOException e) {
+                        log.error("Failed to write token cache", e);
+                    }
+                }
+            }
+        };
     }
 
     public void saveStore() {

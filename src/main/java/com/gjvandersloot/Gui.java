@@ -37,7 +37,7 @@ public class Gui extends Application {
         stage.setTitle("My App");
         stage.show();
 
-        stage.setTitle("FXML Welcome");
+        stage.setTitle("Key Vault Explorer");
         stage.setScene(scene);
         stage.show();
     }
