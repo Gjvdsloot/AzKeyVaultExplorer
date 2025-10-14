@@ -73,6 +73,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          tags: true
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -162,6 +165,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dmg
+
+      - name: Rename DMG to append experimental
+        run: |
+          for f in *.dmg; do
+            new_name="${f%.dmg}-experimental.dmg"
+            echo "Renaming $f -> $new_name"
+            mv "$f" "$new_name"
+          done
 
       - name: Download DEB
         uses: actions/download-artifact@v4
