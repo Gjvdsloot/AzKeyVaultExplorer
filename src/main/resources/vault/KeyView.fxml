@@ -36,8 +36,8 @@
             </graphic>
         </Button>
     </HBox>
-    <StackPane>
-        <TableView fx:id="keysTable" VBox.vgrow="ALWAYS">
+    <StackPane VBox.vgrow="ALWAYS">
+        <TableView fx:id="keysTable">
             <columns>
                 <TableColumn fx:id="nameColumn" prefWidth="150" text="Secret name"/>
                 <TableColumn fx:id="statusColumn" prefWidth="200" text="Status"/>

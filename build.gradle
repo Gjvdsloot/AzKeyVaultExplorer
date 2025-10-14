@@ -71,7 +71,7 @@ tasks.register('packageApp', Exec) {
     } else if (isLinux) {
         platformOptions += [
                 '--type', 'deb',
-                '--linux-shortcut' // optionally add
+                '--linux-shortcut'
         ]
     }
     def args = ['jpackage'] + mainOptions + platformOptions
@@ -90,7 +90,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // Azure SDK
-    implementation 'com.azure:azure-identity:1.16.2'
+    implementation 'com.azure:azure-identity:1.18.1'
     implementation 'com.azure:azure-security-keyvault-secrets:4.10.0'
     implementation 'com.azure:azure-security-keyvault-certificates:4.6.2'
     implementation 'com.azure:azure-security-keyvault-keys:4.6.2'

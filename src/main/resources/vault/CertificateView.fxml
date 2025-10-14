@@ -40,8 +40,8 @@
             </graphic>
         </Button>
     </HBox>
-    <StackPane>
-        <TableView fx:id="certsTable" VBox.vgrow="ALWAYS">
+    <StackPane VBox.vgrow="ALWAYS">
+        <TableView fx:id="certsTable">
             <columns>
                 <TableColumn fx:id="nameColumn" prefWidth="150" text="Secret name"/>
                 <TableColumn fx:id="thumbPrintColumn" prefWidth="200" text="Thumbprint"/>
