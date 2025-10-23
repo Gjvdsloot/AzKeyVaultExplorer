@@ -98,7 +98,7 @@ tasks.register('packageApp') {
             throw new GradleException("No ${ext} file found in ${outputDir}")
         }
 
-        def targetName = "${filename}-${version}-all.${ext}"
+        def targetName = "${filename}-${version}.${ext}"
         def targetFile = new File(outputDir, targetName)
         println "Renaming ${files[0].name} -> ${targetName}"
         files[0].renameTo(targetFile)
