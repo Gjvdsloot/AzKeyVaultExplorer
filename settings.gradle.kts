@@ -1,1 +1,1 @@
-rootProject.name = "SimpleKeyVault"
+rootProject.name = "Azure Key Vault Explorer"

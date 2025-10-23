@@ -11,9 +11,11 @@ plugins {
 
 group = 'com.gjvandersloot'
 
+def filename = 'AzKeyVaultExplorer'
+
 application {
     mainClass = 'com.gjvandersloot.Main'
-    applicationName = 'SimpleKeyVault'
+    applicationName = rootProject.name
 }
 
 repositories {
@@ -30,13 +32,15 @@ version = tag ? tag.replaceFirst("^v", "") : '1.0.0'
 println "Building version: ${version}"
 
 shadowJar {
+    archiveBaseName.set(filename)
     archiveClassifier.set("all")
     mergeServiceFiles()
 }
 
 var buildDirectory = getLayout().getBuildDirectory().get().asFile.path
 
-tasks.register('packageApp', Exec) {
+tasks.register('pkg', Exec) {
+    group = 'distribution'
     dependsOn(shadowJar)
 
     def os = OperatingSystem.current()
@@ -49,7 +53,7 @@ tasks.register('packageApp', Exec) {
                     "icons/icon.png"
 
     def mainOptions = ['--input', "${buildDirectory}/libs",
-                       '--main-jar', "${application.applicationName}-${version}-all.jar",
+                       '--main-jar', "${filename}-${version}-all.jar",
                        '--runtime-image', Jvm.current().javaHome.absolutePath,
                        '--dest', "$buildDirectory/out",
                        '--name', application.applicationName,
@@ -76,6 +80,30 @@ tasks.register('packageApp', Exec) {
     }
     def args = ['jpackage'] + mainOptions + platformOptions
     commandLine args as List<String>
+}
+
+tasks.register('packageApp') {
+    group = 'distribution'
+    description = 'Generates and renames the installer'
+    dependsOn('pkg')
+
+    doLast {
+        def os = OperatingSystem.current()
+        def ext = os.isWindows() ? 'msi' : os.isMacOsX() ? 'dmg' : 'deb'
+
+        def outputDir = file("$buildDirectory/out")
+        def files = outputDir.listFiles().toList()
+
+        if (files.isEmpty()) {
+            throw new GradleException("No ${ext} file found in ${outputDir}")
+        }
+
+        def targetName = "${filename}-${version}-all.${ext}"
+        def targetFile = new File(outputDir, targetName)
+        println "Renaming ${files[0].name} -> ${targetName}"
+        files[0].renameTo(targetFile)
+        println "Created: ${targetFile}"
+    }
 }
 
 
