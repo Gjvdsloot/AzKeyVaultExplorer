@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jar
-          path: build/libs/*-all.jar
+          path: build/libs/*.jar
 
   build-dmg:
     runs-on: macos-latest
@@ -166,6 +166,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jar
+
+      - name: Rename JAR
+        run: |
+          for f in *.jar; do
+            new_name="${f%.jar}-.dmg"
+            echo "Renaming $f -> $new_name"
+            mv "$f" "$new_name"
+          done
 
       - name: Download DMG
         uses: actions/download-artifact@v4

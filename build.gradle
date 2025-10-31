@@ -33,7 +33,7 @@ println "Building version: ${version}"
 
 shadowJar {
     archiveBaseName.set(filename)
-    archiveClassifier.set("all")
+    archiveClassifier.set("")
     mergeServiceFiles()
 }
 
@@ -53,7 +53,7 @@ tasks.register('pkg', Exec) {
                     "icons/icon.png"
 
     def mainOptions = ['--input', "${buildDirectory}/libs",
-                       '--main-jar', "${filename}-${version}-all.jar",
+                       '--main-jar', "${filename}-${version}.jar",
                        '--runtime-image', Jvm.current().javaHome.absolutePath,
                        '--dest', "$buildDirectory/out",
                        '--name', application.applicationName,
