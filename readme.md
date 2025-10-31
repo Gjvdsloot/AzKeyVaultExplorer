@@ -16,9 +16,9 @@ Browse, filter, and manage secrets and keys from your Azure Key Vaults through a
     - Client ID + Secret
     - Client ID + Certificate
 
-| ![img1](docs/impression.png) | ![img2](docs/settings.png) |
-|-----------------------------|--------------------------|
-| ![img3](docs/attached.png)  |                          |
+| <img src="docs/impression.png" width="400"/> | <img src="docs/settings.png" width="400"/> |
+|----------------------------------------------|--------------------------------------------|
+| <img src="docs/attached.png" width="400"/>   |                                            |
 
 ## 🚀 Getting Started
 
