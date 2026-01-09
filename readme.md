@@ -1,17 +1,17 @@
-# 🔐 Azure Key Vault Explorer
+# Azure Key Vault Explorer
 
 A lightweight **Azure Key Vault explorer** built with **JavaFX**, **Spring Boot**, and the **Azure SDK for Java**.  
 Browse, filter, and manage secrets and keys from your Azure Key Vaults through a simple desktop interface.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🗝️ **Explore** secrets, keys, and certificates stored in Azure Key Vault
-- 🔎 **Search and filter** by name or tag
-- 📋 **Copy** secret values or key metadata with a single click
-- 🔁 **Refresh** vault content dynamically
-- ⚙️ **Supports multiple authentication methods**
+- **Explore** secrets, keys, and certificates stored in Azure Key Vault
+- **Search and filter** by name or tag
+- **Copy** secret values or key metadata with a single click
+- **Refresh** vault content dynamically
+- **Supports multiple authentication methods**
     - Interactive login (Microsoft Entra ID)
     - Client ID + Secret
     - Client ID + Certificate
@@ -20,7 +20,7 @@ Browse, filter, and manage secrets and keys from your Azure Key Vaults through a
 |----------------------------------------------|--------------------------------------------|
 | <img src="docs/attached.png" width="400"/>   |                                            |
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Java 21 or later
